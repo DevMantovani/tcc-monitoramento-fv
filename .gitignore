@@ -1,0 +1,27 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+.venv/
+.env
+
+# Local data: never commit a raw operational dataset without checking its licence and privacy.
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Generated models, charts and run outputs
+artifacts/*
+!artifacts/.gitkeep
+
+# Editors and LaTeX auxiliary files
+.vscode/
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz

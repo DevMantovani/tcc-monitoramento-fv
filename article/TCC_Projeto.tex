@@ -1,0 +1,484 @@
+%==========================================================================
+% Exemplo de artigo cientifico UNESC
+%
+% v0.0 versão em 20/09/2023 por Marlon Oliveira
+% v1.0 versão em 25/06/2025 por Marlon Oliveira
+
+
+%==========================================================================
+
+%==========================================================================
+% Pacotes utilizados pela UNESC - não delete as linhas abaixo
+%==========================================================================
+\documentclass{UNESC}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}%\usepackage[latin1]{inputenc}
+\renewcommand{\rmdefault}{phv} % Arial
+\renewcommand{\sfdefault}{phv} % Arial
+\usepackage[brazilian]{babel}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+\usepackage{hyperref}
+\usepackage{quoting}
+\usepackage[labelsep=none]{caption}
+\DeclareCaptionLabelFormat{figuracomtraco}{#1~#2 -}
+\captionsetup[figure]{labelformat=figuracomtraco, labelsep=space}
+\captionsetup[table]{labelformat=simple, labelsep=space, textformat=simple}
+\DeclareCaptionLabelFormat{tabelacomtraco}{#1~#2 -}
+\captionsetup[table]{labelformat=tabelacomtraco}
+\captionsetup{labelsep=none}
+%\renewcommand{\thefigure}{\arabic{figure} - }
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{comment}
+\usepackage[hang,flushmargin]{footmisc}
+\usepackage{array}
+
+\hypersetup{
+  setpagesize  = false,
+  colorlinks   = true,    % Colours links instead of ugly boxes
+  urlcolor     = blue,    % Colour for external hyperlinks
+  linkcolor    = black,   % Colour of internal links
+  citecolor    = black    % Colour of citations
+}
+\urlstyle{same}
+\usepackage{setspace}
+
+\usepackage[alf,recuo=0.0cm,abnt-emphasize=bf]{abntex2cite} 
+
+%\captionsetup[figure]{justification=raggedright}
+
+
+%==========================================================================
+% Dados do artigo: título, autores e filiação
+%==========================================================================
+\title {MONITORAMENTO INTELIGENTE DE SUJIDADE:
+DETECÇÃO DE PERDAS POR SUJIDADE ATRAVÉS DO DESVIO ENTRE CURVAS DE POTÊNCIA REAL E TEÓRICA.}
+\author
+{
+   Matheus Luís Mantovani Passoni\footnote{Autor, Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil. matheus.mantovani28@gmail.com},
+   %Nome Completo do corientador(a)\footnote{Corientador(a), Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil. email@unesc.net}
+   Allan Farias Fávaro\footnote{Orientador(a), Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil. email@unesc.net}
+}
+%==========================================================================
+% Início do texto do artigo
+%==========================================================================
+\begin{document}
+
+\onehalfspacing
+
+\maketitle
+%\thispagestyle{fancy}
+%\vspace{6pt}
+
+%% Remover comentario apenas para TCC Final
+\begin{comment}
+\noindent
+\textbf{Resumo:} Deve ter uma sequência de frases concisas e objetivas em parágrafo único, sem enumeração de tópicos, de 100 a 250 palavras, seguido, logo abaixo, das palavras representativas do conteúdo do trabalho, isto é, palavras-chave e/ou descritores, conforme a \citeonline{ABNT2021}.
+
+\vspace{0.5em}
+\noindent
+\textbf{Palavras-chave:} Elemento obrigatório. Devem ser separadas entre si por ponto e vírgula e finalizadas por ponto, com as iniciais em letra minúscula, com exceção dos substantivos próprios e nomes científicos. 
+
+\vspace{1.0em}
+\noindent
+\textbf{ABSTRACT:} Tradução do resumo em língua vernácula para outro idioma de propagação internacional (em inglês ABSTRACT, em francês RESUMÉ, em espanhol RESUMEN).
+
+\vspace{0.5em}
+\noindent
+\textbf{Keywords:} keyword 1; keyword 2; keyword 3.
+
+\end{comment}
+
+\section{INTRODUÇÃO}
+
+A crescente demanda por fontes de energia renovável tem impulsionado o uso de sistemas fotovoltaicos como alternativa sustentável para geração de eletricidade. No Brasil, esse crescimento é expressivo: em 2023, a fonte solar correspondeu a 16,1\% da matriz elétrica do país. Desse total, a maior parte é proveniente de sistemas de geração distribuída e microgeração, com forte presença em residências e comércios \cite{Tramontin_Rampinelli_2024}. No entanto, diversos fatores ambientais influenciam diretamente o desempenho desses sistemas, destacando-se o acúmulo de poeira sobre os módulos solares, fenômeno conhecido como \textit{soiling}.
+
+O acúmulo de partículas na superfície dos painéis reduz a incidência de radiação solar, impactando negativamente a geração de energia \cite{Araujo_Marques}. Estudos apontam que, após fatores como irradiância e temperatura, o \textit{soiling} é um dos principais responsáveis pela perda de eficiência em sistemas fotovoltaicos \cite{Tramontin_Rampinelli_2024}, podendo causar reduções significativas no desempenho dependendo das condições ambientais e do tipo de material particulado \cite{john2016, jaszczur2020}. Avaliações práticas em instalações reais demonstram que, em períodos sem chuva de apenas 17 dias, a perda de eficiência de uma usina pode chegar a 16,52\%, resultando em uma redução de 11,71\% na eletricidade gerada \cite{Araujo_Marques}. Além disso, em ambientes urbanos ou industriais, compostos da sujeira podem amplificar essas perdas, que se tornam ainda mais severas em condições de baixa irradiância solar \cite{Tramontin_Rampinelli_2024}.
+
+Somado a isso, a variabilidade de fatores como localização geográfica, condições climáticas e composição da poeira torna a estimativa dessas perdas uma tarefa complexa \cite{Araujo_Marques}. Métodos tradicionais de análise ainda apresentam limitações, sendo frequentemente baseados em abordagens empíricas ou pouco precisas \cite{abuzaid2022}. No contexto da microgeração distribuída, essa limitação é ainda mais crítica, pois a manutenção e a limpeza dos módulos raramente seguem um rigor técnico, levando à subutilização crônica da capacidade instalada.
+
+Diante desse cenário, surge a necessidade de soluções computacionais capazes de monitorar e analisar o desempenho dos sistemas fotovoltaicos de forma inteligente. A comparação entre a potência real gerada e a potência teórica esperada se apresenta como uma abordagem promissora para identificação de desvios associados à perda de eficiência, uma vez que anomalias na curva de operação elétrica são assinaturas claras de problemas de funcionamento \cite{Araujo_Marques}.
+
+Nesse contexto, este trabalho propõe uma solução baseada no monitoramento inteligente da eficiência de sistemas fotovoltaicos, focada na detecção de perdas causadas por \textit{soiling} por meio da análise do desvio entre as curvas de potência real e teórica. Para implementar e validar essa abordagem, será utilizada uma ferramenta computacional capaz de analisar os dados de operação do sistema, comparando a energia efetivamente gerada com os modelos de capacidade esperada. A avaliação contínua desse desvio de desempenho tem se mostrado uma metodologia altamente eficaz na literatura recente para isolar e quantificar o impacto da sujidade com precisão \cite{Tramontin_Rampinelli_2024}. Ao analisar o desempenho teórico em contrapartida ao real, a solução proposta fornecerá diagnósticos automatizados, substituindo estimativas imprecisas por um modelo embasado que auxiliará na tomada de decisão para a limpeza otimizada dos painéis, mitigando as perdas operacionais na geração distribuída.
+
+\section{Objetivo Geral}
+
+Propor um método para monitoramento da eficiência de sistemas fotovoltaicos, com foco na identificação de perdas de desempenho por sujidade a partir da análise do desvio entre potência real e teórica.
+
+\subsection{Objetivos Específicos}
+
+\begin{itemize}
+
+\item Coletar e pré-processar os dados operacionais de sistemas fotovoltaicos, estruturando a base necessária para a comparação analítica;
+
+\item Analisar dados reais de geração de energia para avaliar o comportamento operacional e detectar perdas de desempenho;
+
+\item Identificar padrões de desvio entre as curvas de potência real e teórica que sejam associados ao acúmulo de poeira;
+
+\item Desenvolver um sistema computacional para automatizar o monitoramento e a detecção de anomalias na eficiência;
+
+\item Validar a solução proposta por meio de testes computacionais, confrontando os diagnósticos do sistema com o histórico real de operação.
+
+\end{itemize}
+
+\section{Justificativa}
+
+A eficiência dos sistemas fotovoltaicos é um fator crítico para a viabilidade econômica e operacional da geração de energia solar. Entre os diversos fatores que impactam essa eficiência, o acúmulo de poeira se destaca como um dos principais responsáveis pela degradação do desempenho dos painéis, resultando em perdas expressivas de energia ao longo do tempo \cite{abuzaid2022, Araujo_Marques}. A quantificação exata dessa perda de potência é fundamental, pois o soiling não apenas reduz a geração diária, mas altera os parâmetros elétricos de operação do módulo, diminuindo a corrente gerada e comprometendo a rentabilidade projetada para o sistema \cite{Araujo_Marques}.
+
+A literatura aponta que a análise do impacto do soiling é complexa devido à influência de múltiplos fatores ambientais, como temperatura, umidade, vento e as propriedades físicas e químicas do material particulado, além da interação entre esses elementos \cite{abuzaid2022, jaszczur2020, john2016}. Mais do que o simples bloqueio da radiação, é imperativo monitorar esse acúmulo porque a deposição desigual de sujeira pode provocar o superaquecimento localizado das células fotovoltaicas, fenômeno que acelera a degradação física dos componentes e eleva o risco de falhas irreversíveis no sistema \cite{jaszczur2020}. Isso evidencia a necessidade crítica de abordagens mais robustas e automatizadas para o monitoramento contínuo da eficiência.
+
+Do ponto de vista computacional, há uma lacuna na aplicação de soluções inteligentes capazes de identificar, de forma automatizada, as perdas de desempenho estritamente associadas ao acúmulo de sujeira, visto que muitas manutenções ainda dependem de cronogramas fixos ou inspeções visuais empíricas \cite{Tramontin_Rampinelli_2024}. É neste cenário que se consolida a relevância científica desta pesquisa: o estudo propõe a formulação de um método computacional capaz de isolar a variável de sujidade em meio a dados operacionais multivariados. Ao fundamentar a detecção de anomalias na análise sistemática do desvio entre as curvas de potência real e teórica, o trabalho contribui para o avanço da literatura ao transformar a avaliação de um fenômeno físico e complexo em uma modelagem analítica rigorosa e orientada a dados.
+
+Além disso, do ponto de vista de aplicação prática, a utilização de tais abordagens computacionais auxiliará diretamente na otimização de estratégias de manutenção. Ao verificar a perda de potência por sujidade com precisão, torna-se possível identificar o ponto de equilíbrio econômico entre o custo da limpeza física dos módulos e o prejuízo financeiro causado pela energia não gerada \cite{Araujo_Marques}. Dessa forma, a solução proposta fornece um diagnóstico preciso do sistema, reduzindo custos operacionais desnecessários e maximizando a eficiência energética das instalações.
+%% Esta seção deve ser comentada para a Proposta de Pesquisa e para o TCC Final
+
+\section{Estrutura do Trabalho}
+
+Este documento está organizado em sete seções principais, estruturadas da seguinte forma:
+
+\begin{itemize}
+    \item \textbf{Seção 1 - Introdução:} Apresenta a contextualização do tema e o problema de pesquisa envolvendo as perdas de eficiência por sujidade em sistemas fotovoltaicos.
+    \item \textbf{Seção 2 - Objetivos:} Define o objetivo geral e os objetivos específicos que norteiam o desenvolvimento metodológico e prático da solução.
+    \item \textbf{Seção 3 - Justificativa:} Demonstra a relevância econômica, operacional e científica do desenvolvimento deste método analítico para a Ciência da Computação.
+    \item \textbf{Seção 4 - Estrutura do Trabalho:} Apresenta a organização lógica e a descrição das seções que compõem este documento.
+    \item \textbf{Seção 5 - Fundamentação Teórica:} Aborda os conceitos sobre dados operacionais fotovoltaicos, a formulação matemática da potência teórica, o tratamento de séries temporais e a detecção de anomalias por cálculo de resíduos.
+    \item \textbf{Seção 6 - Trabalhos Correlatos:} Realiza uma revisão crítica de pesquisas recentes sobre detecção de perdas solares, posicionando a originalidade desta pesquisa frente ao estado da arte.
+    \item \textbf{Seção 7 - Trabalho Proposto:} Detalha o planejamento prático para o próximo semestre, descrevendo a metodologia de desenvolvimento, os recursos tecnológicos necessários e o cronograma de atividades.
+\end{itemize}
+
+\section{FUNDAMENTAÇÃO TEÓRICA}
+
+Este capítulo apresenta os conceitos teóricos, computacionais e as formulações matemáticas fundamentais que sustentam o desenvolvimento do sistema de monitoramento. O foco inicia-se na contextualização da geração solar fotovoltaica e, em seguida, concentra-se na estrutura dos dados operacionais, no modelo de estimativa de potência teórica que servirá de linha de base e nas técnicas de tratamento de séries temporais para a detecção de anomalias.
+
+% =========================================================
+\subsection{Energia Solar Fotovoltaica e Geração Distribuída}
+% =========================================================
+
+A energia solar fotovoltaica baseia-se na conversão direta da radiação
+solar em energia elétrica por meio do efeito fotovoltaico, que ocorre no
+interior de células semicondutoras. Devido à sua natureza modular,
+sustentável e aos incentivos regulatórios, essa tecnologia tem
+experimentado um crescimento exponencial globalmente, impulsionado
+sobretudo pelas políticas de Geração Distribuída (GD) \cite{pinho2014manual}.
+
+A Geração Distribuída caracteriza-se pela instalação de geradores
+elétricos próximos ou nos próprios locais de consumo. No Brasil, o marco
+regulatório estabelecido pela Agência Nacional de Energia Elétrica
+(ANEEL) classifica como microgeração distribuída as centrais geradoras
+com potência instalada de até 75 kW \cite{aneel2022}. Esse modelo
+descentralizado popularizou o acesso à energia solar em residências e
+pequenos comércios, transformando a dinâmica tradicional do setor
+elétrico ao transformar consumidores comuns em prossumidores, que geram
+e gerenciam a sua própria demanda energética.
+
+A inserção massiva da microgeração fotovoltaica desempenha um papel
+estratégico e traz benefícios sistêmicos para o Sistema Interligado
+Nacional (SIN). Ao gerar eletricidade de forma descentralizada e
+diretamente junto à carga de consumo, diminui-se a necessidade de
+transportar grandes blocos de energia por longas distâncias, reduzindo
+as perdas técnicas associadas às linhas de transmissão e distribuição.
+Esse efeito é reforçado pelo fato de o perfil de geração solar coincidir,
+em boa parte, com o período de maior atividade comercial e industrial,
+contribuindo para amenizar o carregamento da rede elétrica durante o dia
+\cite{pinho2014manual}.
+
+Sob a perspectiva da segurança e estabilidade energética brasileira, a
+expansão da fonte solar atua como um importante vetor de diversificação
+da matriz elétrica. Essa complementaridade mitiga a dependência histórica
+do regime hidrológico e das bacias hidrográficas, reduzindo a necessidade
+de acionamento de usinas termelétricas fósseis emergenciais, que possuem
+alto custo operacional e elevado impacto ambiental, durante períodos
+prolongados de escassez hídrica e estiagem \cite{pinho2014manual}.
+
+Contudo, ao contrário das grandes usinas centralizadas que contam com
+equipes profissionais e sistemas de supervisão contínua, os sistemas de
+microgeração distribuída frequentemente carecem de rotinas rigorosas de
+operação e manutenção (O\&M) \cite{ilse2019, Tramontin_Rampinelli_2024}.
+Essa falta de acompanhamento técnico torna as instalações residenciais e
+comerciais altamente suscetíveis a perdas crônicas de eficiência que
+passam inteiramente despercebidas pelos proprietários
+\cite{kalimeris2023data}, comprometendo não apenas o retorno financeiro
+individual do investimento, mas também mitigando a eficiência do
+potencial gerador descentralizado que apoia a rede elétrica nacional.
+
+A eficiência da geração fotovoltaica não é estática e sofre influência
+direta de uma série de fatores ambientais e operacionais.
+\citeonline{villalva2015energia} destacam que a produção de energia é
+primariamente ditada pela irradiância solar disponível no local e
+limitada negativamente pelo aumento da temperatura de operação das
+células. Além das variáveis climáticas intrínsecas, fatores externos
+físicos como sombreamentos parciais causados por obstáculos, erros de
+inclinação na instalação e o acúmulo progressivo de sujidade
+(\textit{soiling}) sobre os módulos impactam severamente o rendimento do
+sistema \cite{pinho2014manual}.
+
+Compreender a dinâmica desses fatores é o primeiro passo para garantir a
+viabilidade econômica do sistema. Para identificar qual desses fatores
+está causando perdas na microgeração, faz-se necessária a análise
+contínua das informações operacionais geradas pelos próprios equipamentos.
+
+% =========================================================
+\subsection{Dados Operacionais Fotovoltaicos e o Impacto do Soiling}
+% =========================================================
+
+
+\citeonline{bessa2021}, em revisão abrangente sobre estratégias de
+monitoramento de sujidade em sistemas fotovoltaicos, ressaltam que esses
+sistemas modernos geram fluxos contínuos de dados operacionais por meio
+dos inversores e de sensores ambientais acoplados. Para o desenvolvimento
+de um software de monitoramento analítico, \citeonline{fernandez2022estimation} demonstram que três variáveis principais são suficientes para
+caracterizar o comportamento elétrico do sistema e identificar desvios
+de desempenho:
+
+\begin{itemize}
+    \item \textbf{Potência Real ($P_{real}$):} A quantidade de energia
+    elétrica efetivamente gerada pelo sistema e registrada pelo inversor em
+    um determinado instante;
+
+    \item \textbf{Irradiância Solar ($G$):} A intensidade da radiação solar
+    que atinge os módulos, medida em Watts por metro quadrado
+    ($\text{W/m}^2$);
+
+    \item \textbf{Temperatura do Módulo ($T_m$):} A temperatura na superfície
+    das células fotovoltaicas, medida em graus Celsius ($^\circ\text{C}$).
+\end{itemize}
+
+O acúmulo de poeira e resíduos na superfície dos painéis, denominado
+\textit{soiling}, atua bloqueando parte da radiação solar antes que ela
+chegue às células de silício, reduzindo a eficiência global do sistema
+\cite{abuzaid2022}. Em escala global, o relatório técnico da Agência
+Internacional de Energia estima que o \textit{soiling} tenha causado, em
+2018, uma redução de pelo menos 3 a 4\% da produção anual de energia
+fotovoltaica, correspondendo a perdas econômicas anuais de três a cinco
+bilhões de euros \cite{iea_pvps2022}. Além da perda energética, o acúmulo
+desigual de sujeira pode gerar pontos de superaquecimento localizado,
+conhecidos como \textit{hotspots}, que danificam fisicamente as células e
+aceleram a degradação dos materiais encapsulantes \cite{jaszczur2020}.
+
+A análise do impacto do \textit{soiling} é complexificada pela influência
+simultânea de múltiplos parâmetros ambientais, como temperatura, umidade,
+velocidade do vento e as propriedades físico-químicas do material
+particulado depositado, cujos efeitos variam conforme a localização
+geográfica e o tipo de instalação \cite{borah2023}. Do ponto de vista
+da análise de dados, o \textit{soiling} possui uma assinatura temporal
+muito específica: ele não causa quedas abruptas de energia, mas sim um
+decaimento suave, gradual e cumulativo do desempenho ao longo das semanas
+\cite{Tramontin_Rampinelli_2024}. O papel do algoritmo é mapear esse
+comportamento diretamente nos logs numéricos.
+
+% =========================================================
+\subsection{Formulação Matemática da Potência Teórica}
+% =========================================================
+
+Para identificar se o sistema está operando abaixo de sua capacidade
+devido à sujeira, o software precisa calcular uma linha de base ideal,
+que representa a potência teórica ($P_{teo}$) que a usina deveria produzir
+se estivesse totalmente limpa \cite{fernandez2022estimation}. Essa estimativa
+é calculada instantaneamente pelo algoritmo através da seguinte equação:
+
+\begin{equation}
+    P_{teo}(t) = P_{nom} \cdot \left( \frac{G(t)}{G_{ref}} \right) \cdot
+    \left[ 1 + \gamma \cdot \left( T_m(t) - T_{ref} \right) \right]
+\end{equation}
+
+Onde:
+\begin{itemize}
+    \item $P_{teo}(t)$ é a potência teórica calculada para o instante $t$;
+    \item $P_{nom}$ é a potência máxima do arranjo fotovoltaico em condições
+    ideais de fábrica;
+    \item $G(t)$ é a irradiância solar medida no instante $t$;
+    \item $G_{ref}$ é a irradiância padrão de referência
+    ($1000\text{ W/m}^2$);
+    \item $\gamma$ é o coeficiente de perda por temperatura fornecido pelo
+    fabricante;
+    \item $T_m(t)$ é a temperatura do módulo medida no instante $t$;
+    \item $T_{ref}$ é a temperatura padrão de referência ($25^\circ\text{C}$).
+\end{itemize}
+
+Essa formulação segue as diretrizes da norma internacional IEC 60891:2021 \cite{iec60891_2021}, que define os procedimentos de
+correção por temperatura e irradiância para dispositivos fotovoltaicos,
+estabelecendo $G_{ref} = 1000\ \text{W/m}^2$ e $T_{ref} = 25^\circ\text{C}$
+como as Condições Padrão de Teste (STC, do inglês
+\textit{Standard Test Conditions}). A equação funciona como um modelo
+determinístico dentro do código, transformando as condições climáticas
+atuais em um valor de potência esperada. Caso haja cenários de escassez
+de dados onde variáveis como a irradiância ou a temperatura não estejam
+presentes no banco de dados fornecido, o pipeline do software pode ser
+adaptado. A ausência do sensor de temperatura pode ser contornada
+simplificando a equação para uma proporção direta da radiação solar,
+enquanto a falta de sensores de irradiância locais pode ser suprida pelo
+consumo de dados de modelos computacionais de estimativa climática ou
+pela integração com APIs meteorológicas públicas.
+
+% =========================================================
+\subsection{Pré-Processamento de Séries Temporais}
+% =========================================================
+
+Os logs extraídos diretamente de inversores contêm ruídos, leituras
+inválidas e inconsistências causadas por falhas de comunicação ou
+sombreamentos parciais \cite{livera2021}. Antes de aplicar qualquer
+lógica de comparação, o pipeline do software precisa submeter os dados
+brutos a rotinas de tratamento e limpeza:
+
+\begin{enumerate}
+    \item \textbf{Filtragem Noturna:} Eliminação de registros
+    correspondentes aos períodos da noite e do amanhecer/anoitecer nos
+    quais a irradiância solar é nula ou excessivamente baixa, evitando
+    divisões por zero ou distorções nos cálculos de eficiência. Conforme
+    especificado pela norma IEC~61724-1:2021 \cite{iec61724_2021},
+    adota-se como limiar mínimo uma irradiância de $20\ \text{W/m}^2$
+    no plano do módulo para a distinção entre registros diurnos e
+    noturnos válidos;
+
+    \item \textbf{Tratamento de Dados Faltantes:} Tratamento de lacunas
+    causadas por quedas de conexão do inversor, aplicando o descarte
+    direcionado de registros incompletos para preservar a ordem cronológica
+    da série temporal \cite{livera2021};
+
+    \item \textbf{Remoção de Outliers:} Identificação e exclusão de picos
+    de leitura gerados por erros de sensoriamento, utilizando limites
+    estatísticos baseados no desvio padrão ou no intervalo interquartil
+    (IQR) \cite{livera2021}.
+\end{enumerate}
+
+% =========================================================
+\subsection{Detecção de Anomalias através do Cálculo de Resíduos}
+% =========================================================
+
+A detecção automatizada da perda de eficiência ocorre por meio do cálculo
+do resíduo operacional, que consiste na subtração direta entre o
+comportamento ideal simulado pelo software e o comportamento real medido
+em campo \cite{lazzaretti2020monitoring}. A equação do resíduo é
+definida por:
+
+\begin{equation}
+    \text{Residuo}(t) = P_{teo}(t) - P_{real}(t)
+\end{equation}
+
+Devido à alta volatilidade das condições climáticas, como a passagem
+rápida de nuvens que causa quedas repentinas e momentâneas de geração,
+a análise do resíduo de forma isolada em um único instante geraria
+falsos alertas de falha \cite{debenedetti2018}.
+
+Para isolar o efeito cumulativo e lento do \textit{soiling}, o algoritmo
+irá aplicar uma técnica de suavização estatística chamada Média Móvel
+Simples (SMA, do inglês \textit{Simple Moving Average}) sobre os resíduos
+calculados. Ao analisar o comportamento médio dos desvios ao longo de
+janelas temporais mais amplas, as oscilações diárias do clima são
+atenuadas, restando apenas a tendência linear de perda de desempenho
+provocada pelo acúmulo de sujeira \cite{kalimeris2023data, debenedetti2018}.
+Essa diferença acumulada e tratada fornece a métrica exata da energia
+não gerada, viabilizando o cálculo do ponto de equilíbrio econômico
+para a tomada de decisão sobre a manutenção \cite{ilse2019}.
+
+\section{TRABALHOS CORRELATOS}
+
+%% Remover comentario abaixo para o Projeto Inovador II
+%\section{MATERIAIS E MÉTODOS}
+
+
+
+A literatura recente apresenta diversas abordagens para o monitoramento de sistemas fotovoltaicos, focando tanto na identificação de falhas elétricas quanto na quantificação das perdas causadas pelo acúmulo de poeira (\textit{soiling}). Esta seção analisa os principais trabalhos correlatos, destacando suas metodologias e as lacunas que motivam a solução computacional proposta neste estudo.
+
+\citeonline{fernandez2022estimation} investigaram a viabilidade de estimar as perdas por sujidade a partir de dados de desempenho elétrico, sem a necessidade de instalar sensores físicos de sujeira. Os autores avaliaram cinco métodos analíticos distintos sob condições reais, utilizando dados meteorológicos e as especificações dos fabricantes para modelar a curva de potência do painel limpo. A pesquisa demonstrou que modelos analíticos são muito precisos para calcular o impacto da poeira. Contudo, o enfoque do trabalho é estritamente físico e elétrico, focando apenas em validar fórmulas matemáticas para diferentes tecnologias de painéis, sem avançar na construção de um sistema de software para apoio à decisão.
+
+Em contrapartida às abordagens analíticas, \citeonline{kalimeris2023data} propuseram uma metodologia puramente guiada por dados (\textit{data-driven}) para estimar a taxa de sujidade. O trabalho foca no treinamento de algoritmos de regressão aplicados apenas às séries temporais registradas logo após eventos de chuva ou lavagem, quando os módulos estão limpos. Embora essa ideia elimine a necessidade de dados técnicos do fabricante, sua aplicação requer um volume extenso e detalhado de registros históricos sobre manutenções e precipitações. Em cenários de microgeração distribuída, nos quais o registro sistemático desses eventos raramente está disponível, a viabilidade de implantação de modelos puramente guiados por dados apresenta restrições práticas, o que motiva a busca por abordagens com menor dependência de longas séries históricas de calibração.
+
+A utilização de modelos matemáticos para detectar falhas também foi explorada por \citeonline{lazzaretti2020monitoring}. Os autores desenvolveram um sistema de monitoramento em tempo real baseado em modelagem dinâmica. O sistema calcula de forma contínua o "resíduo", que é exatamente a diferença entre a potência real medida e a estimativa produzida pelo modelo. Se esse desvio for muito grande, o sistema gera um alerta. No entanto, o foco de \citeonline{lazzaretti2020monitoring} está apenas em eventos elétricos repentinos e graves, como curtos-circuitos no inversor. O estudo não propõe uma forma de analisar a degradação lenta e cumulativa gerada pela poeira.
+
+Mais recentemente, \citeonline{salazar2024ai} apresentaram uma solução computacional que combina a biblioteca \textit{PVlib} em Python com Redes Neurais Artificiais (RNA) para avaliar o desempenho e detectar falhas. O sistema processa variáveis climáticas e dados de operação para entender o comportamento normal da usina. Apesar de mostrar um avanço na automação, o uso de inteligência artificial baseada em \textit{deep learning} traz uma grande complexidade computacional e exige muitos dados de treinamento, o que foge da realidade e das necessidades de sistemas menores de geração distribuída.
+
+Observando os trabalhos anteriores, fica clara a necessidade do desenvolvimento desta pesquisa. Enquanto a literatura atual foca apenas na teoria elétrica \cite{fernandez2022estimation}, depende de longos históricos de dados \cite{kalimeris2023data} ou utiliza redes neurais complexas para achar falhas repentinas \cite{salazar2024ai, lazzaretti2020monitoring}, o presente trabalho busca um meio-termo prático. A solução proposta une o cálculo confiável da potência teórica com a automação computacional, analisando continuamente a diferença entre a curva real e a esperada. O objetivo é isolar e identificar especificamente a perda gradual causada pela sujeira. Dessa forma, o sistema fornece um diagnóstico claro que ajuda o usuário a encontrar o ponto de equilíbrio econômico para contratar a limpeza dos módulos.
+
+
+\section{TRABALHO PROPOSTO}
+Esta seção descreve de forma detalhada o planejamento e as etapas que serão executadas para o desenvolvimento da pesquisa. É apresentada a metodologia adotada para a resolução do problema, os recursos de hardware e software necessários para a construção da solução e o cronograma de atividades previsto para a conclusão do trabalho.
+
+\subsection{METODOLOGIA}
+
+Do ponto de vista de sua natureza, esta pesquisa classifica-se como aplicada, pois objetiva gerar conhecimentos para aplicação prática dirigidos à solução de um problema específico: a falta de precisão na detecção de perdas por \textit{soiling} na geração distribuída. Em relação à abordagem do problema, trata-se de uma pesquisa quantitativa, fundamentada na coleta e no processamento matemático de dados operacionais.
+
+Para atingir o objetivo geral proposto, o desenvolvimento metodológico será dividido nas seguintes etapas sequenciais:
+
+\begin{itemize}
+    \item \textbf{Coleta de Dados:} A base de dados será composta por registros históricos operacionais de sistemas fotovoltaicos. Serão extraídas as variáveis de potência ativa gerada (dados reais extraídos dos inversores) e variáveis meteorológicas locais.
+    \item \textbf{Pré-processamento e Limpeza dos Dados:} Os dados brutos passarão por uma etapa de tratamento, incluindo a normalização, tratamento de valores nulos e a filtragem de discrepâncias (\textit{outliers}) para garantir a integridade da análise temporal.
+    \item \textbf{Modelagem da Curva de Potência Teórica:} Utilizando os dados ambientais e as especificações técnicas do painel solar, será implementado um modelo matemático para calcular a potência teórica esperada em condições ideais de limpeza.
+    \item \textbf{Análise de Desvio e Identificação de Anomalias:} Será desenvolvido um algoritmo analítico para calcular o desvio percentual e absoluto entre a curva teórica (esperada) e a curva real (medida), isolando as quedas de desempenho graduais características do acúmulo de poeira.
+    \item \textbf{Desenvolvimento da Ferramenta Computacional:} Toda a lógica matemática será unificada em um sistema computacional que receberá os dados brutos e fornecerá o diagnóstico da perda de eficiência.
+    \item \textbf{Validação do Modelo:} A eficácia do sistema será validada confrontando os resultados analíticos com históricos reais de operação e eventos de limpeza documentados.
+\end{itemize}
+
+\subsection{RECURSOS NECESSÁRIOS}
+
+Para a execução deste trabalho, serão utilizados os seguintes recursos materiais (hardware e software):
+
+\begin{enumerate}
+    \item \textbf{Hardware}
+    \begin{itemize}
+        \item Computador pessoal (Notebook) para desenvolvimento, processamento da base de dados e redação do documento final.
+    \end{itemize}
+    \item \textbf{Software}
+    \begin{itemize}
+        \item \textbf{Linguagem de Programação:} Python, para a manipulação de dados e cálculos numéricos.
+        \item \textbf{Bibliotecas:} Pandas, NumPy e Matplotlib/Seaborn para análise e visualização gráfica.
+        \item \textbf{Ambiente de Desenvolvimento (IDE):} Visual Studio Code (VS Code) ou Jupyter Notebook.
+        \item \textbf{Controle de Versão:} Git e GitHub.
+    \end{itemize}
+\end{enumerate}
+
+Todos os recursos estão disponibilizados em ferramentas gratuitas encontradas na internet e/ou nos laboratórios de Ciência da Computação da UNESC e recursos próprios do acadêmico.
+
+\subsection{CRONOGRAMA}
+
+O cronograma de atividades foi estruturado para garantir o cumprimento de todas as etapas metodológicas planejadas e a elaboração do documento final dentro do semestre letivo de execução do Trabalho de Conclusão de Curso.
+
+\renewcommand{\tablename}{Quadro} % muda "Tabela" para "Quadro"  
+\setcounter{table}{0} % reinicia a numeração 
+
+\begin{table}[H]
+\centering
+\caption{Cronograma do projeto de pesquisa}
+\vspace{-0.2cm} 
+\begin{tabular}{|p{8cm}|c|c|c|c|c|} \hline
+\multicolumn{6}{|c|}{\textbf{Cronograma de Trabalho de Conclusão de Curso}}\\
+\hline
+& \multicolumn{5}{|c|}{2º Semestre}\\
+\hline\hline
+\textbf{Etapas} &Ago &Set &Out &Nov &Dez\\
+\hline
+Revisão Bibliográfica e Trabalhos Correlatos &X &X & & &\\
+\hline
+Coleta e pré-processamento da base de dados & &X &X & &\\
+\hline
+Modelagem e algoritmo de análise de desvio & & &X &X &\\
+\hline
+Desenvolvimento do sistema e testes do modelo & & & &X &X\\
+\hline
+Redação TCC Final &X &X &X &X &X\\
+\hline
+Elaboração da apresentação para defesa pública & & & & &X\\
+\hline
+\end{tabular}
+\flushleft
+\vspace{-0.1cm} 
+\hspace{0cm}\footnotesize Fonte: Do autor.
+\end{table}
+
+\section*{Declaração de Uso de Inteligência Artificial}
+Os autores declaram que ferramentas de Inteligência Artificial generativa foram utilizadas exclusivamente como apoio auxiliar à elaboração deste trabalho, incluindo assistência na revisão linguística, estruturação textual e organização de ideias. Nenhuma ferramenta de IA foi utilizada para substituição da autoria intelectual, análise científica, interpretação dos resultados ou tomada de decisões acadêmicas. A responsabilidade integral pelo conteúdo, originalidade, veracidade das informações e conformidade com os princípios de integridade científica permanece integralmente atribuída aos autores.
+
+
+
+
+
+\bibliographystyle{abntex2-unesc}
+\renewcommand{\refname}{REFERÊNCIAS}
+\bibliography{referencias} % arquivo referencias.bib que contém as referências bibliográficas utilizadas no artigo
+
+%\include{apendice_a}
+%\include{anexo_a}
+
+\end{document} 
+

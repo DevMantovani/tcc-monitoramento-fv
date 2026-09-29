@@ -1,0 +1,197 @@
+%==========================================================================
+% Exemplo de artigo cientifico UNESC
+%
+% v0.0 versão em 20/09/2023 por Marlon Oliveira
+% v1.0 versão em 25/06/2025 por Marlon Oliveira
+
+
+%==========================================================================
+
+%==========================================================================
+% Pacotes utilizados pela UNESC - não delete as linhas abaixo
+%==========================================================================
+\documentclass{UNESC}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}%\usepackage[latin1]{inputenc}
+\renewcommand{\rmdefault}{phv} % Arial
+\renewcommand{\sfdefault}{phv} % Arial
+\usepackage[brazilian]{babel}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+\usepackage{hyperref}
+\usepackage{quoting}
+\usepackage[labelsep=none]{caption}
+\DeclareCaptionLabelFormat{figuracomtraco}{#1~#2 -}
+\captionsetup[figure]{labelformat=figuracomtraco, labelsep=space}
+\captionsetup[table]{labelformat=simple, labelsep=space, textformat=simple}
+\DeclareCaptionLabelFormat{tabelacomtraco}{#1~#2 -}
+\captionsetup[table]{labelformat=tabelacomtraco}
+\captionsetup{labelsep=none}
+%\renewcommand{\thefigure}{\arabic{figure} - }
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{comment}
+\usepackage[hang,flushmargin]{footmisc}
+\usepackage{array}
+
+\hypersetup{
+  setpagesize  = false,
+  colorlinks   = true,    % Colours links instead of ugly boxes
+  urlcolor     = blue,    % Colour for external hyperlinks
+  linkcolor    = black,   % Colour of internal links
+  citecolor    = black    % Colour of citations
+}
+\urlstyle{same}
+\usepackage{setspace}
+
+\usepackage[alf,recuo=0.0cm,abnt-emphasize=bf]{abntex2cite} 
+
+%\captionsetup[figure]{justification=raggedright}
+
+
+%==========================================================================
+% Dados do artigo: título, autores e filiação
+%==========================================================================
+\title{TÍTULO DO ARTIGO CIENTÍFICO: SUBTÍTULO (SE HOUVER)}
+\author
+{
+   Nome Completo do Autor\footnote{Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil. email@unesc.net},
+   %Nome Completo do corientador(a)\footnote{Corientador(a), Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil. email@unesc.net}
+   Nome Completo do Orientador\footnote{Orientador(a), Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil. email@unesc.net}
+}
+%==========================================================================
+% Início do texto do artigo
+%==========================================================================
+\begin{document}
+
+\onehalfspacing
+
+\maketitle
+
+\noindent
+\textbf{Resumo:} Deve ter uma sequência de frases concisas e objetivas em parágrafo único, sem enumeração de tópicos, de 100 a 250 palavras, seguido, logo abaixo, das palavras representativas do conteúdo do trabalho, isto é, palavras-chave e/ou descritores, conforme a \citeonline{ABNT2021}.
+
+\vspace{0.5em}
+\noindent
+\textbf{Palavras-chave:} Elemento obrigatório. Devem ser separadas entre si por ponto e vírgula e finalizadas por ponto, com as iniciais em letra minúscula, com exceção dos substantivos próprios e nomes científicos. 
+
+\vspace{1.0em}
+\noindent
+\textbf{ABSTRACT:} Tradução do resumo em língua vernácula para outro idioma de propagação internacional (em inglês ABSTRACT, em francês RESUMÉ, em espanhol RESUMEN).
+
+\vspace{0.5em}
+\noindent
+\textbf{Keywords:} keyword 1; keyword 2; keyword 3.
+
+
+\section{INTRODUÇÃO}
+A crescente demanda global por fontes de energia renovável tem impulsionado massivamente o uso de sistemas fotovoltaicos como a principal alternativa sustentável para a geração de eletricidade. No cenário brasileiro, esse crescimento apresenta expressiva relevância técnica e econômica, com forte presença nos modelos de geração distribuída e microgeração instalados em residências e centros comerciais (TRAMONTIN; RAMPINELLI, 2024). Essa popularização descentralizou a produção de energia, transformando consumidores em prossumidores. No entanto, o desempenho operacional contínuo desses sistemas de microgeração é severamente influenciado por variáveis ambientais e carece de rotinas técnicas de manutenção, destacando-se o impacto negativo causado pelo acúmulo de poeira e detritos sobre os módulos solares, um fenômeno físico e ambiental conhecido na literatura como soiling.
+
+O acúmulo de partículas na superfície dos painéis atua como uma barreira física que reduz a incidência direta da radiação solar nas células de silício, impactando de forma progressiva e silenciosa a geração de energia. Estudos recentes apontam que, após variáveis incontroláveis como irradiância e temperatura, o soiling consolida-se como um dos principais responsáveis pela perda de eficiência em sistemas fotovoltaicos (TRAMONTIN; RAMPINELLI, 2024). Avaliações práticas em instalações reais demonstram que, em períodos sem precipitação pluviométrica de apenas 17 dias, a degradação de eficiência de uma usina pode superar a marca de 16\% (ARAÚJO; CARVALHO; DUPONT, 2019). Além do expressivo prejuízo energético, a deposição desigual da sujeira pode provocar pontos de superaquecimento localizado (hotspots), fenômeno anômalo que acelera a degradação dos materiais encapsulantes e eleva substancialmente o risco de falhas irreversíveis no arranjo fotovoltaico (JASZCZUR et al., 2020).
+
+A estimativa exata dessas perdas, contudo, é uma tarefa altamente complexa, dado que o impacto do soiling é mascarado pela volatilidade das condições climáticas diárias (ABUZAID; AWAD; SHAMAYLEH, 2022). Identifica-se, portanto, uma lacuna (gap) limitante no setor de microgeração: a manutenção e a limpeza dos módulos raramente seguem um rigor técnico-analítico, dependendo quase exclusivamente de cronogramas fixos temporais ou inspeções visuais empíricas. Diante dessa problemática, formula-se a seguinte questão norteadora para esta pesquisa: de que forma a aplicação de técnicas de Inteligência Artificial pode automatizar e otimizar a detecção de perdas de desempenho por sujidade em sistemas de microgeração fotovoltaica?
+
+A hipótese formulada neste estudo é a de que a utilização de modelos de Aprendizado de Máquina (Machine Learning), ao analisar o comportamento histórico multivariado de clima e geração, é capaz de prever uma curva de potência teórica ideal com alta precisão, permitindo que o cálculo do resíduo (desvio entre o real e o teórico) isole a variável de sujidade e alerte o usuário sobre a necessidade de limpeza antes que as perdas financeiras se agravem.
+
+A justificativa para o desenvolvimento desta pesquisa fundamenta-se em bases operacionais, econômicas e científicas. Do ponto de vista acadêmico, o trabalho inova ao transpor a detecção de anomalias solares de formulações matemáticas estáticas para modelos preditivos guiados por dados. Em um viés prático e econômico, o desenvolvimento desta solução inteligente auxiliará diretamente na otimização de estratégias de manutenção. Ao verificar a perda exata de potência por sujidade, o proprietário do sistema adquire embasamento analítico para identificar o ponto de equilíbrio econômico entre o custo operacional da limpeza física e o prejuízo causado pela energia desperdiçada (ARAÚJO; CARVALHO; DUPONT, 2019), maximizando a capacidade instalada que alivia o Sistema Interligado Nacional (SIN).
+
+Para solucionar a problemática descrita, o objetivo geral desta pesquisa é propor um método computacional para o monitoramento inteligente da eficiência de sistemas fotovoltaicos, focado na detecção preditiva de perdas de desempenho por sujidade a partir da análise do desvio entre a potência real gerada e a teórica estimada.
+
+Visando o alcance do propósito central da pesquisa, definem-se os seguintes objetivos específicos:
+
+Coletar e pré-processar datasets operacionais de sistemas fotovoltaicos (irradiância, temperatura e potência), estruturando a base para a leitura algorítmica;
+
+Desenvolver e treinar um modelo de Inteligência Artificial baseado em regressão supervisionada para calcular a curva de potência teórica;
+
+Analisar os padrões de desvio contínuo (cálculo de resíduos) para isolar as anomalias associadas estritamente ao acúmulo gradual de poeira;
+
+Validar a eficácia da solução computacional através de métricas de avaliação estatística.
+
+A metodologia utilizada para a execução deste trabalho caracteriza-se como uma pesquisa de natureza aplicada e abordagem quantitativa, delineada através de procedimentos experimentais computacionais. O desenvolvimento tecnológico baseia-se no uso da linguagem Python e da biblioteca de inteligência artificial Scikit-Learn para a implementação, treinamento e teste do algoritmo Random Forest Regressor, validando as detecções de soiling sobre bases de dados reais de geração solar.
+
+O presente artigo está organizado da seguinte forma: a Seção 2 descreve os Materiais e Métodos utilizados para o desenvolvimento do modelo preditivo; a Seção 3 apresenta os Resultados alcançados e as Discussões sobre o desempenho do algoritmo; por fim, a Seção 4 traz a Conclusão do estudo, destacando as limitações e propondo caminhos para trabalhos futuros.
+
+
+
+Os objetivos específicos são o detalhamento do objetivo geral, devendo refletir o que se espera do trabalho em relação aos aspectos computacionais e ao domínio de aplicação. Estes objetivos devem ser passíveis de realização, considerando-se o tempo disponível para realização da pesquisa. Objetivos específicos iniciam por verbo no infinitivo.
+Deve-se escrever sobre os motivos que determinaram a escolha do tema da pesquisa, destacando-se a relevância computacional, bem como do domínio de aplicação. 
+Para facilitar o processo de redação da justificativa, deve-se perguntar: \\
+-	O tema é relevante? Por quê? 
+
+-	Quais os pontos positivos da abordagem a ser pesquisada? 
+
+-	Que vantagens/benefícios esta pesquisa pode proporcionar? 
+
+Exemplo de citação de referência: \cite{gandini2002} ou \citeonline{gandini2002}
+Citação de site: \cite{unep}
+A seguir, um exemplo com citação direta longa. \\
+Segundo \citeonline[p. 57]{oliveira2017irish}: \\
+
+
+\begin{quoting}[rightmargin=0cm,leftmargin=4cm]
+\begin{singlespace}
+{\footnotesize \noindent
+A performance se estrutura, portanto, numa linguagem “cênico-teatral” e é apresentada na forma de um mixed-media onde a tonicidade maior pode dar-se um uma linguagem ou outra, dependendo da origem do artista (mais plástica no Fluxus, mais teatral em Disappearances).} 
+\end{singlespace}
+\end{quoting}
+
+Caso tenha fórmulas ou equações, para facilitar a leitura, devem ser destacadas no texto e, se necessário, numeradas com algarismos arábicos entre parênteses, alinhados à direita. Na sequência normal do texto, é permitido o uso de uma entrelinha maior que comporte seus elementos (expoentes, índices, entre outros). \\
+$x2 +  y2 = z2$ \\
+$(x2 +  y2)/5 = n$ 
+
+\begin{equation}
+acuracia = \frac{numero \ de \ acertos}{numero de tentativas}
+\label{eq:pitagoras}
+\end{equation}
+
+Exemplo de como inserir Figura \ref{fig:fig1} e Tabela \ref{tab:table1}. 
+
+\begin{figure}[H]
+\centering  
+\caption{Acervo da Biblioteca Central da UNESC}
+\vspace{-0.2cm} 
+\label{fig:fig1}
+\includegraphics[scale=0.3]{Figs/Fig1.jpeg} 
+\flushleft
+\vspace{-0.2cm} 
+\hspace{0.9cm} \footnotesize Fonte: Elaborado pelo autor.
+\end{figure}
+
+\begin{table}[h!]
+\begin{center}
+\caption{Pessoas residentes em domicílios particulares}
+\vspace{-0.2cm} 
+    \begin{center}
+    \label{tab:table1}
+    %\resizebox{\textwidth}{!}{%
+    \begin{tabular}{l l l l} 
+    \hline
+    Situação do domicílio & Total & Mulheres & Homens \\
+    \hline
+    Total   & 117.960.301 & 59.595.332 & 58.364.969 \\
+    Urbana  & 79.972.931  & 41.115.439 & 38.857.492 \\
+    Rural   & 37.987.370  & 18.479.893 & 19.507.477 \\
+    \hline
+    \end{tabular} 
+  \end{center}
+\end{center}  
+\vspace{-0.2cm}
+\hspace{1cm}\footnotesize Fonte: \citeonline{gandini2002}.
+\end{table}
+
+\section{MATERIAIS E MÉTODOS}
+
+\section{RESULTADOS E DISCUSSÃO}
+
+
+\section{Conclusão}
+%Parte final do artigo, onde são apresentadas as conclusões correspondentes aos objetivos e as hipóteses. Deve ser breve, devendo apresentar recomendações e sugestões para trabalhos futuros.
+
+\bibliographystyle{abntex2-unesc}
+\renewcommand{\refname}{REFERÊNCIAS}
+\bibliography{referencias} % arquivo referencias.bib que contém as referências bibliográficas utilizadas no artigo
+
+%\include{apendice_a}
+%\include{anexo_a}
+
+\end{document} 

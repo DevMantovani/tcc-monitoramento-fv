@@ -1,0 +1,224 @@
+% Versão de trabalho: 28/09/2026. Documento principal: TCCFinal.tex.
+% Compilação: pdfLaTeX + BibTeX. Métodos propostos; experimentos pendentes.
+\documentclass{UNESC}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\renewcommand{\rmdefault}{phv}
+\renewcommand{\sfdefault}{phv}
+\usepackage[brazilian]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage[hang,flushmargin]{footmisc}
+\usepackage{setspace}
+\usepackage[labelsep=space]{caption}
+\DeclareCaptionLabelFormat{comtraco}{#1~#2 -}
+\captionsetup{labelformat=comtraco}
+\usepackage{hyperref}
+\usepackage[alf,recuo=0.0cm,abnt-emphasize=bf]{abntex2cite}
+\hypersetup{setpagesize=false,colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black}
+\urlstyle{same}
+\setlength{\emergencystretch}{2em}
+
+\title{MONITORAMENTO DE PERDAS POR SUJIDADE EM SISTEMAS FOTOVOLTAICOS COM APRENDIZADO DE MÁQUINA}
+\author{Matheus Luís Mantovani Passoni\footnote{Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil. matheus.mantovani28@gmail.com},
+Allan Farias Fávaro\footnote{Orientador, Curso de Ciência da Computação, Universidade do Extremo Sul Catarinense (Unesc), Criciúma - Santa Catarina - Brasil.}}
+% Acrescentar o e-mail do orientador após confirmação.
+
+\begin{document}
+\onehalfspacing
+\maketitle
+\noindent\textit{Versão de trabalho: proposta metodológica em desenvolvimento, sem resultados experimentais.}
+\vspace{0.7em}
+
+\noindent\textbf{Resumo:} O acúmulo de sujidade sobre módulos fotovoltaicos pode reduzir sua geração, mas a identificação dessas perdas exige considerar as condições ambientais e outras alterações operacionais. Este trabalho propõe desenvolver e avaliar um método de monitoramento baseado em aprendizado de máquina para estimar a potência esperada em uma condição de referência de baixa sujidade e analisar desvios persistentes em relação à potência medida. A pesquisa terá abordagem quantitativa, com desenvolvimento de um artefato computacional e experimentos comparativos. Serão investigados registros públicos de irradiância, temperatura e potência, com seleção documentada dos períodos de referência. Um modelo Random Forest será comparado com uma regressão de referência, mediante separação temporal dos dados. A avaliação contemplará erros de estimativa de potência e, quando houver rótulos independentes ou cenários controlados, a qualidade dos alertas. Experimentos semissintéticos poderão complementar a análise, com identificação explícita das perdas introduzidas artificialmente. Nesta versão, apresentam-se a fundamentação e o protocolo proposto; resultados, conclusões e validação em campo permanecem pendentes.
+
+\vspace{0.5em}
+\noindent\textbf{Palavras-chave:} energia fotovoltaica; sujidade; aprendizado de máquina; regressão; monitoramento de desempenho.
+
+\vspace{0.8em}
+\noindent\textbf{Abstract:} Soiling on photovoltaic modules can reduce power generation, but identifying these losses requires accounting for environmental conditions and other operational changes. This study proposes the development and evaluation of a machine learning monitoring method to estimate expected power under a low-soiling reference condition and analyze persistent deviations from measured power. The research will follow a quantitative approach, combining a computational artifact with comparative experiments. Public irradiance, temperature, and power records will be investigated, with documented selection of reference periods. A Random Forest model will be compared with a regression baseline using chronological data partitions. Evaluation will address power estimation errors and, whenever independent labels or controlled scenarios are available, alert performance. Semi-synthetic experiments may complement the analysis, with explicit identification of artificially introduced losses. This working version presents the rationale and proposed protocol; experimental results, conclusions, and field validation remain pending.
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} photovoltaic energy; soiling; machine learning; regression; performance monitoring.
+
+\section{INTRODUÇÃO}
+
+A geração fotovoltaica depende da radiação incidente e das condições de operação dos módulos, incluindo sua temperatura \cite{king2004}. Entre os fatores que podem reduzir seu desempenho encontra-se a sujidade, denominada \textit{soiling}, caracterizada pela deposição de poeira e outros contaminantes sobre sua superfície. Seu monitoramento pode apoiar decisões de manutenção, mas envolve a escolha de medições e procedimentos adequados para estimar as perdas \cite{bessa2021}.
+
+O problema não se resume a observar se houve redução da geração. A modelagem de potência permite relacionar as condições ambientais à saída elétrica esperada e comparar essa estimativa com as medições para acompanhar a operação \cite{li2024}. Para o presente estudo, será necessário estabelecer uma referência compatível com a irradiância e a temperatura observadas, de modo que o desvio não represente apenas uma diferença entre condições meteorológicas.
+
+Potência e energia constituem grandezas diferentes: o watt (W) equivale a um joule por segundo, enquanto o joule (J) é unidade de energia \cite{bipm2026}. Neste trabalho, a potência será expressa em W ou kW e sua integração temporal em Wh ou kWh, sendo $1\,\mathrm{Wh}=3600\,\mathrm{J}$. O indicador proposto representará desempenho relativo à referência estimada; não será uma medição direta da eficiência física de conversão de um módulo.
+
+Na revisão de \citeonline{bessa2021}, as estratégias de monitoramento incluem estações de sujidade, sensores ópticos e análise de imagens, além de abordagens de modelagem. Essa diversidade mostra que a escolha de uma solução depende tanto da informação necessária quanto dos recursos disponíveis. No recorte deste TCC, o interesse estará nos registros numéricos de operação e ambiente, sem exigir processamento de imagens ou a construção de um equipamento de medição de sujeira.
+
+Uma referência física de potência pode ser construída com parâmetros do sistema. O manual de \citeonline{dobos2014} descreve os submodelos do PVWatts e suas hipóteses. Na implementação documentada pelo pvlib, a potência em corrente contínua combina irradiância efetiva, potência nominal e correção térmica \cite{pvlib_pvwatts}. Será necessário compatibilizar a saída com o ponto de medição: o PVWatts trata separadamente a geração em corrente contínua e sua conversão pelo inversor em corrente alternada \cite{dobos2014}.
+
+Outra possibilidade é estimar essa relação a partir de observações por regressão supervisionada, com variáveis de entrada e um alvo numérico \cite{pedregosa2011}. Neste trabalho, as entradas principais serão irradiância e temperatura, enquanto o alvo será a potência dos períodos de referência. A expressão aprendizado de máquina designará esse ajuste computacional. Como antecedente aplicado, \citeonline{li2024} comparam modelos de aprendizado de máquina, incluindo Random Forest, com alternativas físicas para estimar a potência de sistemas degradados.
+
+Entre os algoritmos disponíveis, o Random Forest reúne árvores de decisão e agrega suas estimativas. Sua formulação admite problemas de regressão \cite{breiman2001}. Na implementação do scikit-learn, a previsão resulta da combinação das saídas de árvores treinadas com amostras dos dados \cite{sklearn_rf}. A escolha inicial para este estudo decorre da possibilidade de investigar relações não lineares entre variáveis tabulares com uma implementação acessível. Isso constitui uma decisão metodológica a avaliar, sem pressupor que o algoritmo será superior às alternativas.
+
+A estimativa de sujidade por dados operacionais já possui antecedentes científicos. \citeonline{deceglie2018} apresentam o método \textit{stochastic rate and recovery} (SRR), que identifica intervalos de sujidade e constrói perfis estocásticos a partir do desempenho observado, sem exigir dados de precipitação. O estudo inclui validação com medições de estações de sujidade. Essa referência reforça a necessidade de comparar a estimativa do algoritmo com evidência externa quando se pretende atribuir uma perda à sujeira.
+
+\citeonline{skomedal2020} abordam a coexistência de perdas, propondo decompor um índice de desempenho em componentes de sujidade, degradação e sazonalidade. Já \citeonline{mejia2013} analisam sistemas residenciais e comerciais e relacionam a recuperação após chuva à quantidade precipitada. Esses trabalhos motivam dois cuidados deste projeto: não atribuir qualquer desvio à sujidade e não assumir que todo evento de chuva restabelece uma condição limpa.
+
+No contexto brasileiro, \citeonline{Tramontin_Rampinelli_2024} analisam dois sistemas no Rio Grande do Sul, utilizando dados de inversores antes e depois da limpeza e informações de estações meteorológicas. Os autores empregam regressão linear na relação entre irradiação e energia e discutem limitações dos dados disponíveis. Para este TCC, o estudo contribui ao relacionar análise computacional e intervenção documentada, sem justificar a transferência de seus ganhos percentuais para outra instalação.
+
+No campo da regressão, \citeonline{kalimeris2023data} investigam a estimativa da razão de sujidade com dados de potência, irradiância e temperatura. Seus procedimentos incluem reconhecer eventos potenciais de limpeza e selecionar períodos de aprendizagem. O trabalho utiliza regressão Ridge com atributos polinomiais; em uma das abordagens, a informação de chuva permite operar sem registros obrigatórios de limpeza manual. Assim, não seria adequado caracterizar a literatura como restrita a fórmulas estáticas ou afirmar que o uso de aprendizado de máquina constitui, por si só, uma novidade.
+
+Uma pesquisa mais recente, de \citeonline{tsanakas2025}, combina duas perspectivas: análise retrospectiva das perdas a partir do desempenho elétrico e previsão de perdas com variáveis ambientais. A proposta evidencia a distinção entre estimar o estado de operação e antecipar sua evolução. No presente TCC, o primeiro objetivo será estimar a potência de referência no instante das medições e acompanhar desvios persistentes, mantendo o escopo compatível com a base que puder ser obtida.
+
+Esse recorte também delimita o uso do termo previsão. \citeonline{li2024} distinguem o monitoramento com dados meteorológicos medidos da previsão de potência futura com dados meteorológicos previstos. Neste projeto, o sistema estimará a potência de referência no instante observado. Antecipar a geração das próximas horas exigiria outro protocolo de entradas e horizonte, não incluído no experimento inicial.
+
+A análise desses antecedentes orienta a contribuição pretendida: avaliar uma implementação de complexidade controlada, que compare modelos de referência e examine a repercussão de seus erros na qualidade dos alertas. A questão a investigar no recorte escolhido é se a maior flexibilidade do Random Forest produz ganho útil para o monitoramento, quando comparado com uma regressão simples nas mesmas condições. Essa questão constitui uma delimitação experimental; uma afirmação de ineditismo geral dependeria de revisão mais abrangente da literatura.
+
+A preparação da base terá papel central nessa avaliação. A seleção de períodos de aprendizagem próximos a eventos de limpeza faz parte da abordagem de \citeonline{kalimeris2023data}. Neste projeto, os períodos de referência deverão ser justificados por evidências e representar as condições ambientais de interesse. Sem essa justificativa, a interpretação ficará limitada a mudanças em relação ao histórico operacional, sem comprovar a potência de um sistema perfeitamente limpo.
+
+A interpretação da diferença entre potência estimada e medida deverá considerar a coexistência de perdas discutida por \citeonline{skomedal2020} e a incerteza da modelagem. Por isso, propõe-se avaliar uma regra de persistência temporal e cenários que possam ser confundidos com sujidade. A regra será uma escolha experimental deste trabalho, sem pressupor que a persistência identifique a causa do desvio.
+
+Outro aspecto é a origem dos dados. O repositório PVDAQ disponibiliza registros de desempenho e metadados de diferentes instalações, com sensores ambientais em parte dos conjuntos \cite{pvdaq2021}. Ele será uma fonte candidata para a pesquisa. A seleção não poderá se apoiar apenas no volume de registros: a correspondência temporal entre potência e ambiente, a disponibilidade de unidades e a qualidade da referência deverão ser verificadas.
+
+Quando não houver rótulos de sujidade suficientes, cenários controlados poderão complementar a avaliação. O exemplo do RdTools para o sistema 4 do PVDAQ utiliza um sinal de sujidade sintetizado, explicitamente identificado como tal em sua documentação \cite{rdtools_exemplo}. No presente trabalho, uma combinação de medições com perdas introduzidas artificialmente será denominada semissintética. Seus resultados permitirão avaliar perdas conhecidas naquele experimento, sem substituir uma validação de sujidade em campo.
+
+Também será preservada a ordem temporal dos registros na avaliação. \citeonline{cerqueira2020} mostram que a estimativa de desempenho depende do protocolo e das características da série, com resultados favoráveis à avaliação fora da amostra nos cenários não estacionários analisados. Para representar o uso pretendido neste TCC, o treinamento antecederá o teste. O controle abrangerá ainda o vazamento de dados: informação indevida nas entradas ou na preparação pode produzir avaliações excessivamente otimistas \cite{kapoor2023}.
+
+Diante desse contexto, formula-se a questão de pesquisa: em que medida um modelo Random Forest melhora a estimativa da potência de referência e apoia a identificação de perdas persistentes compatíveis com sujidade, em comparação com uma regressão de referência? A hipótese é que o modelo reduza o erro de estimativa e melhore a detecção nos cenários avaliados, sem aumento relevante dos falsos alertas. Essa hipótese será testada e poderá ser rejeitada.
+
+O objetivo geral é desenvolver e avaliar um método computacional de monitoramento de sistemas fotovoltaicos baseado na estimativa de potência por aprendizado de máquina e na análise de desvios persistentes associados à sujidade. Os objetivos específicos são:
+\begin{enumerate}[label=\alph*),leftmargin=1.2cm,itemsep=0.1em]
+\item selecionar e preparar dados temporais de potência e ambiente, documentando sua origem, qualidade e condição de referência;
+\item implementar e comparar Random Forest e regressão Ridge na estimativa da potência esperada;
+\item desenvolver um indicador de desvio e uma regra de alerta com persistência temporal;
+\item avaliar separadamente a estimativa de potência e a detecção de perdas, distinguindo observações reais e cenários simulados;
+\item implementar um protótipo que apresente as séries, os indicadores e os alertas.
+\end{enumerate}
+
+A justificativa está na necessidade de compreender quando uma estimativa aprendida a partir de dados oferece informação útil ao acompanhamento fotovoltaico. A contribuição computacional pretendida será uma avaliação reprodutível dos modelos e dos alertas, com análise de limitações, além da construção do protótipo. A aplicação à microgeração é uma motivação prática, condicionada à disponibilidade de sensores e à representatividade da base. O método não pretende, nesta etapa, determinar automaticamente a causa de qualquer perda nem o momento economicamente ótimo para limpeza.
+
+\section{MATERIAIS E MÉTODOS}
+
+\subsection{DELINEAMENTO E DADOS}
+
+A pesquisa será aplicada e quantitativa, com desenvolvimento e avaliação experimental de um artefato computacional. A organização do trabalho se apoia na relação entre construção e avaliação de artefatos discutida por \citeonline{hevner2004}, sem reivindicar nesta etapa a execução completa de um método de \textit{design science}. Os resultados próprios decorrerão da comparação dos métodos com dados secundários. Por delimitação experimental, será analisada uma instalação de cada vez.
+
+A base definitiva ainda não foi selecionada. A primeira fonte candidata é o PVDAQ \cite{pvdaq2021}. A alternativa controlada é o conjunto do sistema 4 utilizado pelo RdTools, cuja documentação apresenta potência, irradiância no plano dos módulos, temperatura ambiente e vento, além de um sinal de sujidade sintetizado \cite{rdtools_exemplo}. A disponibilidade efetiva e a qualidade de cada variável deverão ser verificadas no arquivo adquirido.
+
+Após a seleção, serão registrados identificação do sistema, endereço e licença da fonte, data de obtenção, período, intervalo amostral, unidades e quantidade de registros antes e depois dos filtros. Cada variável será classificada como medida, estimada ou simulada. A referência e o alvo deverão representar o mesmo ponto de medição, em corrente alternada ou contínua.
+
+\begin{table}[htbp]
+\centering
+\caption{Variáveis previstas e sua função}
+\label{tab:variaveis}
+\small
+\begin{tabularx}{\linewidth}{@{}p{3.5cm}X@{}}
+\toprule
+Variável & Uso no experimento \\
+\midrule
+Data e hora & Ordenação, sincronização e divisão temporal. \\
+Irradiância no plano dos módulos & Entrada principal, em W/m$^2$. \\
+Temperatura & Entrada; distinguir módulo, célula e ambiente. \\
+Potência medida & Alvo no treinamento de referência e comparação no monitoramento, em W ou kW. \\
+Vento & Entrada opcional, conforme os dados disponíveis. \\
+Chuva e limpeza & Evidência contextual para interpretar mudanças e avaliar a referência. \\
+Perda simulada & Controle e avaliação; excluída das entradas do modelo. \\
+\bottomrule
+\end{tabularx}
+\par\smallskip\raggedright\footnotesize Fonte: elaboração própria, com base em \citeonline{king2004}, \citeonline{rdtools_exemplo} e \citeonline{kapoor2023}.
+\end{table}
+
+O modelo de \citeonline{king2004} distingue temperatura ambiente, do módulo e da célula, além de tratar a irradiância incidente no plano do módulo. Por isso, temperatura ambiente e irradiância horizontal não serão substituídas diretamente por grandezas diferentes. Se necessário, será usada uma transformação física documentada. Como prevenção de vazamento por variáveis que reproduzem o alvo \cite{kapoor2023}, a potência contemporânea e suas reproduções diretas, como tensão multiplicada por corrente, serão excluídas das entradas do estimador.
+
+\subsection{PREPARAÇÃO E CONDIÇÃO DE REFERÊNCIA}
+
+O tratamento de horários e valores atípicos integra a preparação dos dados em \citeonline{li2024}; o fluxo do RdTools também documenta filtros de qualidade para a análise de desempenho \cite{rdtools_exemplo}. Neste projeto, serão tratados duplicidades, fuso, unidades e ausências, com identificação de noite, baixa irradiância, indisponibilidade, erros físicos e limitação do inversor. Os critérios e as exclusões serão registrados. Por escolha do protocolo, potência baixa não será descartada apenas por divergir da previsão.
+
+Serão priorizados períodos sustentados por limpeza documentada, medição independente ou informação técnica sobre a base, considerando os procedimentos de \citeonline{deceglie2018} e \citeonline{kalimeris2023data}. \citeonline{mejia2013} adotam um critério de precipitação específico às condições estudadas; ele não será transferido automaticamente para outra instalação. Sem referência suficiente, as conclusões se limitarão a perdas adicionais. A qualidade dos sensores \cite{bessa2021} e a cobertura das condições ambientais integrarão a análise de validade.
+
+Como adaptação experimental da estratégia de sinal sintetizado apresentada pelo RdTools \cite{rdtools_exemplo}, a série original será a referência operacional, sem ser descrita como perfeitamente limpa. Perdas adicionais serão introduzidas na validação e no teste. O erro de regressão será calculado contra a série original reservada, e os alertas sobre a série modificada. Para manter a separação entre entradas e informação de avaliação \cite{kapoor2023}, o detector não receberá os fatores artificiais nem a potência original reservada do teste.
+
+\subsection{MODELAGEM E VALIDAÇÃO TEMPORAL}
+
+Adotando o mapeamento entre variáveis ambientais e potência usado na modelagem fotovoltaica \cite{li2024}, define-se, para este experimento,
+\begin{equation}
+\widehat{P}_{\mathrm{ref}}(t)=f\bigl(G(t),T(t),\mathbf{z}(t)\bigr),
+\end{equation}
+em que $G$ representa irradiância, $T$ a temperatura escolhida e $\mathbf{z}$ eventuais entradas adicionais documentadas. O alvo de treinamento será a potência nos períodos de referência. Novas entradas dependerão de disponibilidade no instante de uso e avaliação na validação.
+
+O experimento comparará Random Forest \cite{breiman2001} com regressão Ridge. Esta última introduz regularização na estimação dos coeficientes, conforme a formulação de \citeonline{hoerl1970}. Serão usados irradiância, temperatura e sua interação, com padronização ajustada no treinamento. A regularização e os hiperparâmetros da floresta serão escolhidos nos dados de desenvolvimento. Para a floresta, serão investigados número de árvores, profundidade e mínimo de observações nas folhas, parâmetros documentados na API \cite{sklearn_rf}. O PVWatts poderá complementar a comparação quando houver metadados compatíveis \cite{dobos2014}.
+
+O protocolo utilizará blocos cronológicos de treinamento, validação e teste, apoiado na discussão de \citeonline{cerqueira2020}. O período mais recente será reservado à avaliação final. Nos períodos anteriores serão ajustados modelos e alertas, com janelas temporais. A documentação de TimeSeriesSplit exige amostras igualmente espaçadas para comparar durações dos testes \cite{sklearn_temporal}; caso os filtros gerem irregularidade, serão definidos blocos por datas, com duração comparável. As datas dependerão da cobertura da base.
+
+Conforme a orientação técnica para prevenir vazamento, imputações, padronizações e demais transformações serão ajustadas somente no treinamento de cada divisão \cite{sklearn_praticas}. O protocolo excluirá interpolação com informação futura, registrará sementes e manterá o teste fora da seleção dos candidatos, em consonância com os riscos de avaliação discutidos por \citeonline{kapoor2023}.
+
+\subsection{INDICADOR E ALERTAS}
+
+A comparação entre potência observada e uma referência modelada é empregada na análise de sujidade por \citeonline{kalimeris2023data}. Neste projeto, será adotado o complemento da razão entre essas potências, com a notação
+\begin{equation}
+d(t)=1-\frac{P_{\mathrm{obs}}(t)}{\widehat{P}_{\mathrm{ref}}(t)}.
+\end{equation}
+O cálculo exigirá previsão positiva e irradiância adequada; a instabilidade de medidas relativas com denominadores próximos de zero é discutida por \citeonline{hyndman2006}. Por definição da equação, valores negativos indicam potência observada superior à referência e serão preservados. Considerando a coexistência de perdas \cite{skomedal2020}, o indicador não será denominado perda de sujidade medida sem evidência adicional.
+
+Propõe-se agregar essa razão diariamente, ponderando pela energia de referência nos mesmos intervalos válidos. Trata-se de uma definição operacional deste estudo:
+\begin{equation}
+D_j=1-\frac{\sum_{t\in V_j}P_{\mathrm{obs}}(t)\Delta t}
+{\sum_{t\in V_j}\widehat{P}_{\mathrm{ref}}(t)\Delta t},
+\end{equation}
+em que $V_j$ contém os intervalos válidos do dia $j$ e $\Delta t$ é sua duração, com potência média no intervalo. A soma aproxima a integração da potência; com kW e horas, resulta em kWh, de acordo com a relação entre energia e potência \cite{bipm2026}. O protocolo exigirá cobertura mínima diária e não extrapolará registros incompletos como geração integral do dia.
+
+Como regra proposta neste estudo, o alerta dependerá de o indicador superar um limiar por dias consecutivos válidos. Limiar, persistência e eventual média móvel calculada apenas com dados presentes e passados serão escolhidos na validação e fixados antes do teste, preservando sua independência \cite{kapoor2023}. Lacunas interromperão a contagem. A saída apresentará intensidade, duração e qualidade dos dados, orientando inspeção. Não se atribui à literatura um limiar universal nem eficácia já demonstrada dessa regra.
+
+\subsection{EXPERIMENTOS E MÉTRICAS}
+
+A estimativa de potência será avaliada por erro absoluto médio (MAE), raiz do erro quadrático médio (RMSE) e coeficiente de determinação ($R^2$), utilizando as definições documentadas pelo scikit-learn \cite{sklearn_metricas}. Para $n$ pares de valores observados $y_i$ e estimados $\widehat y_i$, com média observada $\overline y$, serão calculados
+\begin{equation}
+\mathrm{MAE}=\frac{1}{n}\sum_{i=1}^{n}|y_i-\widehat y_i|,\qquad
+\mathrm{RMSE}=\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\widehat y_i)^2},
+\end{equation}
+\begin{equation}
+R^2=1-\frac{\sum_i(y_i-\widehat y_i)^2}{\sum_i(y_i-\overline y)^2}.
+\end{equation}
+MAE e RMSE terão a unidade da potência; $R^2$ será adimensional, poderá ser negativo e não será interpretado em subconjuntos com alvo constante \cite{sklearn_metricas}. Os modelos serão comparados nos mesmos registros, também por período e faixa de irradiância. O erro percentual absoluto médio não será a medida principal, devido aos problemas de divisão por valores nulos ou próximos de zero discutidos por \citeonline{hyndman2006}.
+
+Quando houver rótulos independentes ou cenários controlados, serão calculados precisão, sensibilidade e F1 \cite{sklearn_metricas}. Sendo VP, FP e FN os números de verdadeiros positivos, falsos positivos e falsos negativos,
+\begin{equation}
+\begin{aligned}
+\text{Precisão}&=\frac{VP}{VP+FP},\qquad
+\text{Sensibilidade}=\frac{VP}{VP+FN},\\
+F1&=\frac{2VP}{2VP+FP+FN}.
+\end{aligned}
+\end{equation}
+Denominadores nulos serão sinalizados, junto às contagens. A escolha de precisão e sensibilidade considera a discussão de \citeonline{saito2015} sobre classes desbalanceadas; sua aplicação aqui será avaliada conforme a frequência real dos eventos. Por definição deste protocolo, também serão apresentados falsos alertas por dia válido e atraso entre início do evento e primeiro alerta. A unidade de avaliação e a rotulagem serão fixadas antes do teste. Sem rótulos independentes, a análise de sujidade real será descritiva.
+
+Nos cenários semissintéticos, será adotada uma transformação multiplicativa, inspirada no uso de um fator artificial de sujidade no exemplo do RdTools \cite{rdtools_exemplo}:
+\begin{equation}
+P_{\mathrm{sim}}(t)=P_{\mathrm{base}}(t)\,s(t),\qquad 0\leq s(t)\leq1,
+\end{equation}
+mantendo a série original e a transformação aplicada. Por escolha experimental, serão considerados controle sem perda adicional, perdas graduais e recuperação simulada. Cenários de indisponibilidade, falha de sensor e redução abrupta examinarão confusões. O fator imposto representa apenas uma redução proporcional de potência; não modela a distribuição espacial dos depósitos nem todos os efeitos elétricos discutidos na literatura sobre sujidade \cite{bessa2021}. Os cenários de teste serão separados dos usados na calibração.
+
+A comparação empregará as mesmas entradas e partições, relacionando erro de previsão, falsos alertas e atraso de detecção. Resultados semelhantes ou superiores da regressão simples também serão reportados. Evidências de simulação não serão apresentadas como comprovação de eficácia de limpeza em uma instalação real.
+
+\subsection{PROTÓTIPO E REPRODUTIBILIDADE}
+
+A implementação está prevista em Python, com pandas e NumPy para preparação e scikit-learn para modelagem \cite{pedregosa2011}. O protótipo inicial receberá arquivos CSV e apresentará potência medida e prevista, desvio diário, cobertura e alertas. Uma interface local em Streamlit poderá ser acrescentada após a validação do processamento.
+
+Serão preservados dados brutos, transformações, configurações, versões e sementes, documentando as etapas para permitir a conferência dos riscos metodológicos discutidos por \citeonline{kapoor2023}. Como decisão do experimento, treinamento e monitoramento terão etapas separadas e o modelo permanecerá fixo durante o teste. A utilização em tempo real e em outras instalações dependerá de nova avaliação.
+
+\section{RESULTADOS E DISCUSSÃO}
+Os experimentos ainda não foram executados. Esta seção será preenchida com a caracterização da base, a comparação dos modelos, a avaliação dos alertas e a discussão das limitações e dos trabalhos relacionados. Nenhuma medida de desempenho ou economia é apresentada nesta versão.
+% Inserir: qualidade da base; MAE/RMSE/R2; curvas do teste; falsos alertas;
+% atraso por evento; confusões; relação crítica com pesquisas anteriores.
+
+\section{CONCLUSÃO}
+As conclusões dependerão dos resultados e deverão responder à questão de pesquisa, retomando os objetivos e indicando se a hipótese foi sustentada. Serão explicitadas contribuições, limitações, riscos à validade e possibilidades de novas investigações. A aplicação à microgeração e a identificação de sujidade real permanecerão condicionadas à representatividade da base e à existência de evidência independente.
+
+\section*{DECLARAÇÃO DE USO DE INTELIGÊNCIA ARTIFICIAL}
+Ferramentas de inteligência artificial generativa foram utilizadas como apoio à organização textual, ao levantamento preliminar de fontes e à discussão de alternativas metodológicas. A conferência das referências, as decisões de pesquisa e a responsabilidade pelo conteúdo cabem aos autores. Não foram produzidos resultados experimentais para esta versão.
+
+\bibliographystyle{abntex2-unesc}
+\renewcommand{\refname}{REFERÊNCIAS}
+\bibliography{referencias_final}
+\end{document}

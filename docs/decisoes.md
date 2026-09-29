@@ -10,5 +10,6 @@
 | D06 | Começar com CSV e interface de linha de comando. | Facilita auditoria e validação antes de uma interface gráfica. | Aceita |
 | D07 | Fonte de dados definitiva. | Deve ter licença, potência, irradiância, temperatura e metadados conferidos. | Pendente |
 | D08 | Limiar e persistência do alerta. | Precisam ser calibrados sem consultar o teste final e justificados no relatório. | Pendente |
+| D09 | Criar uma interface web local após validar o pipeline e escolher a base. | A tela deverá apresentar cobertura dos dados, métricas, séries de potência prevista/observada e alertas; ela não substitui a validação metodológica. | Planejada |
 
 As decisões D07 e D08 não devem ser tratadas como definidas no artigo antes de uma discussão com o orientador e do registro da base escolhida.

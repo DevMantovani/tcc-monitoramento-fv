@@ -60,6 +60,16 @@ pytest
 
 O comando `demo` injeta uma perda controlada apenas para verificar se o pipeline produz indicadores e alertas. Consulte [docs/metodologia.md](docs/metodologia.md) antes de interpretar os resultados.
 
+## Painel visual local
+
+Após executar o cenário demonstrativo, abra uma tela de análise com:
+
+```bash
+pv-dashboard
+```
+
+O painel mostra métricas, a curva de potência observada em comparação à prevista, a perda diária e os alertas. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+
 ## Versionamento com GitHub
 
 Quando o Git estiver instalado, inicialize e faça o primeiro registro:

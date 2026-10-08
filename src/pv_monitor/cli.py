@@ -13,6 +13,7 @@ from pv_monitor.data import (
 )
 from pv_monitor.demo import create_demo_dataset
 from pv_monitor.reproduction import reproduce_public_experiments
+from pv_monitor.reporting import generate_result_materials
 from pv_monitor.workflow import (
     calibrate_alert_policy,
     detect_additional_loss,
@@ -111,6 +112,13 @@ def build_parser() -> argparse.ArgumentParser:
     reproduce.add_argument("--artifacts-dir", default="artifacts")
     reproduce.add_argument("--zenodo-inverter-id", default="inverter1")
     reproduce.add_argument("--output", required=True)
+
+    materials = commands.add_parser(
+        "generate-results",
+        help="gera tabelas e figuras reproduzíveis a partir dos artefatos experimentais",
+    )
+    materials.add_argument("--input-dir", default="artifacts")
+    materials.add_argument("--output", required=True)
     return parser
 
 
@@ -173,4 +181,7 @@ def main() -> None:
             args.output,
             args.zenodo_inverter_id,
         )
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    elif args.command == "generate-results":
+        report = generate_result_materials(args.input_dir, args.output)
         print(json.dumps(report, ensure_ascii=False, indent=2))

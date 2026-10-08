@@ -74,6 +74,18 @@ pv-monitor reproduce-public-experiments \
 
 O resumo consolidado fica em `artifacts/reproduction_summary.json`. Consulte [docs/reproducao.md](docs/reproducao.md) para o escopo de cada experimento.
 
+## Gerar tabelas e figuras dos resultados
+
+Depois de reproduzir os experimentos, gere os materiais que poderão ser usados no artigo e na apresentação:
+
+```bash
+pv-monitor generate-results \
+  --input-dir artifacts \
+  --output artifacts/result_materials
+```
+
+O comando cria tabelas CSV e gráficos em PNG e SVG a partir dos artefatos já calculados. Ele não baixa novas bases, não retreina modelos e não altera as métricas. Veja [docs/resultados.md](docs/resultados.md) para o significado de cada material.
+
 ## Treinar o monitor de perdas por sujidade
 
 ```bash

@@ -79,3 +79,13 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Teste final: após refit com treino e validação, Random Forest obteve MAE 2,469 kW, RMSE 2,910 kW e R² 0,540.
 - Interpretação: a fonte mostra que o fluxo de previsão de potência pode ser executado em outra instalação e período mais recente, mas seu desempenho é moderado e não equivale a desempenho de detecção de sujidade.
 - Limitações: uma instalação não residencial, lacunas temporais e dados meteorológicos externos; não há painel limpo, rótulo de perda por sujidade ou evento de limpeza. Não foram calculados alertas nem F1 neste experimento.
+
+## EXP-006 — materiais reproduzíveis dos resultados consolidados
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Entradas: artefatos preservados de validação e teste final dos EXP-003, EXP-004 e EXP-005.
+- Procedimento: o comando `pv-monitor generate-results` transforma as métricas já produzidas em duas tabelas CSV e três figuras em PNG/SVG. Não há novo treino, seleção de modelo, calibração de limiar ou acesso aos dados brutos.
+- Materiais: comparação de MAE na validação; série de perda observada e estimada no teste final de Laghouat; métricas de precisão, sensibilidade e F1 dos alertas persistentes; tabelas distintas para validação e teste final.
+- Controle contra interpretação indevida: a figura da fonte Zenodo apresenta somente erro de potência; ela não é rotulada como validação de sujidade. Os resultados continuam restritos às bases públicas descritas nos experimentos anteriores.
+- Limitação: as figuras resumem os experimentos já executados; não adicionam evidência de generalização para residências brasileiras.

@@ -14,6 +14,7 @@ from pv_monitor.data import (
 )
 from pv_monitor.models import FEATURE_COLUMNS
 from pv_monitor.reproduction import select_model_by_validation_metric
+from pv_monitor.reporting import build_final_table, build_validation_table
 from pv_monitor.workflow import _alert_metrics, _persistent_alerts, detect_additional_loss
 
 
@@ -195,3 +196,26 @@ def test_select_model_by_validation_metric_uses_smallest_error():
 
     with pytest.raises(ValueError, match="Métrica de validação ausente"):
         select_model_by_validation_metric(metrics, "r2")
+
+
+def test_result_tables_keep_validation_and_final_metrics_separate():
+    laghouat_validation = {
+        "validation_metrics": {
+            "ridge": {"estimated_soiling_loss": {"mae_fraction": 0.01, "rmse_fraction": 0.02, "r2": 0.9}}
+        }
+    }
+    zenodo_validation = {"validation_metrics": {"ridge": {"mae_kw": 1.0, "rmse_kw": 2.0, "r2": 0.8}}}
+    laghouat_final = {
+        "test_metrics": {
+            "estimated_soiling_loss": {"mae_fraction": 0.03, "rmse_fraction": 0.04, "r2": 0.7},
+            "persistent_alert": {"precision": 0.8, "recall": 0.9, "f1": 0.85},
+        }
+    }
+    zenodo_final = {"test_metrics": {"mae_kw": 3.0, "rmse_kw": 4.0, "r2": 0.6}}
+
+    validation = build_validation_table(laghouat_validation, zenodo_validation)
+    final = build_final_table(laghouat_final, zenodo_final)
+
+    assert set(validation["partition"]) == {"validação"}
+    assert "F1" in set(final["metric"])
+    assert validation.loc[0, "value"] == pytest.approx(1.0)

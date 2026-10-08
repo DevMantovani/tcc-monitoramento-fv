@@ -50,21 +50,38 @@ def main() -> None:
             median_loss_fraction=("soiling_loss_fraction", "median"),
             mean_clean_power_w=("power_clean_w", "mean"),
             mean_dusty_power_w=("power_dusty_w", "mean"),
+            clean_energy_wh=("power_clean_w", "sum"),
+            dusty_energy_wh=("power_dusty_w", "sum"),
             median_dust_density_gm2=("dust_density_reconstructed_gm2", "median"),
             valid_records=("soiling_loss_fraction", "size"),
         )
     )
+    rainfall = shown.groupby("date", as_index=False).agg(precipitation_mm=("precipitation_mm", "sum"))
+    daily = daily.merge(rainfall, on="date", how="left")
+    daily["lost_energy_kwh"] = (daily["clean_energy_wh"] - daily["dusty_energy_wh"]) / 1000
 
     st.sidebar.markdown("### Explorar um limite")
     threshold_pct = st.sidebar.slider("Perda diária de referência (%)", 0.0, 30.0, 10.0, 0.5)
     st.sidebar.caption("É um filtro visual configurável; não é ainda uma recomendação econômica de limpeza.")
 
+    st.sidebar.markdown("### Cenário econômico")
+    tariff_brl_kwh = st.sidebar.number_input(
+        "Tarifa/valor da energia (R$/kWh)", min_value=0.0, value=0.0, step=0.01,
+        help="Informe a tarifa ou o valor de compensação aplicável à instalação. O painel não presume uma tarifa nacional única.",
+    )
+    cleaning_cost_brl = st.sidebar.number_input(
+        "Custo de uma limpeza (R$)", min_value=0.0, value=0.0, step=1.0,
+        help="Inclua mão de obra, água, deslocamento e equipamentos, conforme a operação real.",
+    )
+    st.sidebar.caption("Os valores formam uma comparação retrospectiva; não são uma ordem automática de limpeza.")
+
     loss_pct = daylight["soiling_loss_fraction"] * 100
-    first, second, third, fourth = st.columns(4)
+    first, second, third, fourth, fifth = st.columns(5)
     first.metric("Registros diurnos válidos", f"{len(daylight):,}".replace(",", "."))
     second.metric("Perda mediana", f"{loss_pct.median():.1f}%")
     third.metric("Perda máxima", f"{loss_pct.max():.1f}%")
     fourth.metric("Dias acima do limite", f"{int((daily['median_loss_fraction'] * 100 >= threshold_pct).sum())}")
+    fifth.metric("Chuva acumulada", f"{daily['precipitation_mm'].sum():.1f} mm")
 
     st.subheader("Perda diária observada")
     loss_chart = daily.set_index("date")[["median_loss_fraction"]].mul(100).rename(
@@ -81,6 +98,28 @@ def main() -> None:
         columns={"mean_clean_power_w": "Limpo (W)", "mean_dusty_power_w": "Exposto à poeira (W)"}
     )
     st.line_chart(power_chart, height=300)
+
+    st.subheader("Comparação econômica do período selecionado")
+    recoverable_energy_kwh = max(float(daily["lost_energy_kwh"].sum()), 0.0)
+    lost_value_brl = recoverable_energy_kwh * tariff_brl_kwh
+    economic_left, economic_middle, economic_right = st.columns(3)
+    economic_left.metric("Energia não gerada observada", f"{recoverable_energy_kwh:.2f} kWh")
+    economic_middle.metric("Valor estimado da perda", f"R$ {lost_value_brl:.2f}")
+    economic_right.metric("Custo informado de limpeza", f"R$ {cleaning_cost_brl:.2f}")
+    if tariff_brl_kwh > 0 and cleaning_cost_brl > 0:
+        if lost_value_brl >= cleaning_cost_brl:
+            st.info(
+                "Neste recorte histórico, o valor estimado da energia não gerada supera o custo informado de uma limpeza. "
+                "Isso é uma comparação retrospectiva, não uma recomendação para executar a limpeza agora."
+            )
+        else:
+            missing_value = cleaning_cost_brl - lost_value_brl
+            st.info(
+                f"Neste recorte histórico, faltariam R$ {missing_value:.2f} em energia recuperável para igualar o custo informado. "
+                "A persistência da perda e a previsão de chuva continuam relevantes para a decisão."
+            )
+    else:
+        st.info("Informe a tarifa/valor da energia e o custo de limpeza na lateral para comparar o cenário econômico.")
 
     left, right = st.columns(2)
     with left:
@@ -111,6 +150,7 @@ def main() -> None:
             "- O painel limpo foi lavado diariamente no experimento de origem; ele funciona como referência.\n"
             "- A densidade de poeira medida diretamente possui 48 observações; a série horária reconstruída foi fornecida pelos autores com interpolação PCHIP.\n"
             "- O limite exibido é exploratório. A recomendação real de limpeza deve considerar custo de limpeza, tarifa/valor da energia, previsão de chuva e persistência da perda.\n"
+            "- A chuva é apresentada como contexto. Não se presume que uma quantidade fixa de chuva restaure completamente a produção.\n"
             "- Esta base representa um local e seis meses de experimento; ela não prova desempenho idêntico em outra instalação."
         )
 

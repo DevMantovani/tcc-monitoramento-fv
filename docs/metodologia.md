@@ -26,6 +26,10 @@ Uma recomendação operacional futura deverá combinar, no mínimo:
 4. previsão de chuva, pois ela pode alterar o benefício da limpeza;
 5. restrições locais de segurança e operação.
 
+Na interface atual, a comparação econômica é deliberadamente retrospectiva: soma a energia não gerada observada no período selecionado e a multiplica pela tarifa ou valor de compensação informado pelo usuário. Esse montante é comparado ao custo de uma limpeza também informado pelo usuário. A tela não fixa preço de energia nem custo de limpeza, pois ambos variam por distribuidora, tipo de contrato, escala e operação. As tarifas de aplicação das distribuidoras podem ser consultadas nos [dados abertos da ANEEL](https://dadosabertos.aneel.gov.br/), mas a tarifa aplicável deve ser confirmada para a instalação estudada.
+
+A precipitação é exibida como contexto, e não como uma regra binária de “painel limpo”. Estudos apontam que o efeito da chuva depende do material depositado e de outras condições; portanto, o sistema não deve assumir que qualquer evento de chuva elimina a sujidade. O tratamento está alinhado às orientações do [IEA PVPS sobre perdas por sujidade](https://iea-pvps.org/key-topics/soiling-losses-impact-on-the-performance-of-photovoltaic-power-plants/) e à evidência experimental do [NREL sobre limpeza incompleta pela chuva](https://www.nrel.gov/news/program/2023/nrel-research-finds-rain-not-enough-to-wash-pollen-from-solar-panels).
+
 ## Modelagem futura, sem vazamento de alvo
 
 Modelos de regressão ou classificação poderão ser comparados somente depois de definir quais variáveis estariam disponíveis na instalação real no instante da decisão. A potência do painel limpo e uma medição de poeira usada como referência podem servir para construir ou avaliar o alvo, mas não devem ser usadas como entrada de um modelo que alegue funcionar onde essas referências não existem.

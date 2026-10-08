@@ -69,7 +69,7 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel mostra perda diária observada, potência média dos painéis limpo e exposto, densidade de poeira e os dias que superam um limite visual escolhido. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel mostra perda diária observada, potência média dos painéis limpo e exposto, densidade de poeira, precipitação e os dias que superam um limite visual escolhido. A lateral permite inserir tarifa/valor da energia e custo de limpeza para uma comparação retrospectiva do período. Esses valores não são preenchidos automaticamente: devem corresponder à instalação estudada. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
 ## Teste técnico com dados sintéticos
 

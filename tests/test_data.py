@@ -29,6 +29,7 @@ from pv_monitor.workflow import (
     _persistent_alerts,
     calibrate_installation_baseline,
     detect_additional_loss,
+    evaluate_post_cleaning_calibration,
 )
 
 
@@ -161,6 +162,31 @@ def test_calibrate_installation_baseline_uses_only_confirmed_post_cleaning_perio
     assert report["baseline"]["valid_daylight_observations"] == 24
     assert (tmp_path / "calibration" / "clean_baseline_ridge.joblib").exists()
     assert (tmp_path / "calibration" / "calibration.json").exists()
+
+
+def test_evaluate_post_cleaning_calibration_keeps_future_reference_for_evaluation_only(tmp_path):
+    timestamps = pd.date_range("2026-01-01", periods=72, freq="h", tz="UTC")
+    irradiance = [400.0 + 10.0 * (index % 12) for index in range(len(timestamps))]
+    clean_power = [value * 0.002 for value in irradiance]
+    input_path = tmp_path / "paired_panels.csv"
+    pd.DataFrame(
+        {
+            "timestamp": timestamps.astype(str),
+            "irradiance_wm2": irradiance,
+            "temperature_c": [25.0] * len(timestamps),
+            "power_kw": [value * 0.8 for value in clean_power],
+            "clean_reference_power_kw": clean_power,
+            "observed_soiling_loss_fraction": [0.2] * len(timestamps),
+        }
+    ).to_csv(input_path, index=False)
+
+    report = evaluate_post_cleaning_calibration(
+        str(input_path), str(tmp_path / "evaluation"), calibration_days=(1,)
+    )
+
+    assert report["results"][0]["calibration_observations"] == 24
+    assert report["results"][0]["future_observations"] == 48
+    assert (tmp_path / "evaluation" / "calibration_sensitivity.csv").exists()
 
 
 def test_prepare_laghouat_calculates_loss_only_with_clean_reference(tmp_path):

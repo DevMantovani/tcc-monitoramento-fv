@@ -114,3 +114,13 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Calibração local adicional: mesmo escolhendo o melhor limiar somente na validação (5% por um dia; F1 0,197 na validação), o teste final teve F1 0,043, com 1 verdadeiro positivo e 45 falsos positivos.
 - Interpretação: o monitor atual não generaliza automaticamente de Laghouat para Dhaka. A diferença de sensores, qualidade, clima, configuração dos painéis e definição operacional de referência impede tratar o limiar ou o desempenho de Laghouat como universais.
 - Limitação: resultado externo negativo não prova que a abordagem seja inviável em toda instalação; ele mostra que esta implementação mínima precisa de calibração local, controle de qualidade e validação adicional antes de uso residencial.
+
+## EXP-009 — sensibilidade à duração da calibração pós-limpeza
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Base: Laghouat 2022, DOI [10.17632/4jdt83yy43.3](https://doi.org/10.17632/4jdt83yy43.3), CC BY 4.0.
+- Protocolo: o painel limpo foi usado exclusivamente na janela inicial para simular uma referência pós-limpeza. Ridge foi ajustado com 14, 28, 42 ou 60 dias iniciais; as observações futuras do painel exposto foram avaliadas contra a referência limpa independente. A política permaneceu fixa em 15% por três dias.
+- Resultados: 14 dias — MAE da perda 8,59 p.p., F1 0,847 e 27 falsos alertas; 28 dias — 5,57 p.p., F1 0,867 e 23 falsos alertas; 42 dias — 4,41 p.p., F1 0,872 e 22 falsos alertas; 60 dias — 2,84 p.p., F1 0,904 e 16 falsos alertas. Em todos os cenários, a sensibilidade foi 1,000 e não houve falsos negativos.
+- Interpretação: mais dados limpos históricos melhoraram a referência de potência e reduziram falsos alertas no experimento. O resultado não define uma duração de calibração universal.
+- Limitação: o painel limpo é uma aproximação experimental de uma instalação recém-limpa; a avaliação não representa uma residência brasileira ou uma operação em campo.

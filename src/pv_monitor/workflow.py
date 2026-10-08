@@ -124,6 +124,88 @@ def calibrate_installation_baseline(
     return report
 
 
+def evaluate_post_cleaning_calibration(
+    input_path: str,
+    output_dir: str,
+    calibration_days: tuple[int, ...] = (14, 28, 42, 60),
+    alert_threshold: float = 0.15,
+    persistence_days: int = 3,
+    minimum_irradiance_wm2: float = 50.0,
+) -> dict[str, Any]:
+    """Evaluate calibration-window duration with an experimental clean-panel proxy.
+
+    The published clean panel supplies the post-cleaning target only during
+    calibration. Future clean-panel values are retained exclusively to score
+    expected power and the independent observed loss on later dirty-panel data.
+    """
+    if not calibration_days or any(days < 1 for days in calibration_days):
+        raise ValueError("Informe ao menos uma duração positiva de calibração.")
+    frame = _load_soiling_monitor_frame(input_path, minimum_irradiance_wm2)
+    first_timestamp = frame["timestamp"].min()
+    rows: list[dict[str, float | int]] = []
+    for days in sorted(set(calibration_days)):
+        calibration_end = first_timestamp + pd.DateOffset(days=int(days))
+        calibration = frame[frame["timestamp"] < calibration_end].copy()
+        future = frame[frame["timestamp"] >= calibration_end].copy()
+        if calibration.empty or future.empty:
+            raise ValueError(f"A janela de {days} dias não deixa dados para calibração e avaliação.")
+        model = build_candidates()["ridge"]
+        model.fit(calibration[FEATURE_COLUMNS], calibration[CLEAN_REFERENCE_TARGET_COLUMN])
+        predicted_clean = model.predict(future[FEATURE_COLUMNS])
+        evaluated = future.copy()
+        evaluated["predicted_clean_power_kw"] = predicted_clean
+        evaluated = evaluated[evaluated["predicted_clean_power_kw"] > 0].copy()
+        estimated_loss = (
+            (evaluated["predicted_clean_power_kw"] - evaluated[TARGET_COLUMN])
+            / evaluated["predicted_clean_power_kw"]
+        )
+        daily = _daily_losses(future, predicted_clean)
+        power_score = regression_metrics(
+            evaluated[CLEAN_REFERENCE_TARGET_COLUMN], evaluated["predicted_clean_power_kw"]
+        )
+        loss_score = loss_metrics(evaluated["observed_soiling_loss_fraction"], estimated_loss)
+        alert = _alert_metrics(
+            daily["observed_loss_fraction"], daily["estimated_loss_fraction"], alert_threshold, persistence_days
+        )
+        rows.append(
+            {
+                "calibration_days": int(days),
+                "calibration_observations": int(len(calibration)),
+                "future_observations": int(len(evaluated)),
+                "expected_power_mae_kw": power_score["mae_kw"],
+                "loss_mae_percentage_points": loss_score["mae_fraction"] * 100,
+                "loss_r2": loss_score["r2"],
+                "alert_precision": alert["precision"],
+                "alert_recall": alert["recall"],
+                "alert_f1": alert["f1"],
+                "false_positive_days": alert["false_positive_days"],
+                "false_negative_days": alert["false_negative_days"],
+            }
+        )
+    results = pd.DataFrame(rows)
+    destination = Path(output_dir)
+    destination.mkdir(parents=True, exist_ok=True)
+    results.to_csv(destination / "calibration_sensitivity.csv", index=False)
+    report = {
+        "task": "avaliação experimental da calibração pós-limpeza",
+        "source": str(input_path),
+        "model_name": "ridge",
+        "fixed_alert_policy": {"threshold": alert_threshold, "persistence_days": persistence_days},
+        "experimental_proxy": (
+            "A potência do painel limpo é usada somente no período inicial para simular uma janela pós-limpeza. "
+            "No período futuro, ela é usada apenas como referência independente de avaliação."
+        ),
+        "results": results.to_dict(orient="records"),
+        "scope_note": (
+            "A análise mede a sensibilidade à duração de calibração neste experimento controlado. "
+            "Ela não valida a duração ideal nem o alerta em uma residência real."
+        ),
+    }
+    with (destination / "calibration_sensitivity.json").open("w", encoding="utf-8") as handle:
+        json.dump(report, handle, ensure_ascii=False, indent=2)
+    return report
+
+
 def evaluate_final_power_model(
     input_path: str,
     output_dir: str,

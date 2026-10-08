@@ -20,6 +20,7 @@ from pv_monitor.workflow import (
     calibrate_installation_baseline,
     calibrate_alert_policy,
     detect_additional_loss,
+    evaluate_post_cleaning_calibration,
     evaluate_final_soiling_monitor,
     evaluate_final_power_model,
     train_models,
@@ -115,6 +116,17 @@ def build_parser() -> argparse.ArgumentParser:
     installation_calibration.add_argument("--output", required=True)
     installation_calibration.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
 
+    calibration_evaluation = commands.add_parser(
+        "evaluate-local-calibration",
+        help="avalia no experimento público o efeito da duração da calibração pós-limpeza",
+    )
+    calibration_evaluation.add_argument("--input", required=True)
+    calibration_evaluation.add_argument("--output", required=True)
+    calibration_evaluation.add_argument("--calibration-days", type=int, nargs="+", default=(14, 28, 42, 60))
+    calibration_evaluation.add_argument("--alert-threshold", type=float, default=0.15)
+    calibration_evaluation.add_argument("--persistence-days", type=int, default=3)
+    calibration_evaluation.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
+
     quality = commands.add_parser(
         "check-input",
         help="verifica a qualidade de um CSV operacional antes de monitorar perdas",
@@ -207,6 +219,16 @@ def main() -> None:
             args.calibration_days,
             args.output,
             args.minimum_observations,
+            args.minimum_irradiance_wm2,
+        )
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    elif args.command == "evaluate-local-calibration":
+        report = evaluate_post_cleaning_calibration(
+            args.input,
+            args.output,
+            tuple(args.calibration_days),
+            args.alert_threshold,
+            args.persistence_days,
             args.minimum_irradiance_wm2,
         )
         print(json.dumps(report, ensure_ascii=False, indent=2))

@@ -118,11 +118,11 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel agora separa quatro perspectivas: **Visão geral**, **Análise de dados**, **Validação científica** e **Economia e metodologia**. Na aba de análise, o usuário pode carregar um CSV local, conferir exclusões, gerar indicadores diários e baixar os resultados; o arquivo não é enviado à internet nem fica armazenado pelo painel. Uma futura integração com inversor ou API substitui a importação manual, sem mudar a análise. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel agora separa quatro perspectivas: **Visão geral**, **Análise de dados**, **Validação científica** e **Economia e metodologia**. A aba de análise utiliza exclusivamente o dataset público de Laghouat, já documentado e baixado para o projeto, e apresenta apenas o recorte de teste final preservado. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
-## Fluxo operacional de CSV para alerta
+## Fluxo operacional para futura integração
 
-O protótipo também possui um fluxo de linha de comando que inspeciona a qualidade dos dados e gera um alerta diário de perda adicional persistente. Ele recomenda investigação, não limpeza automática nem atribuição certa de causa.
+O protótipo também possui um fluxo de linha de comando para uma futura integração com inversor, medidor ou API. Ele inspeciona a qualidade dos dados e gera um alerta diário de perda adicional persistente. Esse fluxo não é a fonte da tela principal atual, que é restrita ao dataset público auditado. Ele recomenda investigação, não limpeza automática nem atribuição certa de causa.
 
 ```bash
 pv-monitor check-input --input dados_operacionais.csv --output artifacts/qualidade_entrada.json

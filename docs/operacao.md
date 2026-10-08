@@ -1,8 +1,8 @@
-# Fluxo operacional do protótipo
+# Fluxo operacional para futura integração
 
 ## Finalidade
 
-O fluxo recebe um CSV de medições, verifica sua qualidade e produz um indicador diário de perda adicional persistente. O resultado prioriza uma **inspeção**; ele não identifica a causa da perda e não aciona limpeza automática.
+Este fluxo de linha de comando recebe um CSV de medições, verifica sua qualidade e produz um indicador diário de perda adicional persistente. Ele está reservado para uma futura integração com dados locais de inversor, medidor ou API. A tela principal atual analisa somente o dataset público auditado de Laghouat. O resultado prioriza uma **inspeção**; ele não identifica a causa da perda e não aciona limpeza automática.
 
 ## Contrato mínimo de entrada
 

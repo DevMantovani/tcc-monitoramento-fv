@@ -81,7 +81,7 @@ def calibrate_installation_baseline(
         raise ValueError("Data de limpeza inválida. Use formato ISO 8601, por exemplo 2026-01-15T00:00:00Z.")
 
     frame = load_observations(input_path, minimum_irradiance_wm2)
-    cleaning_end = cleaning_start + pd.Timedelta(f"{int(calibration_days)} days")
+    cleaning_end = cleaning_start + pd.DateOffset(days=int(calibration_days))
     baseline = frame[frame["timestamp"].between(cleaning_start, cleaning_end, inclusive="left")].copy()
     if len(baseline) < minimum_observations:
         raise ValueError(

@@ -58,6 +58,45 @@ def train_models(input_path: str, output_dir: str, minimum_irradiance_wm2: float
     return report
 
 
+def evaluate_final_power_model(
+    input_path: str,
+    output_dir: str,
+    model_name: str,
+    minimum_irradiance_wm2: float = 50.0,
+) -> dict[str, Any]:
+    """Evaluate one validation-selected expected-power model on the final test.
+
+    This task evaluates power prediction only. It must not be used to claim
+    detection of soiling when the source has no independent soiling reference.
+    """
+    candidates = build_candidates()
+    if model_name not in candidates:
+        raise ValueError(f"Modelo desconhecido: {model_name}")
+    frame = load_observations(input_path, minimum_irradiance_wm2)
+    split = split_temporally(frame)
+    development = pd.concat([split.train, split.validation], ignore_index=True)
+    model = candidates[model_name]
+    model.fit(development[FEATURE_COLUMNS], development[TARGET_COLUMN])
+    predicted = model.predict(split.test[FEATURE_COLUMNS])
+    report = {
+        "task": "teste final de potência esperada em fonte externa",
+        "model_name": model_name,
+        "training_rows_after_refit": len(development),
+        "test_partition": _partition_metadata(split.test),
+        "test_metrics": regression_metrics(split.test[TARGET_COLUMN], predicted),
+        "note": (
+            "O modelo foi refitado com treino mais validação após a escolha na validação. "
+            "Esta fonte não tem rótulo independente de sujidade; o resultado avalia somente potência esperada."
+        ),
+    }
+    destination = Path(output_dir)
+    destination.mkdir(parents=True, exist_ok=True)
+    with (destination / "metrics_test.json").open("w", encoding="utf-8") as handle:
+        json.dump(report, handle, ensure_ascii=False, indent=2)
+    joblib.dump(model, destination / f"{model_name}_refit_development.joblib")
+    return report
+
+
 def train_soiling_monitor(
     input_path: str, output_dir: str, minimum_irradiance_wm2: float = 50.0
 ) -> dict[str, Any]:

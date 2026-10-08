@@ -6,7 +6,8 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-REQUIRED_COLUMNS = ("timestamp", "irradiance_wm2", "module_temperature_c", "power_kw")
+REQUIRED_COLUMNS = ("timestamp", "irradiance_wm2", "temperature_c", "power_kw")
+LEGACY_TEMPERATURE_COLUMN = "module_temperature_c"
 LAGHOUAT_COLUMNS = (
     "datetime",
     "dust_density_measured_gm2",
@@ -72,7 +73,7 @@ def prepare_laghouat_dataset(input_path: str, output_path: str) -> pd.DataFrame:
     # deployed monitor. The clean panel remains only as a supervised reference
     # for training and evaluating the expected-power model.
     frame["irradiance_wm2"] = frame["poa_irradiance_wm2"]
-    frame["module_temperature_c"] = frame["cell_temperature_c"]
+    frame["temperature_c"] = frame["cell_temperature_c"]
     frame["power_kw"] = frame["power_dusty_w"] / 1000
     frame["clean_reference_power_kw"] = frame["power_clean_w"] / 1000
     frame["observed_soiling_loss_fraction"] = frame["soiling_loss_fraction"]
@@ -80,9 +81,68 @@ def prepare_laghouat_dataset(input_path: str, output_path: str) -> pd.DataFrame:
     return frame
 
 
+def prepare_zenodo_inverter_dataset(
+    input_path: str, output_path: str, inverter_id: str
+) -> pd.DataFrame:
+    """Prepare one inverter from the audited 2023--2024 external dataset.
+
+    The source's ``inverter`` column is measured PV power in watts. Its
+    ``energy`` column is an already predicted value from the source authors'
+    mathematical model and is deliberately excluded to avoid target leakage.
+    Ambient temperature is kept under its real name; it is not presented as
+    module temperature.
+    """
+    source_columns = (
+        "datetime",
+        "id",
+        "inverter",
+        "temperature_2m (°C)",
+        "global_tilted_irradiance (W/m²)",
+        "panel_size",
+    )
+    frame = pd.read_csv(input_path)
+    missing = sorted(set(source_columns).difference(frame.columns))
+    if missing:
+        raise ValueError(f"CSV Zenodo sem colunas esperadas: {', '.join(missing)}")
+    frame = frame.loc[:, source_columns].copy()
+    frame = frame[frame["id"] == inverter_id].copy()
+    if frame.empty:
+        available = ", ".join(sorted(pd.read_csv(input_path, usecols=["id"])["id"].dropna().unique()))
+        raise ValueError(f"Inversor '{inverter_id}' não encontrado. Disponíveis: {available}")
+
+    frame = frame.rename(
+        columns={
+            "datetime": "timestamp",
+            "inverter": "power_w",
+            "temperature_2m (°C)": "ambient_temperature_c",
+            "global_tilted_irradiance (W/m²)": "irradiance_wm2",
+            "id": "inverter_id",
+            "panel_size": "panel_area_m2",
+        }
+    )
+    frame["timestamp"] = pd.to_datetime(frame["timestamp"], errors="coerce", utc=True)
+    numeric_columns = [
+        "power_w",
+        "ambient_temperature_c",
+        "irradiance_wm2",
+        "panel_area_m2",
+    ]
+    for column in numeric_columns:
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    frame = frame.dropna(subset=["timestamp", "power_w", "ambient_temperature_c", "irradiance_wm2"])
+    frame = frame.drop_duplicates(subset="timestamp", keep="last")
+    frame = frame.sort_values("timestamp").reset_index(drop=True)
+    frame["power_kw"] = frame["power_w"] / 1000
+    frame["temperature_c"] = frame["ambient_temperature_c"]
+    frame.to_csv(output_path, index=False)
+    return frame
+
+
 def load_observations(path: str, minimum_irradiance_wm2: float = 50.0) -> pd.DataFrame:
     """Load a CSV, rejecting unusable records instead of imputing them silently."""
     frame = pd.read_csv(path)
+    if "temperature_c" not in frame.columns and LEGACY_TEMPERATURE_COLUMN in frame.columns:
+        frame["temperature_c"] = frame[LEGACY_TEMPERATURE_COLUMN]
     missing = sorted(set(REQUIRED_COLUMNS).difference(frame.columns))
     if missing:
         raise ValueError(f"CSV sem colunas obrigatórias: {', '.join(missing)}")
@@ -100,7 +160,7 @@ def load_observations(path: str, minimum_irradiance_wm2: float = 50.0) -> pd.Dat
         raise ValueError("Há menos de 30 observações válidas após a limpeza.")
 
     frame["irradiance_temperature_interaction"] = (
-        frame["irradiance_wm2"] * frame["module_temperature_c"]
+        frame["irradiance_wm2"] * frame["temperature_c"]
     )
     return frame
 

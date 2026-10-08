@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 
 FEATURE_COLUMNS = [
     "irradiance_wm2",
-    "module_temperature_c",
+    "temperature_c",
     "irradiance_temperature_interaction",
 ]
 TARGET_COLUMN = "power_kw"

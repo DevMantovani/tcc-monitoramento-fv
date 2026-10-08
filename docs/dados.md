@@ -40,14 +40,16 @@ Após esse filtro, há 1.860 observações diurnas válidas. Neste recorte, a pe
 4. Valores negativos pontuais de perda podem ocorrer por ruído de medição ou condições experimentais; eles não significam “sujidade negativa”.
 5. O conjunto permite treinar e avaliar um monitor que estima potência limpa esperada com variáveis ambientais e a compara à potência efetivamente medida. O módulo limpo e sua potência não são requisitos da implantação: são a referência supervisionada desta fase experimental. O MVP não propõe uma regra econômica de limpeza.
 
-## Fonte secundária auditada: PVDAQ 1433 — NREL RSF1
+## Fonte complementar auditada: inversores fotovoltaicos e meteorologia, 2023--2024
 
-Também foi auditado o sistema **PVDAQ 1433 — NREL RSF1**, disponibilizado pelo National Renewable Energy Laboratory (NREL) na Open Energy Data Initiative (OEDI), do Departamento de Energia dos Estados Unidos.
+Para avaliar a parte genérica de **estimação de potência** em outra instalação e em dados mais recentes, foi auditada a base *Photovoltaic Inverter Production and Meteorological data*.
 
-- Conjunto: *Photovoltaic Data Acquisition (PVDAQ) Public Datasets*.
-- DOI: [10.25984/1846021](https://doi.org/10.25984/1846021).
-- Catálogo e licença: [página oficial OEDI](https://data.openei.org/submissions/4568).
-- Documentação dos campos: [PVDAQ data documentation](https://github.com/openEDI/documentation/blob/main/pvdaq.md).
-- Recorte: 365 arquivos de 2017, 35.040 registros a cada 15 minutos, sem timestamps duplicados.
+- Publicação e download: [Zenodo — DOI 10.5281/zenodo.17775544](https://doi.org/10.5281/zenodo.17775544), licença CC BY 4.0.
+- Autoria e proveniência: pesquisadores da University of Cyprus e University of Nicosia, com ORCIDs declarados, artigo associado e financiamento europeu registrados na página do conjunto.
+- Arquivo utilizado: `math_model_all_inverters_03.11.2023-25.06.2024.csv`; checksum publicado MD5 `56d62f535b1ee8a0270e17e225f15524` e SHA-256 local `5a5d21e1d1228860841c257dc3b5dbb24f72b9e09abb8efa92b1561a34ae814a`.
+- Fonte das medições: potência observada nos inversores; as variáveis meteorológicas foram obtidas da API Open-Meteo e os ângulos solares, calculados com Astral.
+- Recorte de avaliação: `inverter1`, área de painel declarada de 107,1 m²; 3.185 registros horários entre 03/11/2023 e 25/06/2024, sem valores ausentes ou timestamps duplicados dentro do inversor.
 
-Ele possui potência CA, irradiância no plano e temperaturas úteis para estudos de desempenho. Porém, no recorte auditado não há rótulo independente de sujidade nem um histórico de limpezas. Por isso, é uma fonte secundária para análise de desempenho e possível validação externa, mas não a base principal para afirmar detecção de sujidade real.
+O processamento usa `inverter` como potência observada, `global_tilted_irradiance (W/m²)` como irradiância e `temperature_2m (°C)` como temperatura **ambiente**. A coluna `energy` é uma previsão já calculada pelos autores da fonte e é deliberadamente excluída: utilizá-la como entrada ou alvo criaria vazamento de informação.
+
+Após o filtro de irradiância ≥ 50 W/m², restaram 1.316 observações. Há lacunas longas na série, de aproximadamente 33 e 69 dias, e não existe medição independente de sujidade, par de módulos limpo/exposto ou histórico de limpezas. Assim, essa base não valida alertas, limiares ou decisão de limpeza; ela avalia somente se o fluxo de previsão de potência se reproduz em outra instalação.

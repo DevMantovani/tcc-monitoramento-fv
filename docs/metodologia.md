@@ -39,6 +39,12 @@ O protótipo compara Ridge e Random Forest como estimadores de potência limpa e
 
 A avaliação do monitor não pode se limitar a MAE, RMSE ou R²: ela também deve verificar a estabilidade dos alertas, falsos alertas e atraso de detecção. A generalização só poderá ser defendida após validação externa em outra base ou dados de campo. O público-alvo inicial é residencial; adaptação para outras escalas requer nova avaliação.
 
+## Avaliação externa limitada à potência esperada
+
+A fonte complementar de 2023--2024 contém potência observada por inversor, irradiância no plano inclinado e temperatura ambiente, mas não contém um rótulo independente de sujidade. Nela, o pipeline seleciona o modelo pela validação cronológica e avalia uma única vez o modelo selecionado no teste final preservado. A variável-alvo é a potência observada; previsões pré-calculadas no arquivo-fonte são excluídas.
+
+Esse experimento mede a reprodutibilidade da **previsão de potência** em outra instalação. Ele não mede perda por sujidade, não gera F1 de alertas e não justifica um limiar de limpeza. A temperatura ambiente também é identificada como tal, sem ser confundida com temperatura do módulo.
+
 ## Qualidade e limites dos dados
 
 O pipeline não preenche lacunas silenciosamente. Ele valida datas, remove timestamps duplicados e restringe o cálculo de perda às condições em que há referência física utilizável. Antes de generalizar resultados, devem ser examinados período noturno, falhas de sensor, chuva, fuso horário, unidades, medição de poeira, capacidade dos módulos e diferenças entre local do estudo e instalação-alvo.

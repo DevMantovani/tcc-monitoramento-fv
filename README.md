@@ -71,6 +71,27 @@ pv-monitor train-soiling-monitor \
 
 O modelo aprende a estimar a potência limpa esperada a partir de irradiância e temperatura. Na fase de monitoramento, ele compara essa estimativa com a potência medida do sistema. A potência do painel limpo do experimento é usada exclusivamente como referência supervisionada para desenvolvimento e validação.
 
+## Avaliação externa recente de potência
+
+Uma fonte externa só é incluída depois de auditoria de proveniência, licença, método e aderência ao objetivo. A fonte de 2023--2024 da University of Cyprus é usada exclusivamente para verificar a estimativa de potência em outra instalação: ela não possui rótulo independente de sujidade e, portanto, não valida alertas nem a decisão de limpeza.
+
+```bash
+pv-monitor prepare-zenodo-inverter \
+  --input data/raw/zenodo_inverter_2023_2024/math_model_all_inverters_03.11.2023-25.06.2024.csv \
+  --inverter-id inverter1 \
+  --output data/processed/zenodo_inverter1_2023_2024.csv
+
+pv-monitor train \
+  --input data/processed/zenodo_inverter1_2023_2024.csv \
+  --output artifacts/zenodo_inverter1
+
+# Execute apenas após escolher o modelo pelas métricas de validação acima.
+pv-monitor evaluate-final-power \
+  --input data/processed/zenodo_inverter1_2023_2024.csv \
+  --model-name random_forest \
+  --output artifacts/zenodo_inverter1_final
+```
+
 ## Calibrar alertas e executar o teste final
 
 Após selecionar o modelo pela validação, calibre os alertas somente na mesma partição de validação e preserve o teste final:

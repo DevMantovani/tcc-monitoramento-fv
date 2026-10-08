@@ -20,6 +20,6 @@ git commit -m "feat: descreve a mudança"
 git push
 ```
 
-Use mensagens curtas no imperativo, como `feat: adiciona validação temporal`, `docs: registra base PVDAQ` ou `fix: rejeita potência negativa`. Um commit deve representar uma alteração coerente e verificável.
+Use mensagens curtas no imperativo, como `feat: adiciona validação temporal`, `docs: registra fonte externa` ou `fix: rejeita potência negativa`. Um commit deve representar uma alteração coerente e verificável.
 
 Se `git pull --ff-only` indicar divergência, não force nem apague arquivos. Pare, confira `git status` e resolva a divergência antes de continuar.

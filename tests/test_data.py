@@ -3,7 +3,12 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from pv_monitor.data import load_observations, prepare_laghouat_dataset, split_temporally
+from pv_monitor.data import (
+    load_observations,
+    prepare_laghouat_dataset,
+    prepare_zenodo_inverter_dataset,
+    split_temporally,
+)
 from pv_monitor.workflow import _alert_metrics, _persistent_alerts
 
 
@@ -13,7 +18,7 @@ def test_load_observations_filters_invalid_rows(tmp_path):
         {
             "timestamp": list(timestamps.astype(str)) + ["invalid"],
             "irradiance_wm2": [300.0] * 40 + [400.0],
-            "module_temperature_c": [25.0] * 41,
+            "temperature_c": [25.0] * 41,
             "power_kw": [2.0] * 40 + [2.0],
         }
     )
@@ -73,6 +78,31 @@ def test_prepare_laghouat_calculates_loss_only_with_clean_reference(tmp_path):
     assert pd.isna(prepared.loc[1, "soiling_loss_fraction"])
     assert prepared.loc[0, "power_kw"] == pytest.approx(0.072)
     assert prepared.loc[0, "clean_reference_power_kw"] == pytest.approx(0.080)
+    assert prepared.loc[0, "temperature_c"] == pytest.approx(30.0)
+
+
+def test_prepare_zenodo_inverter_keeps_measured_power_not_source_prediction(tmp_path):
+    raw = pd.DataFrame(
+        {
+            "datetime": ["2024-01-01 10:00", "2024-01-01 11:00", "2024-01-01 10:00"],
+            "id": ["inverter1", "inverter1", "inverter2"],
+            "inverter": [1200.0, 1400.0, 9999.0],
+            "temperature_2m (°C)": [20.0, 21.0, 22.0],
+            "global_tilted_irradiance (W/m²)": [500.0, 600.0, 700.0],
+            "panel_size": [107.1, 107.1, 95.2],
+            "energy": [100.0, 100.0, 100.0],
+        }
+    )
+    input_path = tmp_path / "raw.csv"
+    output_path = tmp_path / "prepared.csv"
+    raw.to_csv(input_path, index=False)
+
+    prepared = prepare_zenodo_inverter_dataset(str(input_path), str(output_path), "inverter1")
+
+    assert len(prepared) == 2
+    assert prepared["power_kw"].tolist() == pytest.approx([1.2, 1.4])
+    assert prepared["temperature_c"].tolist() == pytest.approx([20.0, 21.0])
+    assert "energy" not in prepared.columns
 
 
 def test_persistent_alerts_and_metrics_require_consecutive_days():

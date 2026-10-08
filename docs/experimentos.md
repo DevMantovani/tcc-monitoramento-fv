@@ -66,3 +66,16 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Métricas do teste: MAE da potência limpa esperada 0,000291 kW; MAE da perda estimada 0,00632 (0,63 ponto percentual); precisão dos alertas 0,906; sensibilidade 1,000; F1 0,951; 29 dias verdadeiros positivos, 3 falsos positivos e nenhum falso negativo.
 - Interpretação: os resultados demonstram desempenho promissor **nesta base experimental**, não eficácia comprovada em residências brasileiras ou em outra localidade.
 - Próxima decisão: produzir gráficos e tabelas reproduzíveis do teste final e buscar validação complementar em fonte externa.
+
+## EXP-005 — avaliação externa da estimação de potência em dados de 2023--2024
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Base: *Photovoltaic Inverter Production and Meteorological data*, DOI [10.5281/zenodo.17775544](https://doi.org/10.5281/zenodo.17775544), CC BY 4.0. Autores vinculados à University of Cyprus e University of Nicosia; arquivo associado a publicação e com checksum divulgado.
+- Recorte: `inverter1` (107,1 m² declarados), 3.185 registros horários de 03/11/2023 a 25/06/2024. Depois do filtro de irradiância no plano inclinado ≥ 50 W/m², 1.316 registros foram preservados. Há lacunas de cerca de 33 e 69 dias.
+- Entradas: irradiância global no plano inclinado, temperatura ambiente e interação entre ambas. Alvo: potência observada do inversor, em kW. A coluna `energy`, uma previsão já fornecida pela fonte, foi excluída para impedir vazamento.
+- Partições: cronológicas; 789 registros de treino (03/11/2023--31/01/2024), 263 de validação (31/01/2024--03/05/2024) e 264 de teste final (03/05/2024--24/06/2024).
+- Seleção pela validação: Ridge — MAE 2,423 kW, RMSE 3,017 kW, R² 0,482; Random Forest — MAE 2,317 kW, RMSE 2,795 kW, R² 0,555. Random Forest foi selecionado sem acessar o teste.
+- Teste final: após refit com treino e validação, Random Forest obteve MAE 2,469 kW, RMSE 2,910 kW e R² 0,540.
+- Interpretação: a fonte mostra que o fluxo de previsão de potência pode ser executado em outra instalação e período mais recente, mas seu desempenho é moderado e não equivale a desempenho de detecção de sujidade.
+- Limitações: uma instalação não residencial, lacunas temporais e dados meteorológicos externos; não há painel limpo, rótulo de perda por sujidade ou evento de limpeza. Não foram calculados alertas nem F1 neste experimento.

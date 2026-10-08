@@ -8,7 +8,7 @@ from pathlib import Path
 
 from pv_monitor.data import prepare_laghouat_dataset
 from pv_monitor.demo import create_demo_dataset
-from pv_monitor.workflow import detect_additional_loss, train_models
+from pv_monitor.workflow import detect_additional_loss, train_models, train_soiling_monitor
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -27,6 +27,14 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--input", required=True)
     train.add_argument("--output", required=True)
     train.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
+
+    monitor = commands.add_parser(
+        "train-soiling-monitor",
+        help="treina o monitor de perda por sujidade com referência limpa apenas para validação",
+    )
+    monitor.add_argument("--input", required=True)
+    monitor.add_argument("--output", required=True)
+    monitor.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
 
     detect = commands.add_parser("detect", help="calcula o alerta de perda adicional")
     detect.add_argument("--input", required=True)
@@ -48,6 +56,9 @@ def main() -> None:
         print(f"Dataset Laghouat preparado: {len(frame)} linhas em {args.output}")
     elif args.command == "train":
         report = train_models(args.input, args.output, args.minimum_irradiance_wm2)
+        print(json.dumps(report["validation_metrics"], ensure_ascii=False, indent=2))
+    elif args.command == "train-soiling-monitor":
+        report = train_soiling_monitor(args.input, args.output, args.minimum_irradiance_wm2)
         print(json.dumps(report["validation_metrics"], ensure_ascii=False, indent=2))
     elif args.command == "detect":
         daily = detect_additional_loss(

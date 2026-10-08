@@ -68,6 +68,14 @@ def prepare_laghouat_dataset(input_path: str, output_path: str) -> pd.DataFrame:
         (frame.loc[valid_reference, "power_clean_w"] - frame.loc[valid_reference, "power_dusty_w"])
         / frame.loc[valid_reference, "power_clean_w"]
     )
+    # The following standardized fields emulate the information available to a
+    # deployed monitor. The clean panel remains only as a supervised reference
+    # for training and evaluating the expected-power model.
+    frame["irradiance_wm2"] = frame["poa_irradiance_wm2"]
+    frame["module_temperature_c"] = frame["cell_temperature_c"]
+    frame["power_kw"] = frame["power_dusty_w"] / 1000
+    frame["clean_reference_power_kw"] = frame["power_clean_w"] / 1000
+    frame["observed_soiling_loss_fraction"] = frame["soiling_loss_fraction"]
     frame.to_csv(output_path, index=False)
     return frame
 

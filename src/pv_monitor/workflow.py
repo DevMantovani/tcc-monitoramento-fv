@@ -10,7 +10,14 @@ import joblib
 import pandas as pd
 
 from pv_monitor.data import load_observations, split_temporally
-from pv_monitor.models import FEATURE_COLUMNS, TARGET_COLUMN, build_candidates, regression_metrics
+from pv_monitor.models import (
+    CLEAN_REFERENCE_TARGET_COLUMN,
+    FEATURE_COLUMNS,
+    TARGET_COLUMN,
+    build_candidates,
+    loss_metrics,
+    regression_metrics,
+)
 
 
 def _partition_metadata(partition: pd.DataFrame) -> dict[str, Any]:
@@ -44,6 +51,62 @@ def train_models(input_path: str, output_dir: str, minimum_irradiance_wm2: float
         model.fit(split.train[FEATURE_COLUMNS], split.train[TARGET_COLUMN])
         predicted = model.predict(split.validation[FEATURE_COLUMNS])
         report["validation_metrics"][name] = regression_metrics(split.validation[TARGET_COLUMN], predicted)
+        joblib.dump(model, destination / f"{name}.joblib")
+
+    with (destination / "metrics_validation.json").open("w", encoding="utf-8") as handle:
+        json.dump(report, handle, ensure_ascii=False, indent=2)
+    return report
+
+
+def train_soiling_monitor(
+    input_path: str, output_dir: str, minimum_irradiance_wm2: float = 50.0
+) -> dict[str, Any]:
+    """Train an expected-clean-power model and validate monitored loss.
+
+    The clean reference is used only as the supervised target during development.
+    The operational signal is the dirty-system power in ``power_kw``.
+    """
+    frame = load_observations(input_path, minimum_irradiance_wm2)
+    required = {CLEAN_REFERENCE_TARGET_COLUMN, "observed_soiling_loss_fraction"}
+    missing = sorted(required.difference(frame.columns))
+    if missing:
+        raise ValueError(f"CSV sem referência supervisionada de sujidade: {', '.join(missing)}")
+    frame = frame.dropna(subset=[CLEAN_REFERENCE_TARGET_COLUMN, "observed_soiling_loss_fraction"]).copy()
+    split = split_temporally(frame)
+    destination = Path(output_dir)
+    destination.mkdir(parents=True, exist_ok=True)
+    report: dict[str, Any] = {
+        "input": str(input_path),
+        "task": "monitoramento de perda por sujidade via potência limpa esperada",
+        "operational_inputs": FEATURE_COLUMNS + ["power_kw"],
+        "supervised_reference_not_required_in_deployment": CLEAN_REFERENCE_TARGET_COLUMN,
+        "partitions": {
+            "train": _partition_metadata(split.train),
+            "validation": _partition_metadata(split.validation),
+            "test_held_out": _partition_metadata(split.test),
+        },
+        "validation_metrics": {},
+        "note": "O teste final foi preservado; a referência limpa é usada somente para treinamento e validação.",
+    }
+
+    for name, model in build_candidates().items():
+        model.fit(split.train[FEATURE_COLUMNS], split.train[CLEAN_REFERENCE_TARGET_COLUMN])
+        predicted_clean = model.predict(split.validation[FEATURE_COLUMNS])
+        validation = split.validation.copy()
+        validation["predicted_clean_power_kw"] = predicted_clean
+        validation = validation[validation["predicted_clean_power_kw"] > 0]
+        estimated_loss = (
+            (validation["predicted_clean_power_kw"] - validation[TARGET_COLUMN])
+            / validation["predicted_clean_power_kw"]
+        )
+        report["validation_metrics"][name] = {
+            "expected_clean_power": regression_metrics(
+                validation[CLEAN_REFERENCE_TARGET_COLUMN], validation["predicted_clean_power_kw"]
+            ),
+            "estimated_soiling_loss": loss_metrics(
+                validation["observed_soiling_loss_fraction"], estimated_loss
+            ),
+        }
         joblib.dump(model, destination / f"{name}.joblib")
 
     with (destination / "metrics_validation.json").open("w", encoding="utf-8") as handle:

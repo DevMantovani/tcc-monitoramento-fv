@@ -31,7 +31,7 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Resultado: o alerta foi ativado no terceiro dia consecutivo acima do limiar, compatível com o sinal artificial inserido.
 - Limitação: métricas altas e alerta correto nesse cenário não demonstram desempenho em instalação real nem detecção de sujidade.
 
-## EXP-002 — preparação e inspeção da base real de Laghouat
+## EXP-002 — preparação e inspeção da base supervisionada de Laghouat
 
 - Data: 08/10/2026
 - Commit Git: a registrar no commit desta etapa.
@@ -42,3 +42,16 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Resultado descritivo: mediana de perda 15,27%; média 13,43%; percentil 90 22,45%.
 - Limitações: referência de painel lavado diariamente; um local e seis meses; só 48 medidas diretas de poeira e série horária reconstruída por PCHIP.
 - Próxima decisão: definir, com premissas explícitas, os custos e benefícios necessários para avaliar uma política de limpeza; depois escolher variáveis que estarão disponíveis na implantação.
+
+## EXP-003 — validação inicial do monitor de perdas por sujidade
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Base: mesma base de Laghouat do EXP-002; o painel limpo foi usado apenas como alvo supervisionado e referência de validação.
+- Entradas operacionais do modelo: irradiância no plano, temperatura de célula e interação entre ambas. A potência do painel limpo, a perda observada e a densidade de poeira reconstruída não entraram como variáveis preditoras.
+- Sinal monitorado: potência do painel exposto, representando a potência que seria medida pelo sistema em operação.
+- Partições: cronológicas, 60% treino, 20% validação e 20% teste preservado.
+- Modelos: Ridge e Random Forest.
+- Métrica de validação da perda estimada: Ridge — MAE 0,00661 (0,66 ponto percentual), RMSE 0,00851 e R² 0,989; Random Forest — MAE 0,02308 (2,31 pontos percentuais), RMSE 0,03125 e R² 0,851.
+- Resultado: nesta validação cronológica, Ridge teve o menor erro de perda estimada. O teste final permanece sem uso para escolha de modelo.
+- Limitações: um único local e período; a potência limpa de referência está disponível nesta base, mas não numa implantação comum. A próxima etapa deve validar o modelo em outra fonte ou em dados de campo e definir como períodos pós-limpeza serão identificados para recalibração.

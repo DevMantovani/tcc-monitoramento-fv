@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -9,6 +10,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[2]
 REAL_DATA = ROOT / "data" / "processed" / "laghouat_2022.csv"
+MONITOR_METRICS = ROOT / "artifacts" / "laghouat_monitor" / "metrics_validation.json"
 
 
 @st.cache_data(show_spinner=False)
@@ -19,11 +21,18 @@ def load_data(path: str) -> pd.DataFrame:
     return frame
 
 
+@st.cache_data(show_spinner=False)
+def load_monitor_metrics(path: str) -> dict:
+    """Read local validation results produced by the monitoring workflow."""
+    with Path(path).open(encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def main() -> None:
-    st.set_page_config(page_title="Sujidade fotovoltaica", page_icon="☀️", layout="wide")
-    st.title("Análise de sujidade fotovoltaica")
+    st.set_page_config(page_title="Monitoramento de perdas FV", page_icon="☀️", layout="wide")
+    st.title("Monitoramento de perdas por sujidade em sistemas fotovoltaicos")
     st.caption(
-        "Dados reais de experimento com um painel limpo diariamente e outro exposto ao acúmulo natural de poeira."
+        "Protótipo com aprendizado de máquina: estima a potência esperada em condição limpa e a compara com a potência medida do sistema."
     )
 
     if not REAL_DATA.exists():
@@ -36,6 +45,28 @@ def main() -> None:
         return
 
     frame = load_data(str(REAL_DATA))
+    if MONITOR_METRICS.exists():
+        monitor_metrics = load_monitor_metrics(str(MONITOR_METRICS))["validation_metrics"]
+        best_name, best_metrics = min(
+            monitor_metrics.items(),
+            key=lambda item: item[1]["estimated_soiling_loss"]["mae_fraction"],
+        )
+        loss_mae_pp = best_metrics["estimated_soiling_loss"]["mae_fraction"] * 100
+        clean_mae_w = best_metrics["expected_clean_power"]["mae_kw"] * 1000
+        st.subheader("Validação do monitor por aprendizado de máquina")
+        model_col, loss_col, power_col = st.columns(3)
+        model_col.metric("Modelo com menor erro de validação", best_name.replace("_", " ").title())
+        loss_col.metric("Erro médio na perda estimada", f"{loss_mae_pp:.2f} p.p.")
+        power_col.metric("Erro médio na potência limpa estimada", f"{clean_mae_w:.2f} W")
+        st.caption(
+            "Validação cronológica nesta base. O painel limpo é usado apenas como referência de desenvolvimento; "
+            "o sinal operacional do monitor é a potência medida do sistema combinada às variáveis ambientais."
+        )
+    else:
+        st.info(
+            "O conjunto foi preparado, mas o modelo ainda não foi treinado. Execute `pv-monitor train-soiling-monitor` "
+            "para produzir as métricas de validação locais."
+        )
     min_date, max_date = frame["date"].min(), frame["date"].max()
     selected_dates = st.sidebar.date_input("Período exibido", value=(min_date, max_date), min_value=min_date, max_value=max_date)
     if isinstance(selected_dates, tuple) and len(selected_dates) == 2:
@@ -83,7 +114,7 @@ def main() -> None:
     fourth.metric("Dias acima do limite", f"{int((daily['median_loss_fraction'] * 100 >= threshold_pct).sum())}")
     fifth.metric("Chuva acumulada", f"{daily['precipitation_mm'].sum():.1f} mm")
 
-    st.subheader("Perda diária observada")
+    st.subheader("Referência observada da base de validação")
     loss_chart = daily.set_index("date")[["median_loss_fraction"]].mul(100).rename(
         columns={"median_loss_fraction": "Perda mediana (%)"}
     )
@@ -93,13 +124,13 @@ def main() -> None:
         "Valores negativos pontuais podem ocorrer por ruído ou condições experimentais."
     )
 
-    st.subheader("Potência média diária: painel limpo × painel exposto")
+    st.subheader("Potência média diária no experimento de validação")
     power_chart = daily.set_index("date")[["mean_clean_power_w", "mean_dusty_power_w"]].rename(
         columns={"mean_clean_power_w": "Limpo (W)", "mean_dusty_power_w": "Exposto à poeira (W)"}
     )
     st.line_chart(power_chart, height=300)
 
-    st.subheader("Comparação econômica do período selecionado")
+    st.subheader("Comparação econômica retrospectiva da base de validação")
     recoverable_energy_kwh = max(float(daily["lost_energy_kwh"].sum()), 0.0)
     lost_value_brl = recoverable_energy_kwh * tariff_brl_kwh
     economic_left, economic_middle, economic_right = st.columns(3)
@@ -147,7 +178,8 @@ def main() -> None:
 
     with st.expander("Como interpretar e quais são os limites"):
         st.markdown(
-            "- O painel limpo foi lavado diariamente no experimento de origem; ele funciona como referência.\n"
+            "- O painel limpo foi lavado diariamente no experimento de origem; ele é a referência de treinamento e validação, não um requisito da implantação.\n"
+            "- Na implantação, o monitor usa potência medida e variáveis ambientais para estimar a perda em relação à potência limpa esperada.\n"
             "- A densidade de poeira medida diretamente possui 48 observações; a série horária reconstruída foi fornecida pelos autores com interpolação PCHIP.\n"
             "- O limite exibido é exploratório. A recomendação real de limpeza deve considerar custo de limpeza, tarifa/valor da energia, previsão de chuva e persistência da perda.\n"
             "- A chuva é apresentada como contexto. Não se presume que uma quantidade fixa de chuva restaure completamente a produção.\n"

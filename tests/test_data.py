@@ -70,3 +70,5 @@ def test_prepare_laghouat_calculates_loss_only_with_clean_reference(tmp_path):
 
     assert prepared.loc[0, "soiling_loss_fraction"] == pytest.approx(0.10)
     assert pd.isna(prepared.loc[1, "soiling_loss_fraction"])
+    assert prepared.loc[0, "power_kw"] == pytest.approx(0.072)
+    assert prepared.loc[0, "clean_reference_power_kw"] == pytest.approx(0.080)

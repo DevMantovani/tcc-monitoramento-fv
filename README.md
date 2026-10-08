@@ -1,13 +1,13 @@
-# Monitoramento fotovoltaico por dados
+# Monitoramento de perdas por sujidade em sistemas fotovoltaicos com aprendizado de máquina
 
 Repositório do TCC de Matheus Luís Mantovani Passoni. Ele mantém juntos o artigo em LaTeX (`article/`) e a implementação reproduzível (`src/`, `docs/` e `data/`).
 
 ## O que esta versão faz
 
-1. Prepara dados publicados de um experimento com painéis fotovoltaicos limpo e exposto à poeira.
-2. Calcula a perda observada entre os dois painéis apenas em condições diurnas com referência utilizável.
-3. Exibe a evolução da perda, da potência e do acúmulo de poeira em um painel local.
-4. Mantém um pipeline sintético separado somente para testes técnicos futuros.
+1. Treina modelos de aprendizado de máquina para estimar a potência esperada de um sistema em condição limpa usando variáveis ambientais.
+2. Compara a potência esperada com a potência realmente medida para estimar perdas que podem estar associadas à sujidade.
+3. Usa o experimento publicado de painel limpo versus exposto como referência supervisionada para treinar e validar o monitor, não como objeto final do projeto.
+4. Exibe o desempenho do monitor e os indicadores de perda em um painel local.
 
 Os dados sintéticos servem somente para testar o fluxo de software. Não podem ser usados como evidência de desempenho real no artigo.
 
@@ -61,6 +61,16 @@ pytest
 
 O conjunto compara um painel limpo diariamente a outro exposto ao acúmulo natural de poeira. Consulte [docs/dados.md](docs/dados.md) para proveniência, limitações e auditoria. O limite apresentado na interface é visual e exploratório; ainda não é uma ordem de limpeza.
 
+## Treinar o monitor de perdas por sujidade
+
+```bash
+pv-monitor train-soiling-monitor \
+  --input data/processed/laghouat_2022.csv \
+  --output artifacts/laghouat_monitor
+```
+
+O modelo aprende a estimar a potência limpa esperada a partir de irradiância e temperatura. Na fase de monitoramento, ele compara essa estimativa com a potência medida do sistema. A potência do painel limpo do experimento é usada exclusivamente como referência supervisionada para desenvolvimento e validação.
+
 ## Painel visual local
 
 Após preparar a base real, abra a análise com:
@@ -69,7 +79,7 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel mostra perda diária observada, potência média dos painéis limpo e exposto, densidade de poeira, precipitação e os dias que superam um limite visual escolhido. A lateral permite inserir tarifa/valor da energia e custo de limpeza para uma comparação retrospectiva do período. Esses valores não são preenchidos automaticamente: devem corresponder à instalação estudada. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel mostra a validação cronológica do modelo de aprendizado de máquina e, em separado, a referência observada do experimento usada para verificar o monitor. Também há dados de poeira, precipitação e uma comparação econômica retrospectiva. A lateral permite inserir tarifa/valor da energia e custo de limpeza. Esses valores não são preenchidos automaticamente: devem corresponder à instalação estudada. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
 ## Teste técnico com dados sintéticos
 

@@ -17,6 +17,7 @@ FEATURE_COLUMNS = [
     "irradiance_temperature_interaction",
 ]
 TARGET_COLUMN = "power_kw"
+CLEAN_REFERENCE_TARGET_COLUMN = "clean_reference_power_kw"
 
 
 def build_candidates(random_state: int = 42) -> dict[str, Any]:
@@ -42,5 +43,14 @@ def regression_metrics(observed: pd.Series, predicted: Any) -> dict[str, float]:
     return {
         "mae_kw": float(mean_absolute_error(observed, predicted)),
         "rmse_kw": float(mean_squared_error(observed, predicted) ** 0.5),
+        "r2": float(r2_score(observed, predicted)),
+    }
+
+
+def loss_metrics(observed: pd.Series, predicted: Any) -> dict[str, float]:
+    """Calculate metrics for estimated soiling-loss fractions."""
+    return {
+        "mae_fraction": float(mean_absolute_error(observed, predicted)),
+        "rmse_fraction": float(mean_squared_error(observed, predicted) ** 0.5),
         "r2": float(r2_score(observed, predicted)),
     }

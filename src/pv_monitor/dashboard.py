@@ -60,9 +60,11 @@ def apply_theme() -> None:
     st.markdown(
         """
         <style>
-          .stApp { background: #fbfcfc; }
+          .stApp, [data-testid="stAppViewContainer"] { background: #ffffff; color: #17212b; }
+          [data-testid="stHeader"] { background: rgba(255, 255, 255, .96); }
           .block-container { max-width: 1180px; padding-top: 2.1rem; padding-bottom: 3rem; }
           h1, h2, h3 { color: #17324d; letter-spacing: -0.02em; }
+          p, li, label, [data-testid="stMarkdownContainer"] { color: #17212b; }
           [data-testid="stMetric"] { background: #fff; border: 1px solid #dbe4e7; border-radius: 10px; padding: 1rem; min-height: 116px; }
           [data-testid="stMetricLabel"] { color: #5f6f7d; }
           [data-testid="stMetricValue"] { color: #17324d; }
@@ -70,7 +72,9 @@ def apply_theme() -> None:
           .lead { color: #5f6f7d; font-size: 1.06rem; max-width: 810px; }
           .action-box { background: #edf7f3; border-left: 4px solid #16765d; border-radius: 4px; color: #17324d; margin: 1rem 0 1.3rem; padding: 1rem 1.1rem; }
           .note-box { background: #f4f7f7; border: 1px solid #dbe4e7; border-radius: 8px; color: #5f6f7d; margin: 1rem 0; padding: .9rem 1rem; }
-          [data-testid="stTabs"] button { font-size: .95rem; padding: .65rem 1rem; }
+          [data-testid="stTabs"] button { color: #263747 !important; font-size: .95rem; padding: .65rem 1rem; }
+          [data-testid="stTabs"] button[aria-selected="true"] { color: #0b604a !important; font-weight: 700; }
+          [data-testid="stTabs"] button:hover { background: #edf4f2; color: #0b604a !important; }
         </style>
         """,
         unsafe_allow_html=True,

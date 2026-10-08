@@ -11,5 +11,6 @@
 | D07 | Fonte de dados definitiva. | Deve ter licença, potência, irradiância, temperatura e metadados conferidos. | Pendente |
 | D08 | Limiar e persistência do alerta. | Precisam ser calibrados sem consultar o teste final e justificados no relatório. | Pendente |
 | D09 | Criar uma interface web local com Streamlit. | A tela apresenta métricas, séries de potência prevista/observada e alertas; ela não substitui a validação metodológica. A seleção de base real permanece pendente. | Implementada para a demonstração |
+| D10 | Auditar o sistema PVDAQ 1433 (NREL RSF1), recorte de 2017. | Fonte pública institucional, com potência CA, irradiância no plano dos módulos e temperatura do módulo em série de 15 minutos. | Em auditoria; não é ainda a base definitiva |
 
 As decisões D07 e D08 não devem ser tratadas como definidas no artigo antes de uma discussão com o orientador e do registro da base escolhida.

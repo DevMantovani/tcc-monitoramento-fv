@@ -12,3 +12,5 @@ O pipeline recebe um CSV com cabeçalho e, no mínimo, estas colunas:
 Colunas adicionais, como chuva, vento, estado de limpeza e identificador do inversor, podem ser preservadas. Não entram no modelo inicial até haver justificativa, disponibilidade temporal e verificação de vazamento.
 
 `data/raw/` guarda o arquivo recebido e não entra no Git. Registre no experimento a origem, licença, período, unidade, fuso horário, frequência, lacunas e filtros aplicados. Arquivos em `data/processed/` também são locais; o código que os produz e o registro das decisões são o que permitem a reprodução.
+
+O primeiro recorte público auditado está descrito em [docs/dados.md](../docs/dados.md). Ele ainda não deve ser tratado como resultado final do TCC.

@@ -25,6 +25,10 @@ Essa perda observada é o rótulo usado para validar o monitor; o painel limpo n
 
 Assim, `P_clean` é permitido como alvo supervisionado apenas na fase experimental. Ele não entra como variável de entrada do modelo nem é necessário na operação do monitor. A densidade de poeira reconstruída também é mantida para análise e não é usada como atalho para a predição.
 
+### Seleção interna do estimador
+
+Ridge e Random Forest são avaliados internamente apenas para escolher um estimador de potência limpa adequado à base de desenvolvimento. Essa etapa não é o objeto comparativo do TCC e não sustenta uma conclusão sobre qual técnica de aprendizado de máquina é superior em geral. Após a seleção pela validação cronológica, um único estimador é bloqueado e avaliado como parte do **monitor**: potência limpa esperada, perda estimada e alerta persistente.
+
 ## Visualização e investigação
 
 O painel local separa a visão geral, a análise de dados, a validação científica e a simulação econômica/metodológica em abas. Essa organização impede que uma comparação experimental seja confundida com a operação normal do sistema proposto. A aba de análise usa exclusivamente o dataset público de Laghouat, com DOI, licença, método e checksum documentados, e exibe somente o recorte final preservado. Ela não aceita fontes arbitrárias. O fluxo de linha de comando para CSV permanece como base técnica para uma futura integração com inversor, medidor ou API.
@@ -35,9 +39,15 @@ A precipitação é exibida como contexto, e não como uma regra binária de “
 
 ## Avaliação, sem vazamento de alvo
 
-O protótipo compara Ridge e Random Forest como estimadores de potência limpa esperada. As métricas incluem erro da potência limpa estimada e erro da perda por sujidade estimada. A separação é cronológica: treino (60%), validação (20%) e teste final preservado (20%). O modelo e a política de alerta são escolhidos na validação. A política explora limiares de 5%, 10%, 15% e 20%, combinados com persistência de um, dois ou três dias, e seleciona a maior medida F1; o resultado é congelado antes de uma única avaliação no teste final.
+O protótipo avalia internamente candidatos simples para selecionar o estimador de potência limpa esperada, mas reporta como resultado central o desempenho do monitor bloqueado. As métricas incluem erro da potência limpa estimada e erro da perda por sujidade estimada. A separação é cronológica: treino (60%), validação (20%) e teste final preservado (20%). O estimador e a política de alerta são escolhidos na validação. A política explora limiares de 5%, 10%, 15% e 20%, combinados com persistência de um, dois ou três dias, e seleciona a maior medida F1; o resultado é congelado antes de uma única avaliação no teste final.
 
 A avaliação do monitor não pode se limitar a MAE, RMSE ou R²: ela também deve verificar a estabilidade dos alertas, falsos alertas e atraso de detecção. A generalização só poderá ser defendida após validação externa em outra base ou dados de campo. O público-alvo inicial é residencial; adaptação para outras escalas requer nova avaliação.
+
+## Teste externo de transferibilidade do monitor de sujidade
+
+Em Dhaka, o mesmo fluxo é aplicado a outro experimento de painéis limpo e exposto. A arquitetura Ridge permanece fixa; não há busca por outro algoritmo. O Ridge é ajustado no período de desenvolvimento cronológico de Dhaka, pois transferir literalmente pesos entre instalações de dimensões e sensores diferentes seria metodologicamente inadequado. Primeiro, a política de alerta definida em Laghouat (15% por três dias) é aplicada sem alteração para testar a transferibilidade da regra e do fluxo do monitor. Como análise adicional, a política pode ser recalibrada somente na validação local, preservando o teste final.
+
+Os dois resultados devem ser informados: a política transferida não encontrou dias positivos no teste final de Dhaka, mas gerou 26 alertas falsos; a recalibração local também teve baixo F1 (0,043) no teste final. A MAE da perda estimada foi 41,46 pontos percentuais e o R² da perda foi negativo. Portanto, a versão atual do monitor não demonstrou generalização automática para essa fonte. Isso reforça que sensores, qualidade dos dados, referências de limpeza e limiares precisam ser validados por instalação.
 
 ## Avaliação externa limitada à potência esperada
 

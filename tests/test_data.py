@@ -8,6 +8,7 @@ from sklearn.dummy import DummyRegressor
 from pv_monitor.data import (
     load_observations,
     operational_input_quality_report,
+    prepare_bangladesh_dataset,
     prepare_laghouat_dataset,
     prepare_zenodo_inverter_dataset,
     split_temporally,
@@ -21,6 +22,7 @@ from pv_monitor.launcher import (
     results_are_ready,
 )
 from pv_monitor.reproduction import select_model_by_validation_metric
+from pv_monitor.monitoring_evidence import condition_performance_table, monthly_alert_stability_table
 from pv_monitor.reporting import build_final_table, build_validation_table
 from pv_monitor.workflow import _alert_metrics, _persistent_alerts, detect_additional_loss
 
@@ -184,6 +186,32 @@ def test_prepare_zenodo_inverter_keeps_measured_power_not_source_prediction(tmp_
     assert "energy" not in prepared.columns
 
 
+def test_prepare_bangladesh_normalizes_daily_header_variations_and_aggregates_hourly(tmp_path):
+    source = tmp_path / "daily"
+    source.mkdir()
+    pd.DataFrame(
+        {
+            "Date": ["2020-01-10", "2020-01-10"],
+            "Time ": ["6:00:00 AM", "6:30:00 AM"],
+            "Clean Temparature": [25.0, 26.0],
+            "Dusty Temperature": [24.0, 25.0],
+            "Wind Speed": [2.0, 2.0],
+            "Humidity": [60.0, 61.0],
+            "Air Pressure": [1000.0, 1000.0],
+            "Ideal_Irradiance": [500.0, 600.0],
+            "Clean_pmp": [10.0, 12.0],
+            "Dusty_pmp": [9.0, 9.6],
+        }
+    ).to_csv(source / "day.csv", index=False)
+
+    prepared = prepare_bangladesh_dataset(str(source), str(tmp_path / "prepared.csv"))
+
+    assert len(prepared) == 1
+    assert prepared.loc[0, "source_samples"] == 2
+    assert prepared.loc[0, "power_kw"] == pytest.approx(0.0093)
+    assert prepared.loc[0, "observed_soiling_loss_fraction"] == pytest.approx(0.1545455)
+
+
 def test_persistent_alerts_and_metrics_require_consecutive_days():
     observed = pd.Series([0.12, 0.12, 0.02, 0.12, 0.12])
     estimated = pd.Series([0.11, 0.11, 0.02, 0.04, 0.11])
@@ -254,3 +282,27 @@ def test_launcher_detects_the_local_dashboard_health_endpoint(monkeypatch):
     monkeypatch.setattr("pv_monitor.launcher.urlopen", lambda *_args, **_kwargs: Response())
 
     assert dashboard_is_running()
+
+
+def test_monitoring_evidence_keeps_the_focus_on_operating_conditions_and_alerts():
+    test = pd.DataFrame(
+        {
+            "irradiance_wm2": [100.0, 150.0, 700.0, 750.0, 950.0, 1000.0],
+            "observed_soiling_loss_fraction": [0.10, 0.11, 0.20, 0.21, 0.20, 0.19],
+            "estimated_loss_fraction": [0.11, 0.10, 0.18, 0.20, 0.21, 0.20],
+        }
+    )
+    daily = pd.DataFrame(
+        {
+            "date": ["2022-07-01", "2022-07-02", "2022-08-01", "2022-08-02"],
+            "observed_loss_fraction": [0.16, 0.16, 0.10, 0.10],
+            "estimated_loss_fraction": [0.16, 0.16, 0.10, 0.10],
+        }
+    )
+
+    conditions = condition_performance_table(test)
+    monthly = monthly_alert_stability_table(daily, threshold=0.15, persistence_days=2)
+
+    assert set(conditions["condition"]) == {"50–299 W/m²", "600–899 W/m²", "≥ 900 W/m²"}
+    assert set(monthly["month"]) == {"2022-07", "2022-08"}
+    assert "f1" in monthly

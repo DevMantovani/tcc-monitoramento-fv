@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -22,6 +24,18 @@ LAGHOUAT_COLUMNS = (
     "precipitation_mm",
     "P_clean_W",
     "P_dusty_W",
+)
+BANGLADESH_REQUIRED_COLUMNS = (
+    "Date",
+    "Time",
+    "Clean Temperature",
+    "Dusty Temperature",
+    "Wind Speed",
+    "Humidity",
+    "Air Pressure",
+    "Ideal_Irradiance",
+    "Clean_pmp",
+    "Dusty_pmp",
 )
 
 
@@ -157,6 +171,111 @@ def prepare_zenodo_inverter_dataset(
     frame["temperature_c"] = frame["ambient_temperature_c"]
     frame.to_csv(output_path, index=False)
     return frame
+
+
+def _normalize_bangladesh_headers(frame: pd.DataFrame) -> pd.DataFrame:
+    """Fix documented spelling and spacing variations across daily source files."""
+    normalized = frame.copy()
+    normalized.columns = [
+        column.strip().replace("Temparature", "Temperature").replace("  ", " ")
+        for column in normalized.columns
+    ]
+    missing = sorted(set(BANGLADESH_REQUIRED_COLUMNS).difference(normalized.columns))
+    if missing:
+        raise ValueError(f"CSV Bangladesh sem colunas esperadas: {', '.join(missing)}")
+    return normalized
+
+
+def _parse_bangladesh_timestamp(frame: pd.DataFrame, source_path: Path) -> pd.Series:
+    """Parse source timestamps, preferring the unambiguous date in each filename."""
+    dates = frame["Date"].astype("string").str.strip()
+    times = frame["Time"].astype("string").str.strip()
+    filename_date = re.search(
+        r"(\d+)(?:st|nd|rd|th)\s+"
+        r"(January|February|March|April|May|June|July|August|September|October|November|December)",
+        source_path.name,
+        flags=re.IGNORECASE,
+    )
+    years = dates.str.extract(r"(\d{4})", expand=False).dropna()
+    if filename_date and not years.empty:
+        month = pd.to_datetime(filename_date.group(2), format="%B").month
+        calendar_date = f"{years.iloc[0]}-{month:02d}-{int(filename_date.group(1)):02d}"
+        return pd.to_datetime(calendar_date + " " + times, format="%Y-%m-%d %I:%M:%S %p", errors="coerce")
+    source = dates + " " + times
+    timestamps = pd.Series(pd.NaT, index=frame.index, dtype="datetime64[ns]")
+    iso_dates = dates.str.match(r"^\d{4}-\d{2}-\d{2}$", na=False)
+    timestamps.loc[iso_dates] = pd.to_datetime(
+        source.loc[iso_dates], format="%Y-%m-%d %I:%M:%S %p", errors="coerce"
+    )
+    timestamps.loc[~iso_dates] = pd.to_datetime(
+        source.loc[~iso_dates], format="%m/%d/%Y %I:%M:%S %p", errors="coerce"
+    )
+    return timestamps
+
+
+def prepare_bangladesh_dataset(input_dir: str, output_path: str) -> pd.DataFrame:
+    """Prepare the audited Dhaka clean-versus-dusty dataset at hourly resolution.
+
+    The source contains one CSV per available day at 30-second resolution. It
+    is aggregated hourly from measured clean and dusty maximum-power values;
+    the source's cumulative-energy fields are deliberately not used as model
+    inputs or targets.
+    """
+    source = Path(input_dir)
+    files = sorted(source.rglob("*.csv"))
+    if not files:
+        raise ValueError("Nenhum CSV Bangladesh foi encontrado no diretório informado.")
+    frames: list[pd.DataFrame] = []
+    for path in files:
+        raw = _normalize_bangladesh_headers(pd.read_csv(path))
+        frame = pd.DataFrame(
+            {
+                "timestamp": _parse_bangladesh_timestamp(raw, path),
+                "irradiance_wm2": raw["Ideal_Irradiance"],
+                "temperature_c": raw["Dusty Temperature"],
+                "power_dusty_w": raw["Dusty_pmp"],
+                "power_clean_w": raw["Clean_pmp"],
+                "wind_speed_ms": raw["Wind Speed"],
+                "relative_humidity_pct": raw["Humidity"],
+                "air_pressure_hpa": raw["Air Pressure"],
+                "source_file": path.name,
+            }
+        )
+        for column in frame.columns:
+            if column not in {"timestamp", "source_file"}:
+                frame[column] = pd.to_numeric(frame[column], errors="coerce")
+        frames.append(frame)
+    records = pd.concat(frames, ignore_index=True)
+    records = records.dropna(subset=["timestamp"]).sort_values("timestamp")
+    hourly = (
+        records.set_index("timestamp")
+        .groupby(pd.Grouper(freq="h"))
+        .agg(
+            source_samples=("power_dusty_w", "size"),
+            irradiance_wm2=("irradiance_wm2", "mean"),
+            temperature_c=("temperature_c", "mean"),
+            power_dusty_w=("power_dusty_w", "mean"),
+            power_clean_w=("power_clean_w", "mean"),
+            wind_speed_ms=("wind_speed_ms", "mean"),
+            relative_humidity_pct=("relative_humidity_pct", "mean"),
+            air_pressure_hpa=("air_pressure_hpa", "mean"),
+        )
+        .dropna(subset=["irradiance_wm2", "temperature_c", "power_dusty_w", "power_clean_w"])
+        .reset_index()
+    )
+    hourly["power_kw"] = hourly["power_dusty_w"] / 1000
+    hourly["clean_reference_power_kw"] = hourly["power_clean_w"] / 1000
+    valid_reference = (hourly["irradiance_wm2"] >= 50) & (hourly["power_clean_w"] > 0)
+    hourly["observed_soiling_loss_fraction"] = pd.NA
+    hourly.loc[valid_reference, "observed_soiling_loss_fraction"] = (
+        (hourly.loc[valid_reference, "power_clean_w"] - hourly.loc[valid_reference, "power_dusty_w"])
+        / hourly.loc[valid_reference, "power_clean_w"]
+    )
+    hourly["source_dataset"] = "Dhaka 2019-2020 clean-versus-dusty panels"
+    destination = Path(output_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    hourly.to_csv(destination, index=False)
+    return hourly
 
 
 def operational_input_quality_report(

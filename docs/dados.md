@@ -40,6 +40,18 @@ Após esse filtro, há 1.860 observações diurnas válidas. Neste recorte, a pe
 4. Valores negativos pontuais de perda podem ocorrer por ruído de medição ou condições experimentais; eles não significam “sujidade negativa”.
 5. O conjunto permite treinar e avaliar um monitor que estima potência limpa esperada com variáveis ambientais e a compara à potência efetivamente medida. O módulo limpo e sua potência não são requisitos da implantação: são a referência supervisionada desta fase experimental. O MVP não propõe uma regra econômica de limpeza.
 
+## Teste externo de transferibilidade: painéis limpo e exposto em Dhaka
+
+Foi auditada uma segunda fonte com referência independente entre painel limpo e painel exposto: **A comprehensive dataset for monitoring photovoltaic panels and weather parameters in urban Bangladesh**, DOI [10.17632/g6pxf8nnt6.2](https://doi.org/10.17632/g6pxf8nnt6.2), CC BY 4.0. O repositório informa dois módulos monocristalinos de 20 W, um limpo regularmente e outro não limpo, com medições a cada 30 segundos entre novembro de 2019 e outubro de 2020.
+
+- Arquivo de origem: `Solar Dataset.zip`, baixado da versão 2; SHA-256 local `078e222ca8a7e614ef3b31a0ffba34f4036e1e7aff626359c78643069ce6614c`.
+- Auditoria do conteúdo: o ZIP contém 295 CSVs diários, não os 365 dias sugeridos pela descrição. Os arquivos somam 408.059 leituras de 01/11/2019 a 30/10/2020.
+- Variações corrigidas de forma explícita: quatro arquivos trazem grafias ou espaçamentos diferentes em `Time` ou `Clean Temperature`; a data é recuperada do nome do arquivo, pois parte dos CSVs usa datas ambíguas entre dia/mês e mês/dia.
+- Preparação: as leituras de 30 segundos são agregadas por hora, produzindo 3.720 registros horários, dos quais 3.357 atendem ao filtro de irradiância e potência de referência positiva.
+- Entradas operacionais mínimas: irradiância ideal fornecida pela fonte e temperatura do painel exposto. Vento, umidade e pressão são preservados como contexto, mas não entram no modelo mínimo atual.
+
+Essa base é uma validação externa mais aderente ao objetivo de sujidade do que a fonte Zenodo, mas não é residencial brasileira. Seus campos de irradiância e potência são derivados/calculados pelos autores, e a frequência de arquivos faltantes, as variações de cabeçalho e a proporção de perdas negativas exigem cautela adicional.
+
 ## Fonte complementar auditada: inversores fotovoltaicos e meteorologia, 2023--2024
 
 Para avaliar a parte genérica de **estimação de potência** em outra instalação e em dados mais recentes, foi auditada a base *Photovoltaic Inverter Production and Meteorological data*.

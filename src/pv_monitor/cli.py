@@ -8,10 +8,12 @@ from pathlib import Path
 
 from pv_monitor.data import (
     operational_input_quality_report,
+    prepare_bangladesh_dataset,
     prepare_laghouat_dataset,
     prepare_zenodo_inverter_dataset,
 )
 from pv_monitor.demo import create_demo_dataset
+from pv_monitor.monitoring_evidence import generate_monitoring_evidence
 from pv_monitor.reproduction import reproduce_public_experiments
 from pv_monitor.reporting import generate_result_materials
 from pv_monitor.workflow import (
@@ -43,6 +45,13 @@ def build_parser() -> argparse.ArgumentParser:
     prepare_external.add_argument("--input", required=True)
     prepare_external.add_argument("--output", required=True)
     prepare_external.add_argument("--inverter-id", required=True)
+
+    prepare_bangladesh = commands.add_parser(
+        "prepare-bangladesh",
+        help="prepara a fonte pública Dhaka de painéis limpo e exposto",
+    )
+    prepare_bangladesh.add_argument("--input-dir", required=True)
+    prepare_bangladesh.add_argument("--output", required=True)
 
     train = commands.add_parser("train", help="treina Ridge e Random Forest")
     train.add_argument("--input", required=True)
@@ -119,6 +128,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     materials.add_argument("--input-dir", default="artifacts")
     materials.add_argument("--output", required=True)
+
+    evidence = commands.add_parser(
+        "analyze-monitoring-evidence",
+        help="analisa a estabilidade do monitor já selecionado, sem comparar algoritmos",
+    )
+    evidence.add_argument("--input", required=True)
+    evidence.add_argument("--final-metrics", required=True)
+    evidence.add_argument("--output", required=True)
+    evidence.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
     return parser
 
 
@@ -134,6 +152,9 @@ def main() -> None:
     elif args.command == "prepare-zenodo-inverter":
         frame = prepare_zenodo_inverter_dataset(args.input, args.output, args.inverter_id)
         print(f"Dataset externo preparado: {len(frame)} linhas em {args.output}")
+    elif args.command == "prepare-bangladesh":
+        frame = prepare_bangladesh_dataset(args.input_dir, args.output)
+        print(f"Dataset Bangladesh preparado: {len(frame)} linhas em {args.output}")
     elif args.command == "train":
         report = train_models(args.input, args.output, args.minimum_irradiance_wm2)
         print(json.dumps(report["validation_metrics"], ensure_ascii=False, indent=2))
@@ -184,4 +205,12 @@ def main() -> None:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     elif args.command == "generate-results":
         report = generate_result_materials(args.input_dir, args.output)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    elif args.command == "analyze-monitoring-evidence":
+        report = generate_monitoring_evidence(
+            args.input,
+            args.final_metrics,
+            args.output,
+            args.minimum_irradiance_wm2,
+        )
         print(json.dumps(report, ensure_ascii=False, indent=2))

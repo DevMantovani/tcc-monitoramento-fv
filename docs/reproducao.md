@@ -1,6 +1,6 @@
-# Reprodução dos experimentos públicos
+# Reprodução dos experimentos-base
 
-O comando abaixo recompõe os resultados do projeto a partir das duas fontes públicas auditadas. Ele prepara os CSVs, treina os candidatos, seleciona cada modelo somente pela validação cronológica, congela a política de alerta e executa os testes finais.
+O comando abaixo recompõe os experimentos-base a partir de duas fontes públicas auditadas. Ele prepara os CSVs, faz a seleção interna do estimador somente pela validação cronológica, congela a política de alerta e executa os testes finais.
 
 ```bash
 pv-monitor reproduce-public-experiments \
@@ -17,3 +17,5 @@ As entradas brutas, processadas e os artefatos gerados permanecem fora do Git. O
 2. **Zenodo 2023--2024:** estimação externa de potência para `inverter1`. Seleciona o modelo pelo menor MAE de potência na validação e testa o período final preservado. Não produz nem valida alertas de sujidade, pois essa fonte não tem rótulo de sujidade.
 
 Consulte `docs/dados.md` para proveniência e limites de cada fonte e `docs/experimentos.md` para os resultados registrados.
+
+O teste externo de transferibilidade com o conjunto de Dhaka é deliberadamente separado, pois requer extração de um arquivo compactado que contém outro arquivo compactado. Seu protocolo, comandos e resultado negativo estão em `docs/validacao-externa.md`; ele não é omitido nem substituído pelo resumo dos experimentos-base.

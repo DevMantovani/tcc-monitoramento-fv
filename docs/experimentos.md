@@ -89,3 +89,28 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Materiais: comparação de MAE na validação; série de perda observada e estimada no teste final de Laghouat; métricas de precisão, sensibilidade e F1 dos alertas persistentes; tabelas distintas para validação e teste final.
 - Controle contra interpretação indevida: a figura da fonte Zenodo apresenta somente erro de potência; ela não é rotulada como validação de sujidade. Os resultados continuam restritos às bases públicas descritas nos experimentos anteriores.
 - Limitação: as figuras resumem os experimentos já executados; não adicionam evidência de generalização para residências brasileiras.
+
+## EXP-007 — evidência operacional do monitor selecionado
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Objetivo: examinar o monitor bloqueado por condições operacionais e estabilidade temporal, sem comparar algoritmos nem selecionar novos parâmetros.
+- Entradas: recorte de teste final preservado do EXP-004, modelo Ridge e política de 15% por três dias definidos antes do teste.
+- Cobertura: 372 observações horárias elegíveis, agregadas em 35 dias entre 14/07/2022 e 17/08/2022.
+- Resultado por irradiância: MAE da perda de 0,80 ponto percentual entre 50–299 W/m²; entre 0,53 e 0,56 ponto percentual acima de 300 W/m². O monitor apresenta menor precisão próxima ao limite inferior de irradiância.
+- Resultado por mês: julho (18 dias) obteve F1 0,897, com 3 falsos positivos e nenhum falso negativo; agosto (17 dias) obteve F1 1,000. Os dois períodos pertencem ao mesmo teste final e não são validações independentes.
+- Contexto exploratório: a perda observada teve correlação de Spearman 0,734 com a densidade de poeira reconstruída da fonte. A variável não foi usada como entrada e a associação não comprova causalidade.
+- Limitação: o relatório estratifica uma única base experimental e não acrescenta uma nova instalação, localidade ou evento de limpeza.
+
+## EXP-008 — teste externo de transferibilidade em Dhaka
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Base: *A comprehensive dataset for monitoring photovoltaic panels and weather parameters in urban Bangladesh*, DOI [10.17632/g6pxf8nnt6.2](https://doi.org/10.17632/g6pxf8nnt6.2), CC BY 4.0. Dois painéis de 20 W, um limpo regularmente e outro exposto; 295 arquivos diários disponíveis entre 01/11/2019 e 30/10/2020.
+- Preparação auditável: 408.059 leituras de 30 segundos foram agregadas em 3.720 registros horários; 3.357 registros diurnos ficaram elegíveis. Cabeçalhos variantes e datas ambíguas foram normalizados pelo código de preparação e documentados em `dados.md`.
+- Protocolo: Ridge permanece como estimador selecionado internamente e é ajustado no período cronológico de desenvolvimento de Dhaka; não há transferência literal de pesos entre painéis. O teste principal transfere, sem alteração, a política de 15% por três dias escolhida em Laghouat. O conjunto é separado cronologicamente e o último período contém 672 observações horárias entre 30/08/2020 e 30/10/2020.
+- Resultado de potência limpa: MAE 0,002324 kW (2,32 W), RMSE 0,002814 kW e R² 0,630.
+- Resultado de perda: MAE 0,4146 (41,46 pontos percentuais), RMSE 0,5188 e R² -31,02. A política transferida gerou 26 alertas falsos e nenhum verdadeiro positivo porque não houve dias positivos no teste acima de 15% por três dias.
+- Calibração local adicional: mesmo escolhendo o melhor limiar somente na validação (5% por um dia; F1 0,197 na validação), o teste final teve F1 0,043, com 1 verdadeiro positivo e 45 falsos positivos.
+- Interpretação: o monitor atual não generaliza automaticamente de Laghouat para Dhaka. A diferença de sensores, qualidade, clima, configuração dos painéis e definição operacional de referência impede tratar o limiar ou o desempenho de Laghouat como universais.
+- Limitação: resultado externo negativo não prova que a abordagem seja inviável em toda instalação; ele mostra que esta implementação mínima precisa de calibração local, controle de qualidade e validação adicional antes de uso residencial.

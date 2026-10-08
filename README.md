@@ -4,7 +4,7 @@ Repositório do TCC de Matheus Luís Mantovani Passoni. Ele mantém juntos o art
 
 ## O que esta versão faz
 
-1. Treina modelos de aprendizado de máquina para estimar a potência esperada de um sistema em condição limpa usando variáveis ambientais.
+1. Seleciona internamente um estimador de potência limpa esperada usando variáveis ambientais; essa seleção não é o objetivo comparativo do TCC.
 2. Compara a potência esperada com a potência realmente medida para estimar perdas que podem estar associadas à sujidade.
 3. Usa o experimento publicado de painel limpo versus exposto como referência supervisionada para treinar e validar o monitor, não como objeto final do projeto.
 4. Exibe o desempenho do monitor e os indicadores de perda em um painel local.
@@ -70,9 +70,9 @@ pytest
 
 O conjunto compara um painel limpo diariamente a outro exposto ao acúmulo natural de poeira. Consulte [docs/dados.md](docs/dados.md) para proveniência, limitações e auditoria. O limite apresentado na interface é visual e exploratório; ainda não é uma ordem de limpeza.
 
-## Reproduzir todos os experimentos públicos
+## Reproduzir os experimentos-base
 
-Depois de baixar as duas fontes auditadas, execute um único comando para preparar os dados, selecionar modelos somente pela validação e refazer os testes finais:
+Depois de baixar as duas fontes auditadas, execute um único comando para preparar os dados, selecionar internamente os estimadores pela validação e refazer os testes finais dos experimentos-base:
 
 ```bash
 pv-monitor reproduce-public-experiments \
@@ -81,7 +81,7 @@ pv-monitor reproduce-public-experiments \
   --output artifacts/reproduction_summary.json
 ```
 
-O resumo consolidado fica em `artifacts/reproduction_summary.json`. Consulte [docs/reproducao.md](docs/reproducao.md) para o escopo de cada experimento.
+O resumo consolidado fica em `artifacts/reproduction_summary.json`. O teste adicional de transferibilidade com a base de Dhaka é reproduzido separadamente, conforme [docs/validacao-externa.md](docs/validacao-externa.md), pois usa um arquivo compactado com estrutura própria. Consulte [docs/reproducao.md](docs/reproducao.md) para o escopo dos experimentos-base.
 
 ## Gerar tabelas e figuras dos resultados
 
@@ -104,6 +104,23 @@ pv-monitor train-soiling-monitor \
 ```
 
 O modelo aprende a estimar a potência limpa esperada a partir de irradiância e temperatura. Na fase de monitoramento, ele compara essa estimativa com a potência medida do sistema. A potência do painel limpo do experimento é usada exclusivamente como referência supervisionada para desenvolvimento e validação.
+
+## Teste externo de transferibilidade do monitor
+
+Uma segunda fonte pública de Dhaka contém painéis limpo e exposto, em outro clima e por um período maior. Ela é usada para verificar se a política e o fluxo do monitor se transferem automaticamente — e o resultado negativo também é preservado. Após baixar e extrair a fonte conforme [docs/validacao-externa.md](docs/validacao-externa.md):
+
+```bash
+pv-monitor prepare-bangladesh \
+  --input-dir data/raw/bangladesh_2019_2020/extracted \
+  --output data/processed/bangladesh_2019_2020.csv
+
+pv-monitor evaluate-final \
+  --input data/processed/bangladesh_2019_2020.csv \
+  --policy artifacts/laghouat_monitor/alert_policy_validation.json \
+  --output artifacts/bangladesh_transfer
+```
+
+O teste não confirma generalização automática: a política calibrada em Laghouat não se transferiu para Dhaka. Essa limitação é resultado do projeto, não um resultado a ser omitido.
 
 ## Avaliação externa recente de potência
 

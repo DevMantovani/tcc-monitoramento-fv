@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from pv_monitor.data import prepare_laghouat_dataset, prepare_zenodo_inverter_dataset
+from pv_monitor.monitoring_evidence import generate_monitoring_evidence
 from pv_monitor.workflow import (
     calibrate_alert_policy,
     evaluate_final_power_model,
@@ -66,6 +67,11 @@ def reproduce_public_experiments(
         str(laghouat_final_dir),
         str(laghouat_monitor_dir / "alert_policy_validation.json"),
     )
+    monitoring_evidence = generate_monitoring_evidence(
+        str(laghouat_processed),
+        str(laghouat_final_dir / "metrics_test.json"),
+        str(artifacts / "laghouat_monitoring_evidence"),
+    )
 
     zenodo = prepare_zenodo_inverter_dataset(zenodo_input, str(zenodo_processed), zenodo_inverter_id)
     power_validation = train_models(str(zenodo_processed), str(zenodo_train_dir))
@@ -86,6 +92,7 @@ def reproduce_public_experiments(
             "selected_model": selected_soiling_model,
             "alert_policy": alert_policy["selected_policy"],
             "final_test_metrics": soiling_final["test_metrics"],
+            "monitoring_evidence": monitoring_evidence,
         },
         "zenodo_external_power_experiment": {
             "raw_input": str(zenodo_input),

@@ -28,6 +28,7 @@ REQUIRED_RESULTS = (
     Path("artifacts/laghouat_monitor/metrics_validation.json"),
     Path("artifacts/laghouat_final/metrics_test.json"),
     Path("artifacts/laghouat_final/test_daily_losses.csv"),
+    Path("artifacts/laghouat_monitoring_evidence/monitoring_evidence.json"),
     Path("artifacts/zenodo_inverter1/metrics_validation.json"),
     Path("artifacts/zenodo_inverter1_final/metrics_test.json"),
 )

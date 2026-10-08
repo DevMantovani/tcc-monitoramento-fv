@@ -81,16 +81,34 @@ def main() -> None:
             median_loss_fraction=("soiling_loss_fraction", "median"),
             mean_clean_power_w=("power_clean_w", "mean"),
             mean_dusty_power_w=("power_dusty_w", "mean"),
+            clean_energy_wh=("power_clean_w", "sum"),
+            dusty_energy_wh=("power_dusty_w", "sum"),
             median_dust_density_gm2=("dust_density_reconstructed_gm2", "median"),
             valid_records=("soiling_loss_fraction", "size"),
         )
     )
     rainfall = shown.groupby("date", as_index=False).agg(precipitation_mm=("precipitation_mm", "sum"))
     daily = daily.merge(rainfall, on="date", how="left")
+    daily["lost_energy_kwh"] = (daily["clean_energy_wh"] - daily["dusty_energy_wh"]) / 1000
 
     st.sidebar.markdown("### Explorar um limite")
     threshold_pct = st.sidebar.slider("Perda diária de referência (%)", 0.0, 30.0, 10.0, 0.5)
     st.sidebar.caption("É um filtro visual configurável; não representa uma ordem de limpeza.")
+
+    st.sidebar.markdown("### Cenário econômico residencial")
+    tariff_brl_kwh = st.sidebar.number_input(
+        "Valor da energia (R$/kWh)", min_value=0.0, value=0.80, step=0.01,
+        help="Referência inicial: R$ 0,80/kWh, sem tributos. Substitua pelo valor aplicável à instalação.",
+    )
+    cleaning_cost_brl = st.sidebar.number_input(
+        "Custo da limpeza (R$)", min_value=0.0, value=200.0, step=10.0,
+        help="Referência inicial: R$ 200, ponto médio de uma faixa residencial publicada de R$ 150–250 por visita.",
+    )
+    recovery_pct = st.sidebar.slider(
+        "Recuperação assumida após limpeza (%)", min_value=0, max_value=100, value=100, step=5,
+        help="É uma hipótese de cenário. A recuperação real depende do tipo de sujeira e do procedimento de limpeza.",
+    )
+    st.sidebar.caption("Simulação editável, não orçamento nem recomendação automática de limpeza.")
 
     loss_pct = daylight["soiling_loss_fraction"] * 100
     first, second, third, fourth, fifth = st.columns(5)
@@ -115,6 +133,20 @@ def main() -> None:
         columns={"mean_clean_power_w": "Limpo (W)", "mean_dusty_power_w": "Exposto à poeira (W)"}
     )
     st.line_chart(power_chart, height=300)
+
+    st.subheader("Cenário de economia potencial")
+    observed_lost_energy_kwh = max(float(daily["lost_energy_kwh"].sum()), 0.0)
+    potential_recovery_brl = observed_lost_energy_kwh * tariff_brl_kwh * (recovery_pct / 100)
+    balance_brl = potential_recovery_brl - cleaning_cost_brl
+    economy_left, economy_middle, economy_right, economy_fourth = st.columns(4)
+    economy_left.metric("Energia não gerada observada", f"{observed_lost_energy_kwh:.2f} kWh")
+    economy_middle.metric("Valor potencial recuperável", f"R$ {potential_recovery_brl:.2f}")
+    economy_right.metric("Custo de limpeza assumido", f"R$ {cleaning_cost_brl:.2f}")
+    economy_fourth.metric("Saldo do cenário", f"R$ {balance_brl:.2f}")
+    st.caption(
+        "Cálculo no período selecionado: energia não gerada observada × valor da energia × recuperação assumida, menos o custo de limpeza. "
+        "É uma simulação de referência baseada no experimento, não uma economia efetivamente alcançada em residência real."
+    )
 
     left, right = st.columns(2)
     with left:
@@ -146,6 +178,7 @@ def main() -> None:
             "- Na implantação, o monitor usa potência medida e variáveis ambientais para estimar a perda em relação à potência limpa esperada.\n"
             "- A densidade de poeira medida diretamente possui 48 observações; a série horária reconstruída foi fornecida pelos autores com interpolação PCHIP.\n"
             "- O limite exibido é exploratório e serve para priorizar investigação, não para recomendar ou otimizar a limpeza.\n"
+            "- O cenário econômico usa valores residenciais editáveis e uma recuperação assumida; ele não substitui orçamento, tarifa real ou validação em campo.\n"
             "- A chuva é apresentada como contexto. Não se presume que uma quantidade fixa de chuva restaure completamente a produção.\n"
             "- Esta base representa um local e seis meses de experimento; ela não prova desempenho idêntico em outra instalação."
         )

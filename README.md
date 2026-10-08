@@ -79,7 +79,7 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel mostra a validação cronológica do modelo de aprendizado de máquina e, em separado, a referência observada do experimento usada para verificar o monitor. Também há dados de poeira, precipitação e um filtro visual para priorizar a investigação de períodos com maior perda. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel mostra a validação cronológica do modelo de aprendizado de máquina e, em separado, a referência observada do experimento usada para verificar o monitor. Também há dados de poeira, precipitação, um filtro visual e uma simulação editável de economia potencial. O cenário começa com referências residenciais brasileiras, mas não representa orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
 ## Teste técnico com dados sintéticos
 

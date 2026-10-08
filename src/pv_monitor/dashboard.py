@@ -60,21 +60,22 @@ def apply_theme() -> None:
     st.markdown(
         """
         <style>
-          .stApp, [data-testid="stAppViewContainer"] { background: #ffffff; color: #17212b; }
-          [data-testid="stHeader"] { background: rgba(255, 255, 255, .96); }
+          .stApp, [data-testid="stAppViewContainer"] { background: #0b1220; color: #e7edf5; }
+          [data-testid="stHeader"] { background: rgba(11, 18, 32, .96); }
           .block-container { max-width: 1180px; padding-top: 2.1rem; padding-bottom: 3rem; }
-          h1, h2, h3 { color: #17324d; letter-spacing: -0.02em; }
-          p, li, label, [data-testid="stMarkdownContainer"] { color: #17212b; }
-          [data-testid="stMetric"] { background: #fff; border: 1px solid #dbe4e7; border-radius: 10px; padding: 1rem; min-height: 116px; }
-          [data-testid="stMetricLabel"] { color: #5f6f7d; }
-          [data-testid="stMetricValue"] { color: #17324d; }
-          .eyebrow { color: #16765d; font-size: .76rem; font-weight: 700; letter-spacing: .09em; }
-          .lead { color: #5f6f7d; font-size: 1.06rem; max-width: 810px; }
-          .action-box { background: #edf7f3; border-left: 4px solid #16765d; border-radius: 4px; color: #17324d; margin: 1rem 0 1.3rem; padding: 1rem 1.1rem; }
-          .note-box { background: #f4f7f7; border: 1px solid #dbe4e7; border-radius: 8px; color: #5f6f7d; margin: 1rem 0; padding: .9rem 1rem; }
-          [data-testid="stTabs"] button { color: #263747 !important; font-size: .95rem; padding: .65rem 1rem; }
-          [data-testid="stTabs"] button[aria-selected="true"] { color: #0b604a !important; font-weight: 700; }
-          [data-testid="stTabs"] button:hover { background: #edf4f2; color: #0b604a !important; }
+          h1, h2, h3 { color: #f4f8fc; letter-spacing: -0.02em; }
+          p, li, label, [data-testid="stMarkdownContainer"] { color: #d8e2ec; }
+          [data-testid="stMetric"] { background: #131f2c; border: 1px solid #2b3d4f; border-radius: 10px; padding: 1rem; min-height: 116px; }
+          [data-testid="stMetricLabel"] { color: #a8b8c8; }
+          [data-testid="stMetricValue"] { color: #f4f8fc; }
+          .eyebrow { color: #6ee7b7; font-size: .76rem; font-weight: 700; letter-spacing: .09em; }
+          .lead { color: #bdcad7; font-size: 1.06rem; max-width: 810px; }
+          .action-box { background: #102a22; border-left: 4px solid #46c796; border-radius: 4px; color: #e1f6ec; margin: 1rem 0 1.3rem; padding: 1rem 1.1rem; }
+          .note-box { background: #162331; border: 1px solid #2b3d4f; border-radius: 8px; color: #c7d4e0; margin: 1rem 0; padding: .9rem 1rem; }
+          [data-testid="stDataFrame"] { border: 1px solid #2b3d4f; }
+          [data-testid="stTabs"] button { color: #b9c7d4 !important; font-size: .95rem; padding: .65rem 1rem; }
+          [data-testid="stTabs"] button[aria-selected="true"] { color: #6ee7b7 !important; font-weight: 700; }
+          [data-testid="stTabs"] button:hover { background: #162331; color: #6ee7b7 !important; }
         </style>
         """,
         unsafe_allow_html=True,

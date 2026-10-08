@@ -118,7 +118,7 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel mostra a validação cronológica do modelo de aprendizado de máquina e, em separado, a referência observada do experimento usada para verificar o monitor. Também há dados de poeira, precipitação, um filtro visual e uma simulação editável de economia potencial. O cenário começa com referências residenciais brasileiras, mas não representa orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel agora separa quatro perspectivas: **Visão geral**, **Monitoramento operacional**, **Validação científica** e **Economia e metodologia**. Na aba operacional, o usuário pode carregar um CSV local, conferir exclusões, gerar indicadores diários e baixar os resultados; o arquivo não é enviado à internet nem fica armazenado pelo painel. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
 ## Fluxo operacional de CSV para alerta
 

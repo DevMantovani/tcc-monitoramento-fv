@@ -368,6 +368,8 @@ def detect_additional_loss(
     model = joblib.load(model_path)
     frame["predicted_power_kw"] = model.predict(frame[FEATURE_COLUMNS])
     frame = frame[frame["predicted_power_kw"] >= minimum_expected_kw].copy()
+    if frame.empty:
+        raise ValueError("Nenhuma observação atingiu a potência esperada mínima configurada.")
     frame["loss_fraction"] = (frame["predicted_power_kw"] - frame["power_kw"]) / frame["predicted_power_kw"]
     frame["date"] = frame["timestamp"].dt.date.astype(str)
 

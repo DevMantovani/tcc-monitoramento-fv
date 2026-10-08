@@ -8,9 +8,9 @@
 | D04 | Chamar o resultado de alerta de perda adicional persistente. | O resíduo não identifica sozinho a causa da perda. | Aceita |
 | D05 | Não versionar dados brutos, processados, modelos ou resultados. | Evita distribuição indevida de dados e arquivos grandes; a proveniência fica documentada. | Aceita |
 | D06 | Começar com CSV e interface de linha de comando. | Facilita auditoria e validação antes de uma interface gráfica. | Aceita |
-| D07 | Fonte de dados definitiva. | Deve ter licença, potência, irradiância, temperatura e metadados conferidos. | Pendente |
-| D08 | Limiar e persistência do alerta. | Precisam ser calibrados sem consultar o teste final e justificados no relatório. | Pendente |
-| D09 | Criar uma interface web local com Streamlit. | A tela apresenta métricas, séries de potência prevista/observada e alertas; ela não substitui a validação metodológica. A seleção de base real permanece pendente. | Implementada para a demonstração |
-| D10 | Auditar o sistema PVDAQ 1433 (NREL RSF1), recorte de 2017. | Fonte pública institucional, com potência CA, irradiância no plano dos módulos e temperatura do módulo em série de 15 minutos. | Em auditoria; não é ainda a base definitiva |
+| D07 | Usar o experimento Laghouat 2022 como base principal desta fase. | A fonte pública compara módulos idênticos, um limpo diariamente e outro exposto à poeira, permitindo observar uma perda de referência. | Aceita para protótipo; validação externa pendente |
+| D08 | Não fixar limiar de limpeza nesta fase. | O limite no painel é exploratório; uma decisão econômica exige custo de limpeza, valor de energia, chuva e persistência. | Aceita |
+| D09 | Criar uma interface web local com Streamlit. | A tela mostra perda observada, potências dos painéis limpo/exposto e poeira reconstruída; ela apoia análise, sem recomendar limpeza automática. | Implementada |
+| D10 | Manter o PVDAQ 1433 (NREL RSF1) como fonte secundária auditada. | A fonte institucional possui potência e variáveis ambientais, mas não rótulo de sujidade ou histórico de limpezas no recorte avaliado. | Aceita como complementar |
 
-As decisões D07 e D08 não devem ser tratadas como definidas no artigo antes de uma discussão com o orientador e do registro da base escolhida.
+A escolha da base e o escopo do protótipo estão registrados. A política econômica de limpeza continua dependente de premissas que devem ser definidas com o orientador e documentadas antes de ser usada como conclusão do artigo.

@@ -2,13 +2,12 @@
 
 Repositório do TCC de Matheus Luís Mantovani Passoni. Ele mantém juntos o artigo em LaTeX (`article/`) e a implementação reproduzível (`src/`, `docs/` e `data/`).
 
-## O que esta primeira versão faz
+## O que esta versão faz
 
-1. Lê medições temporais de irradiância, temperatura do módulo e potência observada.
-2. Remove registros inválidos sem preencher lacunas silenciosamente.
-3. Separa treino, validação e teste respeitando a ordem do tempo.
-4. Compara Ridge (referência linear regularizada) e Random Forest.
-5. Estima a potência de referência e sinaliza **perda adicional persistente**. O alerta não diagnostica automaticamente sujidade: sombras, falhas, degradação e erros de medição são hipóteses alternativas.
+1. Prepara dados publicados de um experimento com painéis fotovoltaicos limpo e exposto à poeira.
+2. Calcula a perda observada entre os dois painéis apenas em condições diurnas com referência utilizável.
+3. Exibe a evolução da perda, da potência e do acúmulo de poeira em um painel local.
+4. Mantém um pipeline sintético separado somente para testes técnicos futuros.
 
 Os dados sintéticos servem somente para testar o fluxo de software. Não podem ser usados como evidência de desempenho real no artigo.
 
@@ -49,7 +48,30 @@ python -m pip install --upgrade pip
 python -m pip install -e .[dev]
 ```
 
-## Primeiro teste do pipeline
+## Preparar a base real de sujidade
+
+Baixe o arquivo `Laghouat_2022_final.csv` da [fonte pública no Mendeley Data](https://doi.org/10.17632/4jdt83yy43.3) e mantenha-o localmente em `data/raw/laghouat_2022/`. Em seguida:
+
+```bash
+pv-monitor prepare-laghouat \
+  --input data/raw/laghouat_2022/Laghouat_2022_final.csv \
+  --output data/processed/laghouat_2022.csv
+pytest
+```
+
+O conjunto compara um painel limpo diariamente a outro exposto ao acúmulo natural de poeira. Consulte [docs/dados.md](docs/dados.md) para proveniência, limitações e auditoria. O limite apresentado na interface é visual e exploratório; ainda não é uma ordem de limpeza.
+
+## Painel visual local
+
+Após preparar a base real, abra a análise com:
+
+```bash
+pv-dashboard
+```
+
+O painel mostra perda diária observada, potência média dos painéis limpo e exposto, densidade de poeira e os dias que superam um limite visual escolhido. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+
+## Teste técnico com dados sintéticos
 
 ```bash
 pv-monitor demo --output data/processed/demo_sintetico.csv
@@ -58,17 +80,7 @@ pv-monitor detect --input data/processed/demo_sintetico.csv --model artifacts/de
 pytest
 ```
 
-O comando `demo` injeta uma perda controlada apenas para verificar se o pipeline produz indicadores e alertas. Consulte [docs/metodologia.md](docs/metodologia.md) antes de interpretar os resultados.
-
-## Painel visual local
-
-Após executar o cenário demonstrativo, abra uma tela de análise com:
-
-```bash
-pv-dashboard
-```
-
-O painel mostra métricas, a curva de potência observada em comparação à prevista, a perda diária e os alertas. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O comando `demo` injeta uma perda controlada apenas para verificar se o pipeline produz indicadores e alertas. Seus resultados não são evidência científica nem aparecem no painel principal.
 
 ## Versionamento com GitHub
 

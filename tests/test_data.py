@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from pv_monitor.data import load_observations, split_temporally
+from pv_monitor.data import load_observations, prepare_laghouat_dataset, split_temporally
 
 
 def test_load_observations_filters_invalid_rows(tmp_path):
@@ -43,3 +43,30 @@ def test_load_observations_requires_columns(tmp_path):
 
     with pytest.raises(ValueError, match="colunas obrigatórias"):
         load_observations(str(path))
+
+
+def test_prepare_laghouat_calculates_loss_only_with_clean_reference(tmp_path):
+    raw = pd.DataFrame(
+        {
+            "datetime": ["17/02/2022 10:00", "17/02/2022 11:00"],
+            "dust_density_measured_gm2": [1.0, None],
+            "dust_density_reconstructed_PCHIP_gm2": [1.0, 1.1],
+            "temp_amb_C": [20.0, 21.0],
+            "T_cell_C": [30.0, 31.0],
+            "G_POA_Wm2": [500.0, 0.0],
+            "RH_pct": [40.0, 41.0],
+            "wind_speed_ms": [2.0, 2.1],
+            "cloud_cover_pct": [10.0, 11.0],
+            "precipitation_mm": [0.0, 0.0],
+            "P_clean_W": [80.0, 0.0],
+            "P_dusty_W": [72.0, 0.0],
+        }
+    )
+    input_path = tmp_path / "raw.csv"
+    output_path = tmp_path / "prepared.csv"
+    raw.to_csv(input_path, index=False)
+
+    prepared = prepare_laghouat_dataset(str(input_path), str(output_path))
+
+    assert prepared.loc[0, "soiling_loss_fraction"] == pytest.approx(0.10)
+    assert pd.isna(prepared.loc[1, "soiling_loss_fraction"])

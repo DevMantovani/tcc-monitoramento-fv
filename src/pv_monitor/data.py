@@ -7,6 +7,20 @@ from dataclasses import dataclass
 import pandas as pd
 
 REQUIRED_COLUMNS = ("timestamp", "irradiance_wm2", "module_temperature_c", "power_kw")
+LAGHOUAT_COLUMNS = (
+    "datetime",
+    "dust_density_measured_gm2",
+    "dust_density_reconstructed_PCHIP_gm2",
+    "temp_amb_C",
+    "T_cell_C",
+    "G_POA_Wm2",
+    "RH_pct",
+    "wind_speed_ms",
+    "cloud_cover_pct",
+    "precipitation_mm",
+    "P_clean_W",
+    "P_dusty_W",
+)
 
 
 @dataclass(frozen=True)
@@ -14,6 +28,48 @@ class TemporalSplit:
     train: pd.DataFrame
     validation: pd.DataFrame
     test: pd.DataFrame
+
+
+def prepare_laghouat_dataset(input_path: str, output_path: str) -> pd.DataFrame:
+    """Prepare the published clean-versus-dusty panel dataset without imputation.
+
+    The output keeps the measured variables in their published units. Loss is only
+    defined when irradiance is at least 50 W/m² and the clean-panel power is positive.
+    """
+    frame = pd.read_csv(input_path)
+    missing = sorted(set(LAGHOUAT_COLUMNS).difference(frame.columns))
+    if missing:
+        raise ValueError(f"CSV Laghouat sem colunas esperadas: {', '.join(missing)}")
+
+    frame = frame.loc[:, LAGHOUAT_COLUMNS].copy()
+    frame = frame.rename(
+        columns={
+            "datetime": "timestamp",
+            "dust_density_measured_gm2": "dust_density_measured_gm2",
+            "dust_density_reconstructed_PCHIP_gm2": "dust_density_reconstructed_gm2",
+            "temp_amb_C": "ambient_temperature_c",
+            "T_cell_C": "cell_temperature_c",
+            "G_POA_Wm2": "poa_irradiance_wm2",
+            "RH_pct": "relative_humidity_pct",
+            "P_clean_W": "power_clean_w",
+            "P_dusty_W": "power_dusty_w",
+        }
+    )
+    frame["timestamp"] = pd.to_datetime(frame["timestamp"], dayfirst=True, errors="coerce")
+    numeric_columns = [column for column in frame.columns if column != "timestamp"]
+    for column in numeric_columns:
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    frame = frame.dropna(subset=["timestamp"]).drop_duplicates(subset="timestamp", keep="last")
+    frame = frame.sort_values("timestamp").reset_index(drop=True)
+
+    valid_reference = (frame["poa_irradiance_wm2"] >= 50) & (frame["power_clean_w"] > 0)
+    frame["soiling_loss_fraction"] = pd.NA
+    frame.loc[valid_reference, "soiling_loss_fraction"] = (
+        (frame.loc[valid_reference, "power_clean_w"] - frame.loc[valid_reference, "power_dusty_w"])
+        / frame.loc[valid_reference, "power_clean_w"]
+    )
+    frame.to_csv(output_path, index=False)
+    return frame
 
 
 def load_observations(path: str, minimum_irradiance_wm2: float = 50.0) -> pd.DataFrame:

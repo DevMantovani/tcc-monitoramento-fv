@@ -6,6 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
+from pv_monitor.data import prepare_laghouat_dataset
 from pv_monitor.demo import create_demo_dataset
 from pv_monitor.workflow import detect_additional_loss, train_models
 
@@ -17,6 +18,10 @@ def build_parser() -> argparse.ArgumentParser:
     demo = commands.add_parser("demo", help="gera dados sintéticos para testar o software")
     demo.add_argument("--output", required=True)
     demo.add_argument("--days", type=int, default=90)
+
+    prepare = commands.add_parser("prepare-laghouat", help="prepara o dataset real de painéis limpo e exposto")
+    prepare.add_argument("--input", required=True)
+    prepare.add_argument("--output", required=True)
 
     train = commands.add_parser("train", help="treina Ridge e Random Forest")
     train.add_argument("--input", required=True)
@@ -38,6 +43,9 @@ def main() -> None:
     if args.command == "demo":
         frame = create_demo_dataset(args.output, days=args.days)
         print(f"Dados sintéticos criados: {len(frame)} linhas em {args.output}")
+    elif args.command == "prepare-laghouat":
+        frame = prepare_laghouat_dataset(args.input, args.output)
+        print(f"Dataset Laghouat preparado: {len(frame)} linhas em {args.output}")
     elif args.command == "train":
         report = train_models(args.input, args.output, args.minimum_irradiance_wm2)
         print(json.dumps(report["validation_metrics"], ensure_ascii=False, indent=2))

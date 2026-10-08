@@ -30,3 +30,15 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Regra de alerta: perda média diária de pelo menos 12%, no mínimo 12 amostras válidas e três dias consecutivos.
 - Resultado: o alerta foi ativado no terceiro dia consecutivo acima do limiar, compatível com o sinal artificial inserido.
 - Limitação: métricas altas e alerta correto nesse cenário não demonstram desempenho em instalação real nem detecção de sujidade.
+
+## EXP-002 — preparação e inspeção da base real de Laghouat
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Base: *Hourly PV Power and Dust Accumulation Dataset — Laghouat, Algeria, February–August 2022*, DOI [10.17632/4jdt83yy43.3](https://doi.org/10.17632/4jdt83yy43.3), CC BY 4.0.
+- Cobertura: 4.368 observações horárias entre 17/02/2022 e 17/08/2022, sem timestamps duplicados.
+- Filtros: a perda foi calculada somente com irradiância no plano ≥ 50 W/m² e potência positiva do painel limpo; 1.860 registros diurnos ficaram elegíveis.
+- Modelo e parâmetros: não aplicável nesta etapa. Não foi treinado modelo de aprendizado de máquina.
+- Resultado descritivo: mediana de perda 15,27%; média 13,43%; percentil 90 22,45%.
+- Limitações: referência de painel lavado diariamente; um local e seis meses; só 48 medidas diretas de poeira e série horária reconstruída por PCHIP.
+- Próxima decisão: definir, com premissas explícitas, os custos e benefícios necessários para avaliar uma política de limpeza; depois escolher variáveis que estarão disponíveis na implantação.

@@ -2,30 +2,36 @@
 
 ## Objetivo operacional
 
-Estimar a potência que o sistema deveria produzir no mesmo instante das condições ambientais observadas. A diferença entre potência prevista e medida forma um indicador de desempenho relativo. A análise é retrospectiva; não equivale a prever a geração de amanhã.
+O sistema é concebido como apoio à decisão para identificar períodos em que a perda de geração associada à sujidade merece investigação e possível limpeza. Nesta fase, a análise é retrospectiva: ela usa medições já observadas, não prevê a geração de amanhã nem aciona uma limpeza automaticamente.
 
-## Entradas, saída e hipótese
+## Referência observada de sujidade
 
-Na primeira versão, as entradas são irradiância no plano dos módulos, temperatura do módulo e a interação entre ambas. A saída é `power_kw`. Ridge é o modelo-base interpretável e Random Forest é o modelo não linear de comparação. A hipótese de trabalho é que uma perda adicional, consistente após filtros e por vários dias, merece investigação. Ela não prova que a causa seja sujidade.
-
-## Separação temporal
-
-O CSV é ordenado por `timestamp` e dividido cronologicamente em treino (60%), validação (20%) e teste final (20%). Nenhum registro futuro é misturado no treino. O escalonamento do Ridge é ajustado somente com treino; isso evita vazamento de informações do futuro. As datas reais de cada partição devem ser registradas em `docs/experimentos.md` antes da abertura do teste final.
-
-## Qualidade dos dados
-
-Registros sem as quatro colunas obrigatórias, com potência negativa, horário inválido ou irradiância abaixo do limiar configurado são excluídos e contabilizados. Lacunas não são preenchidas automaticamente. Antes de experimentos reais, conferir: fuso horário, unidade, frequência, duplicidades, período noturno, falhas de sensor, potência nominal e possíveis registros de limpeza/chuva.
-
-## Indicador e alerta
-
-Para cada observação válida, o pipeline calcula:
+A primeira base de trabalho contém dois módulos idênticos: um lavado diariamente e outro exposto à poeira. Para observações com irradiância no plano de pelo menos 50 W/m² e potência positiva do módulo limpo, é calculada a fração:
 
 ```text
-fração_de_perda = (potência_prevista - potência_observada) / potência_prevista
+perda_por_sujidade = (potência_limpa − potência_exposta) / potência_limpa
 ```
 
-O denominador só é usado acima de uma potência mínima configurável. Em seguida, agrega a média diária e exige quantidade mínima de amostras e dias consecutivos acima do limiar. A saída se chama `alerta_perda_adicional`; não `alerta_sujidade`.
+O resultado é agregado por dia usando a mediana das observações válidas. A mediana reduz a influência de valores pontuais atípicos e torna a leitura do painel mais intuitiva. Esta medida descreve a diferença observada no experimento; ainda não é uma regra econômica de limpeza.
 
-## Avaliação
+## Visualização e investigação
 
-A etapa de regressão informa MAE, RMSE e R². Caso exista uma referência independente de limpeza ou um cenário semissintético com perda conhecida, os alertas podem ser avaliados como classificação, por exemplo com precisão, sensibilidade e F1. Sem rótulo confiável, relatar somente consistência do indicador, cobertura e limitações — não acurácia de detecção de sujidade.
+O painel local mostra a perda diária observada, as potências médias dos módulos limpo e exposto, e a densidade de poeira reconstruída fornecida pelos autores. Um limite selecionável na interface serve apenas para filtrar e discutir dias de maior perda. Ele deve ser descrito como **limite visual exploratório**, não como ponto de limpeza validado.
+
+Uma recomendação operacional futura deverá combinar, no mínimo:
+
+1. perda estimada ou observada e sua persistência;
+2. custo e disponibilidade de limpeza;
+3. valor da energia recuperável;
+4. previsão de chuva, pois ela pode alterar o benefício da limpeza;
+5. restrições locais de segurança e operação.
+
+## Modelagem futura, sem vazamento de alvo
+
+Modelos de regressão ou classificação poderão ser comparados somente depois de definir quais variáveis estariam disponíveis na instalação real no instante da decisão. A potência do painel limpo e uma medição de poeira usada como referência podem servir para construir ou avaliar o alvo, mas não devem ser usadas como entrada de um modelo que alegue funcionar onde essas referências não existem.
+
+Quando a modelagem for iniciada, a separação deverá permanecer cronológica (treino, validação e teste) e as métricas serão registradas em `docs/experimentos.md`. A avaliação de uma política de limpeza não pode se limitar a MAE, RMSE ou R²: ela também precisa comparar energia recuperada, falsos alertas, limpezas evitadas e resultado econômico sob premissas explicitadas.
+
+## Qualidade e limites dos dados
+
+O pipeline não preenche lacunas silenciosamente. Ele valida datas, remove timestamps duplicados e restringe o cálculo de perda às condições em que há referência física utilizável. Antes de generalizar resultados, devem ser examinados período noturno, falhas de sensor, chuva, fuso horário, unidades, medição de poeira, capacidade dos módulos e diferenças entre local do estudo e instalação-alvo.

@@ -1,4 +1,4 @@
-"""Local dashboard for the PV-soiling monitoring prototype."""
+"""Simple presentation dashboard for the PV-soiling monitoring prototype."""
 
 from __future__ import annotations
 
@@ -9,267 +9,134 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
-from pv_monitor.data import operational_input_quality_report
-
 ROOT = Path(__file__).resolve().parents[2]
 REAL_DATA = ROOT / "data" / "processed" / "laghouat_2022.csv"
-MONITOR_METRICS = ROOT / "artifacts" / "laghouat_monitor" / "metrics_validation.json"
 FINAL_METRICS = ROOT / "artifacts" / "laghouat_final" / "metrics_test.json"
 FINAL_DAILY_LOSSES = ROOT / "artifacts" / "laghouat_final" / "test_daily_losses.csv"
-CONDITION_PERFORMANCE = ROOT / "artifacts" / "laghouat_monitoring_evidence" / "condition_performance.csv"
-MONTHLY_STABILITY = ROOT / "artifacts" / "laghouat_monitoring_evidence" / "monthly_alert_stability.csv"
 
 
 @st.cache_data(show_spinner=False)
 def load_data(path: str) -> pd.DataFrame:
-    """Read the prepared version of the published experiment."""
+    """Read the prepared public experiment."""
     frame = pd.read_csv(path, parse_dates=["timestamp"])
-    frame["date"] = frame["timestamp"].dt.date
+    frame["date"] = frame["timestamp"].dt.normalize()
     return frame
 
 
 @st.cache_data(show_spinner=False)
-def load_csv(path: str) -> pd.DataFrame:
-    """Read a generated local report."""
-    return pd.read_csv(path)
+def load_daily_losses(path: str) -> pd.DataFrame:
+    """Read the saved final-test daily results."""
+    daily = pd.read_csv(path, parse_dates=["date"])
+    return daily.sort_values("date")
 
 
 @st.cache_data(show_spinner=False)
 def load_json(path: str) -> dict[str, Any]:
-    """Read a local metrics report."""
+    """Read the frozen final-test configuration."""
     with Path(path).open(encoding="utf-8") as handle:
         return json.load(handle)
 
 
-def metrics() -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
-    validation = load_json(str(MONITOR_METRICS)) if MONITOR_METRICS.exists() else None
-    final = load_json(str(FINAL_METRICS)) if FINAL_METRICS.exists() else None
-    return validation, final
-
-
-def daily_losses() -> pd.DataFrame | None:
-    if not FINAL_DAILY_LOSSES.exists():
-        return None
-    daily = load_csv(str(FINAL_DAILY_LOSSES)).copy()
-    daily["date"] = pd.to_datetime(daily["date"])
-    return daily.sort_values("date")
+def test_power_series(daily: pd.DataFrame) -> pd.DataFrame:
+    """Obtain the daily clean-reference and measured power in the final period."""
+    frame = load_data(str(REAL_DATA)).dropna(subset=["clean_reference_power_kw", "power_kw"])
+    selected = frame[frame["date"].between(daily["date"].min(), daily["date"].max())]
+    return selected.groupby("date", as_index=False).agg(
+        expected_clean_power_kw=("clean_reference_power_kw", "mean"),
+        measured_power_kw=("power_kw", "mean"),
+    )
 
 
 def apply_theme() -> None:
-    """Set a restrained visual hierarchy for the local dashboard."""
+    """Use a high-contrast dark presentation theme."""
     st.markdown(
         """
         <style>
           .stApp, [data-testid="stAppViewContainer"] { background: #0b1220; color: #e7edf5; }
           [data-testid="stHeader"] { background: rgba(11, 18, 32, .96); }
-          .block-container { max-width: 1180px; padding-top: 2.1rem; padding-bottom: 3rem; }
-          h1, h2, h3 { color: #f4f8fc; letter-spacing: -0.02em; }
-          p, li, label, [data-testid="stMarkdownContainer"] { color: #d8e2ec; }
-          [data-testid="stMetric"] { background: #131f2c; border: 1px solid #2b3d4f; border-radius: 10px; padding: 1rem; min-height: 116px; }
+          .block-container { max-width: 1120px; padding-top: 2.5rem; padding-bottom: 3rem; }
+          h1, h2, h3 { color: #f4f8fc; letter-spacing: -.025em; }
+          p, li, [data-testid="stMarkdownContainer"] { color: #d8e2ec; }
+          [data-testid="stMetric"] { background: #131f2c; border: 1px solid #2b3d4f; border-radius: 10px; min-height: 120px; padding: 1rem; }
           [data-testid="stMetricLabel"] { color: #a8b8c8; }
           [data-testid="stMetricValue"] { color: #f4f8fc; }
-          .eyebrow { color: #6ee7b7; font-size: .76rem; font-weight: 700; letter-spacing: .09em; }
-          .lead { color: #bdcad7; font-size: 1.06rem; max-width: 810px; }
-          .action-box { background: #102a22; border-left: 4px solid #46c796; border-radius: 4px; color: #e1f6ec; margin: 1rem 0 1.3rem; padding: 1rem 1.1rem; }
-          .note-box { background: #162331; border: 1px solid #2b3d4f; border-radius: 8px; color: #c7d4e0; margin: 1rem 0; padding: .9rem 1rem; }
-          [data-testid="stDataFrame"] { border: 1px solid #2b3d4f; }
-          [data-testid="stTabs"] button { color: #b9c7d4 !important; font-size: .95rem; padding: .65rem 1rem; }
-          [data-testid="stTabs"] button[aria-selected="true"] { color: #6ee7b7 !important; font-weight: 700; }
-          [data-testid="stTabs"] button:hover { background: #162331; color: #6ee7b7 !important; }
+          .eyebrow { color: #6ee7b7; font-size: .76rem; font-weight: 700; letter-spacing: .1em; }
+          .lead { color: #bdcad7; font-size: 1.1rem; line-height: 1.55; max-width: 780px; }
+          .summary { background: #102a22; border-left: 4px solid #46c796; border-radius: 4px; color: #e1f6ec; margin: 1.25rem 0 1.5rem; padding: 1rem 1.15rem; }
+          .step { background: #131f2c; border: 1px solid #2b3d4f; border-radius: 10px; min-height: 132px; padding: 1rem 1.1rem; }
+          .step strong { color: #6ee7b7; }
+          .footnote { color: #9eb0c0; font-size: .9rem; }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
 
-def missing_results() -> None:
-    st.warning("Os resultados locais ainda não estão disponíveis. Execute `pv-launch` ou siga o README para preparar as fontes públicas.")
-
-
-def render_panel() -> None:
-    """Show decision-oriented information before scientific detail."""
-    daily = daily_losses()
-    _, final = metrics()
-    st.markdown('<div class="eyebrow">DEMONSTRAÇÃO OPERACIONAL</div>', unsafe_allow_html=True)
-    st.header("Painel de monitoramento")
+def render_dashboard() -> None:
+    """Present the central monitoring idea without technical implementation details."""
+    st.markdown('<div class="eyebrow">PROTÓTIPO DE TCC · DADOS PÚBLICOS AUDITADOS</div>', unsafe_allow_html=True)
+    st.title("Monitoramento de perdas por sujidade")
     st.markdown(
-        '<div class="lead">O monitor compara a potência medida com a potência esperada em condição limpa. '
-        'Se a perda estimada persiste, a ação indicada é investigar — não limpar automaticamente.</div>',
+        '<div class="lead">O sistema observa quando a geração do painel fica abaixo do que seria esperado em uma condição limpa. '
+        'Se essa diferença persiste, ele recomenda uma inspeção.</div>',
         unsafe_allow_html=True,
     )
-    if daily is None or final is None:
-        missing_results()
+    if not (REAL_DATA.exists() and FINAL_DAILY_LOSSES.exists() and FINAL_METRICS.exists()):
+        st.warning("Os resultados locais ainda não estão disponíveis. Execute `pv-launch` para preparar a demonstração.")
         return
 
+    daily = load_daily_losses(str(FINAL_DAILY_LOSSES))
+    power = test_power_series(daily)
+    final = load_json(str(FINAL_METRICS))
     policy = final["locked_alert_policy"]
-    latest = daily.iloc[-1]
-    has_alert = bool(latest["estimated_persistent_alert"])
-    displayed_loss = max(float(latest["estimated_loss_fraction"]), 0.0)
-    status = "Inspeção recomendada" if has_alert else "Sem alerta persistente"
-    action = (
-        "A perda estimada atingiu a persistência definida para o experimento. Verifique o sistema antes de decidir limpar."
-        if has_alert
-        else "Não há alerta persistente no último dia do recorte. Continue acompanhando a tendência de perda."
-    )
+    expected = float(power["expected_clean_power_kw"].mean())
+    measured = float(power["measured_power_kw"].mean())
+    generated_percent = max(measured / expected * 100, 0) if expected else 0
+    loss_percent = max(100 - generated_percent, 0)
+    alert_days = int(daily["estimated_persistent_alert"].sum())
+
     first, second, third, fourth = st.columns(4)
-    first.metric("Situação no último registro", status)
-    second.metric("Perda estimada no último registro", f"{displayed_loss * 100:.1f}%")
-    third.metric("Regra de alerta", f"{policy['threshold'] * 100:.0f}% por {policy['persistence_days']} dias")
-    fourth.metric("Data do último registro", pd.Timestamp(latest["date"]).strftime("%d/%m/%Y"))
-    st.markdown(f'<div class="action-box"><strong>Orientação:</strong> {action}</div>', unsafe_allow_html=True)
-    st.caption("O painel mostra o último dia do teste final de Laghouat; não é leitura ao vivo nem representa automaticamente uma residência brasileira. Valores negativos pontuais são tratados como ausência de perda na leitura operacional, pois podem resultar de ruído de medição.")
-
-    st.subheader("Dados do recorte exibido")
-    first, second, third, fourth = st.columns(4)
-    first.metric("Dias no teste final", len(daily))
-    second.metric("Leituras horárias", int(daily["samples"].sum()))
-    third.metric("Dias em alerta", int(daily["estimated_persistent_alert"].sum()))
-    fourth.metric("Perda média estimada", f"{daily['estimated_loss_fraction'].mean() * 100:.1f}%")
-
-    st.subheader("Perda observada e perda estimada")
-    st.line_chart(
-        daily.set_index("date")[["observed_loss_fraction", "estimated_loss_fraction"]].mul(100).rename(
-            columns={
-                "observed_loss_fraction": "Perda observada no experimento (%)",
-                "estimated_loss_fraction": "Perda estimada pelo monitor (%)",
-            }
-        ),
-        height=320,
+    first.metric("Geração esperada", "100 unidades")
+    second.metric("Geração medida", f"{generated_percent:.1f} unidades")
+    third.metric("Perda identificada", f"{loss_percent:.1f}%")
+    fourth.metric("Dias que pedem inspeção", f"{alert_days} de {len(daily)}")
+    st.markdown(
+        f'<div class="summary"><strong>Leitura principal:</strong> no período analisado, para cada 100 unidades de energia '
+        f'esperadas, cerca de {generated_percent:.0f} foram medidas. A diferença representa uma perda aproximada de '
+        f'{loss_percent:.0f}%. Quando a perda estimada fica acima de {policy["threshold"] * 100:.0f}% por '
+        f'{policy["persistence_days"]} dias, o sistema indica que vale a pena investigar.</div>',
+        unsafe_allow_html=True,
     )
-    st.caption("A série reúne os 35 dias do teste final. A perda observada existe porque o experimento possui um painel limpo de referência; ela não é uma entrada do monitor em operação.")
 
-    st.subheader("Últimos registros do experimento")
-    display = daily.tail(7).assign(
-        **{
-            "Perda observada (%)": (daily.tail(7)["observed_loss_fraction"] * 100).round(2),
-            "Perda estimada (%)": (daily.tail(7)["estimated_loss_fraction"] * 100).round(2),
-            "Alerta persistente": daily.tail(7)["estimated_persistent_alert"].map({True: "Sim", False: "Não"}),
-        }
+    st.subheader("Geração medida em relação ao esperado")
+    relative_generation = power.assign(
+        generation_of_expected_percent=(power["measured_power_kw"] / power["expected_clean_power_kw"] * 100)
+    ).set_index("date")[["generation_of_expected_percent"]].rename(
+        columns={"generation_of_expected_percent": "Geração medida (% do esperado)"}
     )
-    st.dataframe(
-        display[["date", "samples", "Perda observada (%)", "Perda estimada (%)", "Alerta persistente"]],
-        width="stretch",
-        hide_index=True,
+    st.line_chart(relative_generation, height=310)
+    st.caption(
+        "Quanto mais a linha se afasta de 100%, maior é a diferença entre a geração medida e a geração esperada. "
+        "A curva usa o recorte final do experimento público."
     )
-    st.subheader("Como interpretar")
+
+    st.subheader("Como o monitor ajuda")
     first, second, third = st.columns(3)
-    first.markdown("**1. Acompanhar**\n\nObserve se a perda estimada cresce ou se mantém elevada.")
-    second.markdown("**2. Investigar**\n\nUm alerta persistente orienta verificar sujeira, sombra, falhas ou sensores.")
-    third.markdown("**3. Decidir**\n\nA limpeza depende de inspeção, custo e condições específicas da instalação.")
+    first.markdown('<div class="step"><strong>1. Observa</strong><br><br>Compara a geração medida com a geração esperada para o mesmo momento.</div>', unsafe_allow_html=True)
+    second.markdown('<div class="step"><strong>2. Identifica</strong><br><br>Procura diferenças que continuam por vários dias, e não uma variação isolada.</div>', unsafe_allow_html=True)
+    third.markdown('<div class="step"><strong>3. Orienta</strong><br><br>Sugere inspeção para verificar sujeira, sombra, falha ou problema de medição.</div>', unsafe_allow_html=True)
 
-
-def render_history() -> None:
-    """Present the held-out experiment history with an optional data table."""
-    daily = daily_losses()
-    st.markdown('<div class="eyebrow">SÉRIE DO EXPERIMENTO</div>', unsafe_allow_html=True)
-    st.header("Histórico de perdas")
-    st.write("A comparação mostra a referência medida no experimento e a estimativa entregue pelo monitor no período final preservado.")
-    if daily is None:
-        missing_results()
-        return
-    chart = daily.set_index("date")[["observed_loss_fraction", "estimated_loss_fraction"]].mul(100).rename(
-        columns={"observed_loss_fraction": "Perda observada no experimento (%)", "estimated_loss_fraction": "Perda estimada pelo monitor (%)"}
+    st.markdown(
+        '<p class="footnote">Esta demonstração usa um experimento de painel limpo versus painel exposto à poeira, em Laghouat, Argélia. '
+        'O protótipo é uma ferramenta de apoio à inspeção: uma instalação real precisa de calibração e validação com seus próprios dados.</p>',
+        unsafe_allow_html=True,
     )
-    st.line_chart(chart, height=330)
-    st.caption("A perda observada usa o painel limpo como referência supervisionada. Em campo, o monitor usa potência medida e potência limpa esperada.")
-    first, second, third = st.columns(3)
-    first.metric("Dias analisados", len(daily))
-    second.metric("Dias com alerta", int(daily["estimated_persistent_alert"].sum()))
-    third.metric("Maior perda estimada", f"{daily['estimated_loss_fraction'].max() * 100:.1f}%")
-    with st.expander("Consultar os valores diários"):
-        display = daily.assign(
-            **{
-                "Perda observada (%)": (daily["observed_loss_fraction"] * 100).round(2),
-                "Perda estimada (%)": (daily["estimated_loss_fraction"] * 100).round(2),
-                "Alerta persistente": daily["estimated_persistent_alert"].map({True: "Sim", False: "Não"}),
-            }
-        )
-        st.dataframe(display[["date", "samples", "Perda observada (%)", "Perda estimada (%)", "Alerta persistente"]], width="stretch", hide_index=True)
-        st.download_button("Baixar resultados do teste final (CSV)", daily.to_csv(index=False).encode("utf-8"), "laghouat_teste_final_alertas.csv", "text/csv")
-
-
-def render_evidence() -> None:
-    """Show monitoring evidence as behavior, not as a model ranking."""
-    st.markdown('<div class="eyebrow">EVIDÊNCIAS DO MONITOR</div>', unsafe_allow_html=True)
-    st.header("Desempenho no experimento público")
-    st.write("As evidências descrevem o monitor já selecionado. Elas mostram onde a estimativa é mais ou menos precisa dentro do experimento, sem comparar algoritmos.")
-    _, final = metrics()
-    if final:
-        alerts = final["test_metrics"]["persistent_alert"]
-        power = final["test_metrics"]["expected_clean_power"]
-        first, second, third = st.columns(3)
-        first.metric("Erro médio da perda", f"{final['test_metrics']['estimated_soiling_loss']['mae_fraction'] * 100:.2f} p.p.")
-        second.metric("Alertas corretos", f"{alerts['precision'] * 100:.1f}%")
-        third.metric("Erro da potência esperada", f"{power['mae_kw'] * 1000:.2f} W")
-        st.caption("Valores obtidos uma única vez no período final separado do desenvolvimento do monitor.")
-    if CONDITION_PERFORMANCE.exists():
-        conditions = load_csv(str(CONDITION_PERFORMANCE))
-        st.subheader("Precisão por faixa de irradiância")
-        st.bar_chart(conditions.set_index("condition")[["mae_loss_percentage_points"]].rename(columns={"mae_loss_percentage_points": "Erro médio da perda (p.p.)"}), height=280)
-        st.markdown('<div class="note-box"><strong>Leitura:</strong> próximo ao limite mínimo de irradiância, a estimativa de perda é menos precisa. Esse comportamento deve ser considerado antes de uso em campo.</div>', unsafe_allow_html=True)
-    if MONTHLY_STABILITY.exists():
-        monthly = load_csv(str(MONTHLY_STABILITY))
-        st.subheader("Estabilidade da regra de alerta")
-        st.bar_chart(monthly.set_index("month")[["precision", "recall"]].mul(100).rename(columns={"precision": "Alertas corretos (%)", "recall": "Eventos identificados (%)"}), height=260)
-        st.caption("Os dois meses pertencem ao mesmo experimento; não são validações independentes.")
-    st.info("A verificação em uma segunda fonte pública, de Dhaka, não confirmou transferência automática do monitor. Antes de uso residencial, são necessários dados confiáveis, controle de qualidade e validação local.")
-
-
-def render_method_and_scenario() -> None:
-    """Keep provenance, limits and optional economics secondary to operations."""
-    st.markdown('<div class="eyebrow">MÉTODO E LIMITES</div>', unsafe_allow_html=True)
-    st.header("Base científica e cenário econômico")
-    st.write("A demonstração usa exclusivamente a base pública auditada de Laghouat, Argélia, com um painel limpo diariamente e outro exposto à poeira. Ela é evidência de protótipo, não promessa de desempenho local.")
-    st.markdown("**Fonte:** [Hourly PV Power and Dust Accumulation Dataset — Laghouat, Algeria, February–August 2022](https://doi.org/10.17632/4jdt83yy43.3), licença CC BY 4.0.")
-    if not REAL_DATA.exists():
-        missing_results()
-        return
-    quality = operational_input_quality_report(str(REAL_DATA))
-    first, second, third = st.columns(3)
-    first.metric("Registros publicados", f"{quality['raw_rows']:,}".replace(",", "."))
-    second.metric("Registros diurnos utilizáveis", f"{quality['usable_rows']:,}".replace(",", "."))
-    third.metric("Timestamps duplicados", quality["duplicate_timestamp_rows_after_validation"])
-    st.subheader("Cenário econômico exploratório")
-    frame = load_data(str(REAL_DATA)).dropna(subset=["soiling_loss_fraction"])
-    energy = frame.groupby("date", as_index=False).agg(clean_energy_wh=("power_clean_w", "sum"), dusty_energy_wh=("power_dusty_w", "sum"))
-    lost_energy_kwh = max(float((energy["clean_energy_wh"] - energy["dusty_energy_wh"]).sum() / 1000), 0.0)
-    left, middle, right = st.columns(3)
-    tariff = left.number_input("Valor da energia (R$/kWh)", min_value=0.0, value=0.80, step=0.01)
-    cleaning_cost = middle.number_input("Custo da limpeza (R$)", min_value=0.0, value=200.0, step=10.0)
-    recovery = right.slider("Recuperação assumida após limpeza (%)", 0, 100, 100, 5)
-    potential = lost_energy_kwh * tariff * (recovery / 100)
-    first, second, third = st.columns(3)
-    first.metric("Energia não gerada no experimento", f"{lost_energy_kwh:.2f} kWh")
-    second.metric("Valor potencial recuperável", f"R$ {potential:.2f}")
-    third.metric("Saldo do cenário", f"R$ {potential - cleaning_cost:.2f}")
-    st.caption("O cálculo é uma simulação didática com premissas editáveis; não é orçamento nem indicação automática de limpeza.")
-    with st.expander("Consultar detalhes técnicos e limitações"):
-        validation, final = metrics()
-        if validation and final:
-            policy = final["locked_alert_policy"]
-            st.markdown(
-                f"- O estimador **{final['model_name'].replace('_', ' ').title()}** foi escolhido internamente na validação cronológica; o TCC não o apresenta como vencedor universal.\n"
-                f"- A regra avaliada foi perda estimada de {policy['threshold'] * 100:.0f}% por {policy['persistence_days']} dias consecutivos.\n"
-                "- A perda pode envolver sujeira, sombra, falha, degradação, indisponibilidade ou erro de sensor.\n"
-                "- A verificação em Dhaka não demonstrou generalização automática entre instalações.\n"
-                "- Não há, nesta etapa, dados de uma residência brasileira."
-            )
 
 
 def main() -> None:
     st.set_page_config(page_title="Monitoramento de perdas FV", page_icon="☀️", layout="wide")
     apply_theme()
-    st.title("Monitoramento de perdas por sujidade")
-    st.caption("Sistemas fotovoltaicos · protótipo acadêmico com resultados reproduzíveis")
-    panel, history, evidence, method = st.tabs(["Painel", "Histórico", "Evidências", "Método e cenário"])
-    with panel:
-        render_panel()
-    with history:
-        render_history()
-    with evidence:
-        render_evidence()
-    with method:
-        render_method_and_scenario()
+    render_dashboard()
 
 
 if __name__ == "__main__":

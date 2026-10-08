@@ -169,7 +169,7 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel agora separa quatro perspectivas: **Painel**, **Histórico**, **Evidências** e **Método e cenário**. A primeira aba prioriza situação, perda estimada e orientação de inspeção; as métricas científicas permanecem nas abas secundárias. O painel utiliza exclusivamente o dataset público de Laghouat, já documentado e baixado para o projeto, e apresenta apenas o recorte de teste final preservado. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel é uma única tela de apresentação para pessoas leigas: mostra a geração medida em relação ao esperado, a perda identificada e a quantidade de dias que pedem inspeção. Métricas de validação, tabelas detalhadas e cenário econômico permanecem na documentação, nos slides e no artigo. A tela utiliza exclusivamente o dataset público de Laghouat, já documentado e baixado para o projeto, e apresenta apenas o recorte de teste final preservado. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
 ## Fluxo operacional para futura integração
 

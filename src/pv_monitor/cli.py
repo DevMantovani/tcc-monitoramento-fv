@@ -12,6 +12,7 @@ from pv_monitor.data import (
     prepare_zenodo_inverter_dataset,
 )
 from pv_monitor.demo import create_demo_dataset
+from pv_monitor.reproduction import reproduce_public_experiments
 from pv_monitor.workflow import (
     calibrate_alert_policy,
     detect_additional_loss,
@@ -99,6 +100,17 @@ def build_parser() -> argparse.ArgumentParser:
     quality.add_argument("--input", required=True)
     quality.add_argument("--output", required=True)
     quality.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
+
+    reproduce = commands.add_parser(
+        "reproduce-public-experiments",
+        help="reproduz os experimentos das duas fontes públicas auditadas",
+    )
+    reproduce.add_argument("--laghouat-input", required=True)
+    reproduce.add_argument("--zenodo-input", required=True)
+    reproduce.add_argument("--processed-dir", default="data/processed")
+    reproduce.add_argument("--artifacts-dir", default="artifacts")
+    reproduce.add_argument("--zenodo-inverter-id", default="inverter1")
+    reproduce.add_argument("--output", required=True)
     return parser
 
 
@@ -151,4 +163,14 @@ def main() -> None:
         report = operational_input_quality_report(args.input, args.minimum_irradiance_wm2)
         with Path(args.output).open("w", encoding="utf-8") as handle:
             json.dump(report, handle, ensure_ascii=False, indent=2)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    elif args.command == "reproduce-public-experiments":
+        report = reproduce_public_experiments(
+            args.laghouat_input,
+            args.zenodo_input,
+            args.processed_dir,
+            args.artifacts_dir,
+            args.output,
+            args.zenodo_inverter_id,
+        )
         print(json.dumps(report, ensure_ascii=False, indent=2))

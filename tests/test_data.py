@@ -13,6 +13,7 @@ from pv_monitor.data import (
     split_temporally,
 )
 from pv_monitor.models import FEATURE_COLUMNS
+from pv_monitor.reproduction import select_model_by_validation_metric
 from pv_monitor.workflow import _alert_metrics, _persistent_alerts, detect_additional_loss
 
 
@@ -185,3 +186,12 @@ def test_persistent_alerts_and_metrics_require_consecutive_days():
     assert score["true_positive_days"] == 1
     assert score["false_positive_days"] == 0
     assert score["false_negative_days"] == 1
+
+
+def test_select_model_by_validation_metric_uses_smallest_error():
+    metrics = {"ridge": {"mae_kw": 0.4}, "random_forest": {"mae_kw": 0.2}}
+
+    assert select_model_by_validation_metric(metrics, "mae_kw") == "random_forest"
+
+    with pytest.raises(ValueError, match="Métrica de validação ausente"):
+        select_model_by_validation_metric(metrics, "r2")

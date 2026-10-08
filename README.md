@@ -61,6 +61,19 @@ pytest
 
 O conjunto compara um painel limpo diariamente a outro exposto ao acúmulo natural de poeira. Consulte [docs/dados.md](docs/dados.md) para proveniência, limitações e auditoria. O limite apresentado na interface é visual e exploratório; ainda não é uma ordem de limpeza.
 
+## Reproduzir todos os experimentos públicos
+
+Depois de baixar as duas fontes auditadas, execute um único comando para preparar os dados, selecionar modelos somente pela validação e refazer os testes finais:
+
+```bash
+pv-monitor reproduce-public-experiments \
+  --laghouat-input data/raw/laghouat_2022/Laghouat_2022_final.csv \
+  --zenodo-input data/raw/zenodo_inverter_2023_2024/math_model_all_inverters_03.11.2023-25.06.2024.csv \
+  --output artifacts/reproduction_summary.json
+```
+
+O resumo consolidado fica em `artifacts/reproduction_summary.json`. Consulte [docs/reproducao.md](docs/reproducao.md) para o escopo de cada experimento.
+
 ## Treinar o monitor de perdas por sujidade
 
 ```bash

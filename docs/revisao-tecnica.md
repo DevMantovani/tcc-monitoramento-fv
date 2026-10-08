@@ -11,6 +11,7 @@ Esta revisão cobre a versão do protótipo que usa as fontes públicas de Lagho
 - **Escopo das fontes:** Laghouat é a base supervisionada principal. Dhaka fornece um segundo par limpo/exposto e demonstrou que a versão atual do monitor não se transfere automaticamente. Zenodo avalia apenas potência esperada em outra instalação; não é usado para alegar detecção de sujidade.
 - **Interface:** a análise visual permanece restrita ao dataset público auditado e ao teste final preservado. Não existe importação livre de CSV na tela principal.
 - **Operação futura:** alertas indicam inspeção e não limpeza automática ou diagnóstico definitivo de causa.
+- **Calibração local:** após limpeza confirmada, o comando operacional cria uma referência de potência específica da instalação e registra sua janela de origem. Essa arquitetura ainda não possui validação residencial real.
 - **Reprodutibilidade:** um comando recompõe os experimentos; outro gera tabelas e figuras a partir dos resultados já salvos. Os atalhos de abertura não recriam resultados que já existam.
 
 ## Simplificações e refatorações aplicadas
@@ -28,7 +29,7 @@ Esta revisão cobre a versão do protótipo que usa as fontes públicas de Lagho
 3. A transferência para Dhaka falhou mesmo após recalibração local do limiar, logo a versão atual não pode alegar generalização entre instalações.
 4. O resíduo entre potência esperada e medida pode resultar de sujidade, sombra, falha, degradação, indisponibilidade ou erro de sensor. O protótipo não identifica a causa sozinho.
 5. A regra de alerta de 15% por três dias foi escolhida no experimento público; uma instalação futura deve ser recalibrada com seus próprios dados e eventos de limpeza verificados.
-6. O cenário econômico é exploratório: depende de tarifa, custo de limpeza e recuperação assumida, e não é garantia financeira.
+6. Nenhum cenário econômico é exibido na tela operacional: uma estimativa financeira exige geração, tarifa, custo e recuperação próprios da instalação.
 
 ## Resultado da execução de verificação
 

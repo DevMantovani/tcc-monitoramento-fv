@@ -73,12 +73,12 @@ def apply_theme() -> None:
 
 
 def render_dashboard() -> None:
-    """Present the central monitoring idea without technical implementation details."""
-    st.markdown('<div class="eyebrow">PROTÓTIPO DE TCC · DADOS PÚBLICOS AUDITADOS</div>', unsafe_allow_html=True)
-    st.title("Monitoramento de perdas por sujidade")
+    """Present a product-like monitoring view using clearly labelled demo data."""
+    st.markdown('<div class="eyebrow">PAINEL OPERACIONAL · MODO DEMONSTRAÇÃO</div>', unsafe_allow_html=True)
+    st.title("Monitoramento fotovoltaico")
     st.markdown(
-        '<div class="lead">O sistema observa quando a geração do painel fica abaixo do que seria esperado em uma condição limpa. '
-        'Se essa diferença persiste, ele recomenda uma inspeção.</div>',
+        '<div class="lead">Acompanhe se a geração medida está abaixo do esperado e receba uma orientação de inspeção '
+        'quando essa diferença persistir.</div>',
         unsafe_allow_html=True,
     )
     if not (REAL_DATA.exists() and FINAL_DAILY_LOSSES.exists() and FINAL_METRICS.exists()):
@@ -96,19 +96,19 @@ def render_dashboard() -> None:
     alert_days = int(daily["estimated_persistent_alert"].sum())
 
     first, second, third, fourth = st.columns(4)
-    first.metric("Geração esperada", "100 unidades")
-    second.metric("Geração medida", f"{generated_percent:.1f} unidades")
-    third.metric("Perda identificada", f"{loss_percent:.1f}%")
-    fourth.metric("Dias que pedem inspeção", f"{alert_days} de {len(daily)}")
+    first.metric("Situação do período", "Atenção" if alert_days else "Normal")
+    second.metric("Geração medida", f"{generated_percent:.1f}% do esperado")
+    third.metric("Perda média estimada", f"{loss_percent:.1f}%")
+    fourth.metric("Calibração", "Referência experimental")
     st.markdown(
-        f'<div class="summary"><strong>Leitura principal:</strong> no período analisado, para cada 100 unidades de energia '
-        f'esperadas, cerca de {generated_percent:.0f} foram medidas. A diferença representa uma perda aproximada de '
-        f'{loss_percent:.0f}%. Quando a perda estimada fica acima de {policy["threshold"] * 100:.0f}% por '
-        f'{policy["persistence_days"]} dias, o sistema indica que vale a pena investigar.</div>',
+        f'<div class="summary"><strong>Ação recomendada:</strong> investigar a instalação quando a geração fica abaixo de '
+        f'{100 - policy["threshold"] * 100:.0f}% do esperado por {policy["persistence_days"]} dias consecutivos. '
+        f'No recorte demonstrativo, isso ocorreu em {alert_days} de {len(daily)} dias.</div>',
         unsafe_allow_html=True,
     )
+    st.caption("Modo demonstração: a referência de geração vem do experimento público. Em uma instalação real, ela será criada após limpeza confirmada pela calibração local.")
 
-    st.subheader("Geração medida em relação ao esperado")
+    st.subheader("Desempenho da geração")
     relative_generation = power.assign(
         generation_of_expected_percent=(power["measured_power_kw"] / power["expected_clean_power_kw"] * 100)
     ).set_index("date")[["generation_of_expected_percent"]].rename(
@@ -116,19 +116,18 @@ def render_dashboard() -> None:
     )
     st.line_chart(relative_generation, height=310)
     st.caption(
-        "Quanto mais a linha se afasta de 100%, maior é a diferença entre a geração medida e a geração esperada. "
-        "A curva usa o recorte final do experimento público."
+        "100% representa a geração esperada para as condições do momento. Valores menores indicam geração abaixo do esperado."
     )
 
-    st.subheader("Como o monitor ajuda")
+    st.subheader("Entenda os indicadores")
     first, second, third = st.columns(3)
-    first.markdown('<div class="step"><strong>1. Observa</strong><br><br>Compara a geração medida com a geração esperada para o mesmo momento.</div>', unsafe_allow_html=True)
-    second.markdown('<div class="step"><strong>2. Identifica</strong><br><br>Procura diferenças que continuam por vários dias, e não uma variação isolada.</div>', unsafe_allow_html=True)
-    third.markdown('<div class="step"><strong>3. Orienta</strong><br><br>Sugere inspeção para verificar sujeira, sombra, falha ou problema de medição.</div>', unsafe_allow_html=True)
+    first.markdown('<div class="step"><strong>Geração medida</strong><br><br>Mostra o quanto o sistema entregou em relação ao esperado.</div>', unsafe_allow_html=True)
+    second.markdown('<div class="step"><strong>Perda estimada</strong><br><br>É a diferença entre o esperado e o medido. Ela pode ter mais de uma causa.</div>', unsafe_allow_html=True)
+    third.markdown('<div class="step"><strong>Ação recomendada</strong><br><br>O alerta pede inspeção. Ele não confirma sujeira nem aciona limpeza automática.</div>', unsafe_allow_html=True)
 
     st.markdown(
-        '<p class="footnote">Esta demonstração usa um experimento de painel limpo versus painel exposto à poeira, em Laghouat, Argélia. '
-        'O protótipo é uma ferramenta de apoio à inspeção: uma instalação real precisa de calibração e validação com seus próprios dados.</p>',
+        '<p class="footnote">Dados demonstrativos: experimento público de painel limpo versus painel exposto à poeira, em Laghouat, Argélia. '
+        'O protótipo apoia inspeção; uma instalação real precisa de calibração e validação com seus próprios dados.</p>',
         unsafe_allow_html=True,
     )
 

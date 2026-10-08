@@ -161,6 +161,8 @@ pv-monitor evaluate-final \
 
 O último comando refaz o treinamento com treino e validação, mas mantém bloqueados o modelo e a política de alerta escolhidos antes de acessar o teste final.
 
+Consulte [docs/avaliacao-cientifica.md](docs/avaliacao-cientifica.md) para a interpretação consolidada dos resultados positivos no experimento controlado, do teste externo negativo e do escopo que o TCC pode afirmar.
+
 ## Painel visual local
 
 Após preparar a base real, abra a análise com:

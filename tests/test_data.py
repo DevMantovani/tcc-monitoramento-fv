@@ -2,14 +2,18 @@ from __future__ import annotations
 
 import pandas as pd
 import pytest
+from joblib import dump
+from sklearn.dummy import DummyRegressor
 
 from pv_monitor.data import (
     load_observations,
+    operational_input_quality_report,
     prepare_laghouat_dataset,
     prepare_zenodo_inverter_dataset,
     split_temporally,
 )
-from pv_monitor.workflow import _alert_metrics, _persistent_alerts
+from pv_monitor.models import FEATURE_COLUMNS
+from pv_monitor.workflow import _alert_metrics, _persistent_alerts, detect_additional_loss
 
 
 def test_load_observations_filters_invalid_rows(tmp_path):
@@ -49,6 +53,72 @@ def test_load_observations_requires_columns(tmp_path):
 
     with pytest.raises(ValueError, match="colunas obrigatórias"):
         load_observations(str(path))
+
+
+def test_operational_input_quality_report_exposes_exclusions(tmp_path):
+    path = tmp_path / "input.csv"
+    pd.DataFrame(
+        {
+            "timestamp": ["2026-01-01 10:00", "2026-01-01 10:00", "invalid", "2026-01-01 11:00"],
+            "irradiance_wm2": [300.0, 300.0, 400.0, 10.0],
+            "module_temperature_c": [25.0, 25.0, 25.0, 25.0],
+            "power_kw": [2.0, 2.0, 2.0, -1.0],
+            "precipitation_mm": [0.0, 0.0, 0.0, 2.0],
+        }
+    ).to_csv(path, index=False)
+
+    report = operational_input_quality_report(str(path), minimum_irradiance_wm2=50.0)
+
+    assert report["temperature_input_column"] == "module_temperature_c"
+    assert report["raw_rows"] == 4
+    assert report["invalid_timestamp_rows"] == 1
+    assert report["duplicate_timestamp_rows_after_validation"] == 1
+    assert report["usable_rows"] == 1
+    assert "precipitation_mm" in report["optional_context_columns_present"]
+
+
+def test_detect_additional_loss_creates_auditable_persistent_alert(tmp_path):
+    timestamps = pd.DatetimeIndex(
+        [
+            pd.Timestamp("2026-01-01", tz="UTC") + pd.Timedelta(day * 24 + hour, unit="h")
+            for day in range(10)
+            for hour in (8, 12, 16)
+        ]
+    )
+    raw = pd.DataFrame(
+        {
+            "timestamp": timestamps.astype(str),
+            "irradiance_wm2": [500.0] * len(timestamps),
+            "temperature_c": [25.0] * len(timestamps),
+            "power_kw": [1.5] * len(timestamps),
+        }
+    )
+    input_path = tmp_path / "operational.csv"
+    model_path = tmp_path / "model.joblib"
+    output_path = tmp_path / "alerts.csv"
+    raw.to_csv(input_path, index=False)
+    features = pd.DataFrame(
+        {
+            "irradiance_wm2": [500.0],
+            "temperature_c": [25.0],
+            "irradiance_temperature_interaction": [12500.0],
+        }
+    )
+    model = DummyRegressor(strategy="constant", constant=2.0).fit(features[FEATURE_COLUMNS], [2.0])
+    dump(model, model_path)
+
+    daily = detect_additional_loss(
+        str(input_path),
+        str(model_path),
+        str(output_path),
+        daily_loss_threshold=0.12,
+        minimum_samples_per_day=2,
+        persistence_days=2,
+    )
+
+    assert daily["additional_loss_alert"].tolist() == [False] + [True] * 9
+    assert output_path.with_suffix(".summary.json").exists()
+    assert "Inspecionar" in daily.loc[1, "recommended_action"]
 
 
 def test_prepare_laghouat_calculates_loss_only_with_clean_reference(tmp_path):

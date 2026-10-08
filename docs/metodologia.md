@@ -48,3 +48,5 @@ Esse experimento mede a reprodutibilidade da **previsão de potência** em outra
 ## Qualidade e limites dos dados
 
 O pipeline não preenche lacunas silenciosamente. Ele valida datas, remove timestamps duplicados e restringe o cálculo de perda às condições em que há referência física utilizável. Antes de generalizar resultados, devem ser examinados período noturno, falhas de sensor, chuva, fuso horário, unidades, medição de poeira, capacidade dos módulos e diferenças entre local do estudo e instalação-alvo.
+
+No fluxo operacional, essa verificação é registrada em JSON antes da geração do alerta: linhas com data inválida, campos numéricos inválidos, timestamps duplicados, potência negativa e irradiância abaixo do limiar são quantificadas. A saída diária registra a potência esperada, a potência observada, a perda estimada, a persistência e uma ação de inspeção. Ela não converte um alerta em diagnóstico de sujidade.

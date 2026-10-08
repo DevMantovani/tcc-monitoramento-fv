@@ -120,6 +120,17 @@ pv-dashboard
 
 O painel mostra a validação cronológica do modelo de aprendizado de máquina e, em separado, a referência observada do experimento usada para verificar o monitor. Também há dados de poeira, precipitação, um filtro visual e uma simulação editável de economia potencial. O cenário começa com referências residenciais brasileiras, mas não representa orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Ele é executado somente no computador local e não publica dados. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
+## Fluxo operacional de CSV para alerta
+
+O protótipo também possui um fluxo de linha de comando que inspeciona a qualidade dos dados e gera um alerta diário de perda adicional persistente. Ele recomenda investigação, não limpeza automática nem atribuição certa de causa.
+
+```bash
+pv-monitor check-input --input dados_operacionais.csv --output artifacts/qualidade_entrada.json
+pv-monitor detect --input dados_operacionais.csv --model caminho/para/modelo.joblib --output artifacts/alertas_diarios.csv
+```
+
+Consulte [docs/operacao.md](docs/operacao.md) para o formato do CSV, parâmetros e limites para uso em campo.
+
 ## Teste técnico com dados sintéticos
 
 ```bash

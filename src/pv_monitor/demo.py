@@ -26,7 +26,7 @@ def create_demo_dataset(output_path: str, days: int = 90, seed: int = 42) -> pd.
         {
             "timestamp": timestamps.astype(str),
             "irradiance_wm2": irradiance,
-            "module_temperature_c": module_temperature,
+            "temperature_c": module_temperature,
             "power_kw": power_kw,
         }
     )

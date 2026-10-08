@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import pandas as pd
 
@@ -136,6 +137,63 @@ def prepare_zenodo_inverter_dataset(
     frame["temperature_c"] = frame["ambient_temperature_c"]
     frame.to_csv(output_path, index=False)
     return frame
+
+
+def operational_input_quality_report(
+    input_path: str, minimum_irradiance_wm2: float = 50.0
+) -> dict[str, Any]:
+    """Describe data exclusions before an operational alert is generated.
+
+    This report intentionally does not impute or repair records. It makes the
+    amount of usable information visible to the user before alerting.
+    """
+    frame = pd.read_csv(input_path)
+    temperature_source = "temperature_c"
+    if "temperature_c" not in frame.columns and LEGACY_TEMPERATURE_COLUMN in frame.columns:
+        frame["temperature_c"] = frame[LEGACY_TEMPERATURE_COLUMN]
+        temperature_source = LEGACY_TEMPERATURE_COLUMN
+    missing = sorted(set(REQUIRED_COLUMNS).difference(frame.columns))
+    if missing:
+        raise ValueError(f"CSV sem colunas obrigatórias: {', '.join(missing)}")
+
+    normalized = frame.loc[:, REQUIRED_COLUMNS].copy()
+    normalized["timestamp"] = pd.to_datetime(normalized["timestamp"], errors="coerce", utc=True)
+    for column in REQUIRED_COLUMNS[1:]:
+        normalized[column] = pd.to_numeric(normalized[column], errors="coerce")
+    valid_required = normalized.notna().all(axis=1)
+    valid_rows = normalized[valid_required].copy()
+    duplicate_rows = int(valid_rows.duplicated(subset="timestamp", keep="last").sum())
+    unique_rows = valid_rows.drop_duplicates(subset="timestamp", keep="last")
+    usable = unique_rows[
+        (unique_rows["power_kw"] >= 0)
+        & (unique_rows["irradiance_wm2"] >= minimum_irradiance_wm2)
+    ].copy()
+    report: dict[str, Any] = {
+        "input": str(input_path),
+        "required_columns": list(REQUIRED_COLUMNS),
+        "temperature_input_column": temperature_source,
+        "minimum_irradiance_wm2": minimum_irradiance_wm2,
+        "raw_rows": int(len(frame)),
+        "invalid_timestamp_rows": int(normalized["timestamp"].isna().sum()),
+        "rows_with_missing_or_invalid_required_values": int((~valid_required).sum()),
+        "duplicate_timestamp_rows_after_validation": duplicate_rows,
+        "negative_power_rows_after_validation": int((unique_rows["power_kw"] < 0).sum()),
+        "below_minimum_irradiance_rows_after_validation": int(
+            (unique_rows["irradiance_wm2"] < minimum_irradiance_wm2).sum()
+        ),
+        "usable_rows": int(len(usable)),
+        "optional_context_columns_present": [
+            column
+            for column in ("precipitation_mm", "rain_mm", "ambient_temperature_c")
+            if column in frame.columns
+        ],
+    }
+    if not usable.empty:
+        report["usable_period"] = {
+            "start": usable["timestamp"].min().isoformat(),
+            "end": usable["timestamp"].max().isoformat(),
+        }
+    return report
 
 
 def load_observations(path: str, minimum_irradiance_wm2: float = 50.0) -> pd.DataFrame:

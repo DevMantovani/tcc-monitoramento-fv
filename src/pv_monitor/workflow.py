@@ -9,7 +9,7 @@ from typing import Any
 import joblib
 import pandas as pd
 
-from pv_monitor.data import load_observations, split_temporally
+from pv_monitor.data import load_observations, operational_input_quality_report, split_temporally
 from pv_monitor.models import (
     CLEAN_REFERENCE_TARGET_COLUMN,
     FEATURE_COLUMNS,
@@ -355,6 +355,7 @@ def detect_additional_loss(
     daily_loss_threshold: float = 0.12,
     minimum_samples_per_day: int = 12,
     persistence_days: int = 3,
+    minimum_irradiance_wm2: float = 50.0,
 ) -> pd.DataFrame:
     """Produce an auditable operational alert, without assigning a failure cause."""
     if not 0 < daily_loss_threshold < 1:
@@ -362,7 +363,8 @@ def detect_additional_loss(
     if persistence_days < 1 or minimum_samples_per_day < 1:
         raise ValueError("Persistência e quantidade mínima devem ser positivas.")
 
-    frame = load_observations(input_path)
+    input_quality = operational_input_quality_report(input_path, minimum_irradiance_wm2)
+    frame = load_observations(input_path, minimum_irradiance_wm2)
     model = joblib.load(model_path)
     frame["predicted_power_kw"] = model.predict(frame[FEATURE_COLUMNS])
     frame = frame[frame["predicted_power_kw"] >= minimum_expected_kw].copy()
@@ -392,11 +394,36 @@ def detect_additional_loss(
         alerts.append(run_length >= persistence_days)
     daily["consecutive_days_above_threshold"] = _consecutive_counts(daily["above_threshold"])
     daily["additional_loss_alert"] = alerts
-    daily["alert_interpretation"] = "Investigar perda adicional; não atribui a causa à sujidade."
+    daily["recommended_action"] = daily["additional_loss_alert"].map(
+        {
+            True: "Inspecionar o sistema e confirmar a causa antes de limpar.",
+            False: "Continuar o monitoramento; não há alerta persistente.",
+        }
+    )
+    daily["alert_interpretation"] = "O alerta prioriza investigação; não confirma sujidade nem falha específica."
 
     destination = Path(output_path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     daily.to_csv(destination, index=False)
+    summary = {
+        "task": "monitoramento operacional de perda adicional",
+        "input_quality": input_quality,
+        "alert_policy": {
+            "minimum_expected_kw": minimum_expected_kw,
+            "daily_loss_threshold": daily_loss_threshold,
+            "minimum_samples_per_day": minimum_samples_per_day,
+            "persistence_days": persistence_days,
+        },
+        "daily_rows": len(daily),
+        "persistent_alert_days": int(daily["additional_loss_alert"].sum()),
+        "note": (
+            "A saída é um sinal para inspeção. Não atribui a perda exclusivamente à sujidade "
+            "e não deve acionar limpeza automática."
+        ),
+    }
+    summary_path = destination.with_suffix(".summary.json")
+    with summary_path.open("w", encoding="utf-8") as handle:
+        json.dump(summary, handle, ensure_ascii=False, indent=2)
     return daily
 
 

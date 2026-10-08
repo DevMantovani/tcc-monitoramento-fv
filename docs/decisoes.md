@@ -18,5 +18,6 @@
 | D14 | Não depender de dados locais nesta etapa. | Não há dataset residencial de campo disponível; os resultados serão delimitados à base pública e à necessidade de validação externa futura. | Aceita |
 | D15 | Calibrar alertas exclusivamente na validação e testar uma única vez no período final. | Evita escolher limiar ou persistência olhando o conjunto de teste e torna a métrica de alerta auditável. | Aceita |
 | D16 | Excluir previsões prontas da fonte externa e usar a potência observada do inversor como alvo. | Evita vazamento de informação e mantém o experimento comparável a uma estimação de potência operacional. | Aceita |
+| D17 | Exigir relatório de qualidade antes de gerar alertas operacionais. | Torna exclusões de dados auditáveis e evita que valores inválidos sejam ocultados por preenchimento automático. | Implementada |
 
 O escopo do MVP é o monitoramento em sistemas residenciais, com arquitetura passível de escalonamento. A validação usa dados públicos; não há, nesta etapa, dados de uma instalação residencial local nem afirmação de generalização para outras instalações.

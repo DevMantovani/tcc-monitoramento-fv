@@ -6,7 +6,11 @@ import argparse
 import json
 from pathlib import Path
 
-from pv_monitor.data import prepare_laghouat_dataset, prepare_zenodo_inverter_dataset
+from pv_monitor.data import (
+    operational_input_quality_report,
+    prepare_laghouat_dataset,
+    prepare_zenodo_inverter_dataset,
+)
 from pv_monitor.demo import create_demo_dataset
 from pv_monitor.workflow import (
     calibrate_alert_policy,
@@ -84,6 +88,17 @@ def build_parser() -> argparse.ArgumentParser:
     detect.add_argument("--output", required=True)
     detect.add_argument("--daily-loss-threshold", type=float, default=0.12)
     detect.add_argument("--persistence-days", type=int, default=3)
+    detect.add_argument("--minimum-samples-per-day", type=int, default=12)
+    detect.add_argument("--minimum-expected-kw", type=float, default=0.10)
+    detect.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
+
+    quality = commands.add_parser(
+        "check-input",
+        help="verifica a qualidade de um CSV operacional antes de monitorar perdas",
+    )
+    quality.add_argument("--input", required=True)
+    quality.add_argument("--output", required=True)
+    quality.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
     return parser
 
 
@@ -125,7 +140,15 @@ def main() -> None:
             args.input,
             args.model,
             args.output,
+            minimum_expected_kw=args.minimum_expected_kw,
             daily_loss_threshold=args.daily_loss_threshold,
+            minimum_samples_per_day=args.minimum_samples_per_day,
             persistence_days=args.persistence_days,
+            minimum_irradiance_wm2=args.minimum_irradiance_wm2,
         )
         print(f"Indicadores diários criados: {len(daily)} dias em {args.output}")
+    elif args.command == "check-input":
+        report = operational_input_quality_report(args.input, args.minimum_irradiance_wm2)
+        with Path(args.output).open("w", encoding="utf-8") as handle:
+            json.dump(report, handle, ensure_ascii=False, indent=2)
+        print(json.dumps(report, ensure_ascii=False, indent=2))

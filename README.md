@@ -118,7 +118,7 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel agora separa quatro perspectivas: **Visão geral**, **Monitoramento operacional**, **Validação científica** e **Economia e metodologia**. Na aba operacional, o usuário pode carregar um CSV local, conferir exclusões, gerar indicadores diários e baixar os resultados; o arquivo não é enviado à internet nem fica armazenado pelo painel. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel agora separa quatro perspectivas: **Visão geral**, **Análise de dados**, **Validação científica** e **Economia e metodologia**. Na aba de análise, o usuário pode carregar um CSV local, conferir exclusões, gerar indicadores diários e baixar os resultados; o arquivo não é enviado à internet nem fica armazenado pelo painel. Uma futura integração com inversor ou API substitui a importação manual, sem mudar a análise. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
 ## Fluxo operacional de CSV para alerta
 

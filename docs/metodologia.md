@@ -27,7 +27,7 @@ Assim, `P_clean` é permitido como alvo supervisionado apenas na fase experiment
 
 ## Visualização e investigação
 
-O painel local separa a visão geral, o monitoramento operacional, a validação científica e a simulação econômica/metodológica em abas. Essa organização impede que uma comparação experimental seja confundida com a operação normal do sistema proposto. A aba operacional aceita um CSV local, mostra a qualidade antes do cálculo, apresenta os indicadores diários e permite baixar os resultados; os dados carregados não são enviados à internet nem persistidos pelo painel.
+O painel local separa a visão geral, a análise de dados, a validação científica e a simulação econômica/metodológica em abas. Essa organização impede que uma comparação experimental seja confundida com a operação normal do sistema proposto. A aba de análise aceita um CSV local, mostra a qualidade antes do cálculo, apresenta os indicadores diários e permite baixar os resultados; os dados carregados não são enviados à internet nem persistidos pelo painel. Em uma futura integração, a importação manual pode ser substituída por coleta automática do inversor, medidor ou API, sem alterar o método de análise.
 
 Um limite selecionável na interface serve apenas para filtrar e discutir dias de maior perda. Ele deve ser descrito como **limite visual exploratório**, não como ponto de limpeza validado. O painel também oferece uma simulação econômica residencial opcional, com valores editáveis de energia, limpeza e recuperação assumida. Ela é uma análise de sensibilidade para interpretação do protótipo, não uma otimização financeira nem conclusão sobre uma residência real; as premissas estão registradas em `docs/economia.md`.
 

@@ -72,7 +72,7 @@ def render_overview() -> None:
 
     st.subheader("Como usar o painel")
     st.markdown(
-        "1. Na aba **Monitoramento operacional**, carregue um CSV com data/hora, irradiância, "
+        "1. Na aba **Análise de dados**, carregue um CSV com data/hora, irradiância, "
         "temperatura e potência.\n"
         "2. Confira as exclusões e os registros aproveitáveis.\n"
         "3. Gere o indicador diário e investigue alertas persistentes.\n"
@@ -83,15 +83,15 @@ def render_overview() -> None:
 
 
 def render_operational_monitor() -> None:
-    """Render a local-only CSV-to-alert workflow without persisting uploaded data."""
-    st.header("Monitoramento operacional")
+    """Render local CSV analysis without persisting uploaded data."""
+    st.header("Análise de dados")
     st.write(
-        "Carregue um CSV local para verificar a qualidade dos dados e gerar indicadores diários. "
+        "Carregue um CSV local para analisar a qualidade dos dados, a perda estimada e os alertas diários. "
         "O arquivo não é enviado para a internet nem é armazenado permanentemente pelo painel."
     )
     st.info(
-        "Atenção: o modelo disponível foi desenvolvido no experimento público. Antes de usar em uma residência, "
-        "ele precisa ser recalibrado e validado com dados daquela instalação."
+        "Esta é a tela de análise do conjunto selecionado. Em uma futura integração com inversor ou API, "
+        "os dados chegariam aqui automaticamente; a análise permaneceria a mesma."
     )
     st.markdown(
         "**Colunas obrigatórias:** `timestamp`, `irradiance_wm2`, `temperature_c` e `power_kw`. "
@@ -320,7 +320,7 @@ def main() -> None:
     st.title("Monitoramento de perdas por sujidade em sistemas fotovoltaicos")
     st.caption("Protótipo local de TCC com aprendizado de máquina e resultados auditáveis.")
     overview, operational, validation, economics = st.tabs(
-        ["Visão geral", "Monitoramento operacional", "Validação científica", "Economia e metodologia"]
+        ["Visão geral", "Análise de dados", "Validação científica", "Economia e metodologia"]
     )
     with overview:
         render_overview()

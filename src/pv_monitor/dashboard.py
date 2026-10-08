@@ -107,19 +107,44 @@ def render_panel() -> None:
         else "Não há alerta persistente no último dia do recorte. Continue acompanhando a tendência de perda."
     )
     first, second, third, fourth = st.columns(4)
-    first.metric("Situação atual", status)
-    second.metric("Perda estimada", f"{displayed_loss * 100:.1f}%")
+    first.metric("Situação no último registro", status)
+    second.metric("Perda estimada no último registro", f"{displayed_loss * 100:.1f}%")
     third.metric("Regra de alerta", f"{policy['threshold'] * 100:.0f}% por {policy['persistence_days']} dias")
-    fourth.metric("Período demonstrado", pd.Timestamp(latest["date"]).strftime("%d/%m/%Y"))
+    fourth.metric("Data do último registro", pd.Timestamp(latest["date"]).strftime("%d/%m/%Y"))
     st.markdown(f'<div class="action-box"><strong>Orientação:</strong> {action}</div>', unsafe_allow_html=True)
     st.caption("O painel mostra o último dia do teste final de Laghouat; não é leitura ao vivo nem representa automaticamente uma residência brasileira. Valores negativos pontuais são tratados como ausência de perda na leitura operacional, pois podem resultar de ruído de medição.")
 
-    st.subheader("Tendência recente de perda estimada")
+    st.subheader("Dados do recorte exibido")
+    first, second, third, fourth = st.columns(4)
+    first.metric("Dias no teste final", len(daily))
+    second.metric("Leituras horárias", int(daily["samples"].sum()))
+    third.metric("Dias em alerta", int(daily["estimated_persistent_alert"].sum()))
+    fourth.metric("Perda média estimada", f"{daily['estimated_loss_fraction'].mean() * 100:.1f}%")
+
+    st.subheader("Perda observada e perda estimada")
     st.line_chart(
-        daily.tail(14).set_index("date")[["estimated_loss_fraction"]].mul(100).rename(
-            columns={"estimated_loss_fraction": "Perda estimada (%)"}
+        daily.set_index("date")[["observed_loss_fraction", "estimated_loss_fraction"]].mul(100).rename(
+            columns={
+                "observed_loss_fraction": "Perda observada no experimento (%)",
+                "estimated_loss_fraction": "Perda estimada pelo monitor (%)",
+            }
         ),
-        height=280,
+        height=320,
+    )
+    st.caption("A série reúne os 35 dias do teste final. A perda observada existe porque o experimento possui um painel limpo de referência; ela não é uma entrada do monitor em operação.")
+
+    st.subheader("Últimos registros do experimento")
+    display = daily.tail(7).assign(
+        **{
+            "Perda observada (%)": (daily.tail(7)["observed_loss_fraction"] * 100).round(2),
+            "Perda estimada (%)": (daily.tail(7)["estimated_loss_fraction"] * 100).round(2),
+            "Alerta persistente": daily.tail(7)["estimated_persistent_alert"].map({True: "Sim", False: "Não"}),
+        }
+    )
+    st.dataframe(
+        display[["date", "samples", "Perda observada (%)", "Perda estimada (%)", "Alerta persistente"]],
+        width="stretch",
+        hide_index=True,
     )
     st.subheader("Como interpretar")
     first, second, third = st.columns(3)

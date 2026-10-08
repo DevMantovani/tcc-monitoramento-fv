@@ -13,6 +13,13 @@ from pv_monitor.data import (
     split_temporally,
 )
 from pv_monitor.models import FEATURE_COLUMNS
+from pv_monitor.launcher import (
+    RAW_SOURCES,
+    REQUIRED_RESULTS,
+    dashboard_is_running,
+    missing_raw_sources,
+    results_are_ready,
+)
 from pv_monitor.reproduction import select_model_by_validation_metric
 from pv_monitor.reporting import build_final_table, build_validation_table
 from pv_monitor.workflow import _alert_metrics, _persistent_alerts, detect_additional_loss
@@ -219,3 +226,31 @@ def test_result_tables_keep_validation_and_final_metrics_separate():
     assert set(validation["partition"]) == {"validação"}
     assert "F1" in set(final["metric"])
     assert validation.loc[0, "value"] == pytest.approx(1.0)
+
+
+def test_launcher_only_considers_the_project_ready_with_all_required_results(tmp_path):
+    assert missing_raw_sources(tmp_path) == list(RAW_SOURCES)
+    assert not results_are_ready(tmp_path)
+
+    for relative in RAW_SOURCES + REQUIRED_RESULTS:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+
+    assert missing_raw_sources(tmp_path) == []
+    assert results_are_ready(tmp_path)
+
+
+def test_launcher_detects_the_local_dashboard_health_endpoint(monkeypatch):
+    class Response:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+    monkeypatch.setattr("pv_monitor.launcher.urlopen", lambda *_args, **_kwargs: Response())
+
+    assert dashboard_is_running()

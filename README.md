@@ -11,6 +11,15 @@ Repositório do TCC de Matheus Luís Mantovani Passoni. Ele mantém juntos o art
 
 Os dados sintéticos servem somente para testar o fluxo de software. Não podem ser usados como evidência de desempenho real no artigo.
 
+## Abrir o painel sem usar comandos Python
+
+Depois de colocar os dois datasets públicos nos caminhos descritos em [docs/execucao-simplificada.md](docs/execucao-simplificada.md), use o atalho adequado:
+
+- **Windows:** duplo clique em `iniciar_painel.bat`.
+- **Linux/macOS:** execute `bash iniciar_painel.sh` na pasta do projeto.
+
+Na primeira abertura, o atalho cria o ambiente local, instala o projeto e prepara os resultados auditáveis. Nas demais, abre diretamente o painel em `http://127.0.0.1:8501`.
+
 ## Estrutura
 
 ```text

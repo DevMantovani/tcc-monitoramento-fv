@@ -32,6 +32,26 @@ class TemporalSplit:
     test: pd.DataFrame
 
 
+def _normalize_observation_columns(frame: pd.DataFrame) -> tuple[pd.DataFrame, str]:
+    """Validate and coerce the common operational fields once.
+
+    The original frame is retained so specialized datasets can carry their
+    supervised reference columns through the same validation path.
+    """
+    normalized = frame.copy()
+    temperature_source = "temperature_c"
+    if "temperature_c" not in normalized.columns and LEGACY_TEMPERATURE_COLUMN in normalized.columns:
+        normalized["temperature_c"] = normalized[LEGACY_TEMPERATURE_COLUMN]
+        temperature_source = LEGACY_TEMPERATURE_COLUMN
+    missing = sorted(set(REQUIRED_COLUMNS).difference(normalized.columns))
+    if missing:
+        raise ValueError(f"CSV sem colunas obrigatórias: {', '.join(missing)}")
+    normalized["timestamp"] = pd.to_datetime(normalized["timestamp"], errors="coerce", utc=True)
+    for column in REQUIRED_COLUMNS[1:]:
+        normalized[column] = pd.to_numeric(normalized[column], errors="coerce")
+    return normalized, temperature_source
+
+
 def prepare_laghouat_dataset(input_path: str, output_path: str) -> pd.DataFrame:
     """Prepare the published clean-versus-dusty panel dataset without imputation.
 
@@ -148,18 +168,8 @@ def operational_input_quality_report(
     amount of usable information visible to the user before alerting.
     """
     frame = pd.read_csv(input_path)
-    temperature_source = "temperature_c"
-    if "temperature_c" not in frame.columns and LEGACY_TEMPERATURE_COLUMN in frame.columns:
-        frame["temperature_c"] = frame[LEGACY_TEMPERATURE_COLUMN]
-        temperature_source = LEGACY_TEMPERATURE_COLUMN
-    missing = sorted(set(REQUIRED_COLUMNS).difference(frame.columns))
-    if missing:
-        raise ValueError(f"CSV sem colunas obrigatórias: {', '.join(missing)}")
-
-    normalized = frame.loc[:, REQUIRED_COLUMNS].copy()
-    normalized["timestamp"] = pd.to_datetime(normalized["timestamp"], errors="coerce", utc=True)
-    for column in REQUIRED_COLUMNS[1:]:
-        normalized[column] = pd.to_numeric(normalized[column], errors="coerce")
+    normalized_frame, temperature_source = _normalize_observation_columns(frame)
+    normalized = normalized_frame.loc[:, REQUIRED_COLUMNS].copy()
     valid_required = normalized.notna().all(axis=1)
     valid_rows = normalized[valid_required].copy()
     duplicate_rows = int(valid_rows.duplicated(subset="timestamp", keep="last").sum())
@@ -198,17 +208,7 @@ def operational_input_quality_report(
 
 def load_observations(path: str, minimum_irradiance_wm2: float = 50.0) -> pd.DataFrame:
     """Load a CSV, rejecting unusable records instead of imputing them silently."""
-    frame = pd.read_csv(path)
-    if "temperature_c" not in frame.columns and LEGACY_TEMPERATURE_COLUMN in frame.columns:
-        frame["temperature_c"] = frame[LEGACY_TEMPERATURE_COLUMN]
-    missing = sorted(set(REQUIRED_COLUMNS).difference(frame.columns))
-    if missing:
-        raise ValueError(f"CSV sem colunas obrigatórias: {', '.join(missing)}")
-
-    frame = frame.copy()
-    frame["timestamp"] = pd.to_datetime(frame["timestamp"], errors="coerce", utc=True)
-    for column in REQUIRED_COLUMNS[1:]:
-        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    frame, _ = _normalize_observation_columns(pd.read_csv(path))
 
     frame = frame.dropna(subset=REQUIRED_COLUMNS)
     frame = frame.drop_duplicates(subset="timestamp", keep="last")

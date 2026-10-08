@@ -191,7 +191,11 @@ def _persistent_alerts(values: pd.Series, threshold: float, persistence_days: in
         raise ValueError("O limiar de perda deve estar entre 0 e 1.")
     if persistence_days < 1:
         raise ValueError("A persistência deve ser positiva.")
-    above = values >= threshold
+    return _persistent_flags(values >= threshold, persistence_days)
+
+
+def _persistent_flags(above: pd.Series, persistence_days: int) -> list[bool]:
+    """Return days that complete a consecutive run of already-qualified values."""
     run_length = 0
     alerts: list[bool] = []
     for is_above in above:
@@ -389,13 +393,8 @@ def detect_additional_loss(
         & (daily["mean_loss_fraction"] >= daily_loss_threshold)
     )
 
-    run_length = 0
-    alerts: list[bool] = []
-    for is_above in daily["above_threshold"]:
-        run_length = run_length + 1 if is_above else 0
-        alerts.append(run_length >= persistence_days)
     daily["consecutive_days_above_threshold"] = _consecutive_counts(daily["above_threshold"])
-    daily["additional_loss_alert"] = alerts
+    daily["additional_loss_alert"] = _persistent_flags(daily["above_threshold"], persistence_days)
     daily["recommended_action"] = daily["additional_loss_alert"].map(
         {
             True: "Inspecionar o sistema e confirmar a causa antes de limpar.",

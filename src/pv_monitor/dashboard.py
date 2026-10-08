@@ -127,7 +127,7 @@ def render_public_data_analysis() -> None:
     )
     st.dataframe(
         display[["date", "samples", "Perda observada (%)", "Perda estimada (%)", "Alerta estimado"]],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.download_button(

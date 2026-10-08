@@ -58,6 +58,72 @@ def train_models(input_path: str, output_dir: str, minimum_irradiance_wm2: float
     return report
 
 
+def calibrate_installation_baseline(
+    input_path: str,
+    cleaning_timestamp: str,
+    calibration_days: int,
+    output_dir: str,
+    minimum_observations: int = 30,
+    minimum_irradiance_wm2: float = 50.0,
+) -> dict[str, Any]:
+    """Create an installation-specific clean-generation reference after cleaning.
+
+    The period must be confirmed by the operator as clean and operational. Its
+    measured power becomes the local target for the expected-power baseline;
+    no clean companion panel is required in deployment.
+    """
+    if calibration_days < 1:
+        raise ValueError("A janela de calibração deve ter ao menos um dia.")
+    if minimum_observations < 1:
+        raise ValueError("A quantidade mínima de observações deve ser positiva.")
+    cleaning_start = pd.to_datetime(cleaning_timestamp, errors="coerce", utc=True)
+    if pd.isna(cleaning_start):
+        raise ValueError("Data de limpeza inválida. Use formato ISO 8601, por exemplo 2026-01-15T00:00:00Z.")
+
+    frame = load_observations(input_path, minimum_irradiance_wm2)
+    cleaning_end = cleaning_start + pd.Timedelta(f"{int(calibration_days)} days")
+    baseline = frame[frame["timestamp"].between(cleaning_start, cleaning_end, inclusive="left")].copy()
+    if len(baseline) < minimum_observations:
+        raise ValueError(
+            f"A janela pós-limpeza possui {len(baseline)} observações válidas; são necessárias ao menos "
+            f"{minimum_observations}."
+        )
+
+    model = build_candidates()["ridge"]
+    model.fit(baseline[FEATURE_COLUMNS], baseline[TARGET_COLUMN])
+    destination = Path(output_dir)
+    destination.mkdir(parents=True, exist_ok=True)
+    model_path = destination / "clean_baseline_ridge.joblib"
+    joblib.dump(model, model_path)
+    report = {
+        "task": "calibração local de referência pós-limpeza",
+        "input": str(input_path),
+        "model_name": "ridge",
+        "model_path": str(model_path),
+        "cleaning_event": {
+            "timestamp": cleaning_start.isoformat(),
+            "calibration_window_days": calibration_days,
+            "window_end": cleaning_end.isoformat(),
+            "operator_confirmation_required": True,
+        },
+        "baseline": {
+            "valid_daylight_observations": len(baseline),
+            "start": baseline["timestamp"].min().isoformat(),
+            "end": baseline["timestamp"].max().isoformat(),
+            "mean_measured_power_kw": float(baseline[TARGET_COLUMN].mean()),
+        },
+        "operational_inputs": FEATURE_COLUMNS + [TARGET_COLUMN],
+        "note": (
+            "A referência foi ajustada somente com dados posteriores a uma limpeza confirmada. "
+            "Antes de uso decisório, a instalação deve manter qualidade de dados, registrar novas limpezas "
+            "e validar seus próprios limiares de alerta."
+        ),
+    }
+    with (destination / "calibration.json").open("w", encoding="utf-8") as handle:
+        json.dump(report, handle, ensure_ascii=False, indent=2)
+    return report
+
+
 def evaluate_final_power_model(
     input_path: str,
     output_dir: str,

@@ -24,7 +24,12 @@ from pv_monitor.launcher import (
 from pv_monitor.reproduction import select_model_by_validation_metric
 from pv_monitor.monitoring_evidence import condition_performance_table, monthly_alert_stability_table
 from pv_monitor.reporting import build_final_table, build_validation_table
-from pv_monitor.workflow import _alert_metrics, _persistent_alerts, detect_additional_loss
+from pv_monitor.workflow import (
+    _alert_metrics,
+    _persistent_alerts,
+    calibrate_installation_baseline,
+    detect_additional_loss,
+)
 
 
 def test_load_observations_filters_invalid_rows(tmp_path):
@@ -130,6 +135,32 @@ def test_detect_additional_loss_creates_auditable_persistent_alert(tmp_path):
     assert daily["additional_loss_alert"].tolist() == [False] + [True] * 9
     assert output_path.with_suffix(".summary.json").exists()
     assert "Inspecionar" in daily.loc[1, "recommended_action"]
+
+
+def test_calibrate_installation_baseline_uses_only_confirmed_post_cleaning_period(tmp_path):
+    timestamps = pd.date_range("2026-01-01", periods=72, freq="h", tz="UTC")
+    input_path = tmp_path / "operational.csv"
+    pd.DataFrame(
+        {
+            "timestamp": timestamps.astype(str),
+            "irradiance_wm2": [500.0] * len(timestamps),
+            "temperature_c": [25.0] * len(timestamps),
+            "power_kw": [2.0] * len(timestamps),
+        }
+    ).to_csv(input_path, index=False)
+
+    report = calibrate_installation_baseline(
+        str(input_path),
+        "2026-01-02T00:00:00Z",
+        calibration_days=1,
+        output_dir=str(tmp_path / "calibration"),
+        minimum_observations=20,
+    )
+
+    assert report["model_name"] == "ridge"
+    assert report["baseline"]["valid_daylight_observations"] == 24
+    assert (tmp_path / "calibration" / "clean_baseline_ridge.joblib").exists()
+    assert (tmp_path / "calibration" / "calibration.json").exists()
 
 
 def test_prepare_laghouat_calculates_loss_only_with_clean_reference(tmp_path):

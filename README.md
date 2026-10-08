@@ -177,8 +177,15 @@ O protótipo também possui um fluxo de linha de comando para uma futura integra
 
 ```bash
 pv-monitor check-input --input dados_operacionais.csv --output artifacts/qualidade_entrada.json
-pv-monitor detect --input dados_operacionais.csv --model caminho/para/modelo.joblib --output artifacts/alertas_diarios.csv
+pv-monitor calibrate-installation \
+  --input dados_operacionais.csv \
+  --cleaning-timestamp 2026-01-15T00:00:00Z \
+  --calibration-days 14 \
+  --output artifacts/calibracao_local
+pv-monitor detect --input dados_operacionais.csv --model artifacts/calibracao_local/clean_baseline_ridge.joblib --output artifacts/alertas_diarios.csv
 ```
+
+O comando de calibração usa somente o período posterior a uma limpeza confirmada para formar a referência de geração daquela instalação. Consulte [docs/calibracao-local.md](docs/calibracao-local.md) antes de usar esse fluxo.
 
 Consulte [docs/operacao.md](docs/operacao.md) para o formato do CSV, parâmetros e limites para uso em campo.
 

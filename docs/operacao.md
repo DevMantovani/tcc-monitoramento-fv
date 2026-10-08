@@ -27,12 +27,23 @@ pv-monitor check-input \
   --output artifacts/qualidade_entrada.json
 ```
 
-Depois, execute o indicador com um modelo previamente selecionado e validado:
+Depois de uma limpeza confirmada, crie a referência local com uma janela em que o sistema permaneceu operacional. O operador é responsável por confirmar que essa janela não contém falha, sombra atípica ou nova sujeira relevante.
+
+```bash
+pv-monitor calibrate-installation \
+  --input dados_operacionais.csv \
+  --cleaning-timestamp 2026-01-15T00:00:00Z \
+  --calibration-days 14 \
+  --minimum-observations 30 \
+  --output artifacts/calibracao_local
+```
+
+O comando grava o modelo `clean_baseline_ridge.joblib` e o registro auditável `calibration.json`. Depois, execute o indicador com essa referência local:
 
 ```bash
 pv-monitor detect \
   --input dados_operacionais.csv \
-  --model caminho/para/modelo.joblib \
+  --model artifacts/calibracao_local/clean_baseline_ridge.joblib \
   --output artifacts/alertas_diarios.csv \
   --daily-loss-threshold 0.15 \
   --minimum-samples-per-day 4 \
@@ -49,4 +60,4 @@ Os valores de limiar, quantidade mínima de amostras e persistência dependem da
 
 ## Limite para uso em campo
 
-O modelo disponível neste protótipo foi desenvolvido em dados públicos de um experimento específico. Antes do uso em uma residência, é necessário coletar dados locais de potência e ambiente, definir um período de referência pós-limpeza e recalibrar/validar o modelo e os limiares nesse sistema. Até lá, o fluxo é uma demonstração técnica auditável, não um serviço de decisão de limpeza.
+O fluxo de calibração implementa a referência pós-limpeza, mas ainda não foi validado com telemetria residencial real. Antes do uso em uma residência, é necessário coletar dados locais de potência e ambiente, registrar eventos de limpeza e validar os limiares nesse sistema. Até lá, o fluxo é uma demonstração técnica auditável, não um serviço de decisão de limpeza.

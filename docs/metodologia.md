@@ -25,13 +25,19 @@ Essa perda observada é o rótulo usado para validar o monitor; o painel limpo n
 
 Assim, `P_clean` é permitido como alvo supervisionado apenas na fase experimental. Ele não entra como variável de entrada do modelo nem é necessário na operação do monitor. A densidade de poeira reconstruída também é mantida para análise e não é usada como atalho para a predição.
 
+### Calibração pós-limpeza para uma instalação futura
+
+Em uma residência não existe um segundo painel limpo para fornecer `P_clean`. Por isso, o fluxo operacional implementado exige o registro de uma limpeza confirmada e seleciona uma janela posterior em que o sistema está operacional. A potência medida nessa janela é usada para ajustar uma referência local de potência esperada a partir de irradiância e temperatura. Nas leituras futuras, o monitor compara essa referência à potência medida e só indica inspeção quando a perda persiste.
+
+Esse fluxo é uma proposta implementada para implantação futura; ele não foi validado com dados residenciais reais. No experimento de Laghouat, o painel lavado diariamente permite avaliar a mesma lógica com uma referência independente.
+
 ### Seleção interna do estimador
 
 Ridge e Random Forest são avaliados internamente apenas para escolher um estimador de potência limpa adequado à base de desenvolvimento. Essa etapa não é o objeto comparativo do TCC e não sustenta uma conclusão sobre qual técnica de aprendizado de máquina é superior em geral. Após a seleção pela validação cronológica, um único estimador é bloqueado e avaliado como parte do **monitor**: potência limpa esperada, perda estimada e alerta persistente.
 
 ## Visualização e investigação
 
-O painel local é uma tela de apresentação do monitor: traduz a relação entre geração esperada, geração medida, perda identificada e inspeção recomendada. Métricas de validação, tabelas detalhadas e cenários econômicos são reservados à documentação, aos slides e ao artigo, para não confundir uma demonstração operacional com uma comparação experimental. A interface usa exclusivamente o dataset público de Laghouat, com DOI, licença, método e checksum documentados, e exibe somente o recorte de teste final preservado. Ela não aceita fontes arbitrárias. O fluxo de linha de comando para CSV permanece como base técnica para uma futura integração com inversor, medidor ou API.
+O painel local é uma tela de apresentação do monitor: traduz a relação entre geração esperada, geração medida, perda identificada e inspeção recomendada. Métricas de validação, tabelas detalhadas e cenários econômicos são reservados à documentação, aos slides e ao artigo, para não confundir uma demonstração operacional com uma comparação experimental. A interface usa exclusivamente o dataset público de Laghouat, com DOI, licença, método e checksum documentados, e exibe somente o recorte de teste final preservado. Ela não aceita fontes arbitrárias. O fluxo de linha de comando para CSV permanece como base técnica para a calibração pós-limpeza e futura integração com inversor, medidor ou API.
 
 Um limite selecionável na interface serve apenas para filtrar e discutir dias de maior perda. Ele deve ser descrito como **limite visual exploratório**, não como ponto de limpeza validado. O painel também oferece uma simulação econômica residencial opcional, com valores editáveis de energia, limpeza e recuperação assumida. Ela é uma análise de sensibilidade para interpretação do protótipo, não uma otimização financeira nem conclusão sobre uma residência real; as premissas estão registradas em `docs/economia.md`.
 

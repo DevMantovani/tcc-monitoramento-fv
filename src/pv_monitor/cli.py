@@ -17,6 +17,7 @@ from pv_monitor.monitoring_evidence import generate_monitoring_evidence
 from pv_monitor.reproduction import reproduce_public_experiments
 from pv_monitor.reporting import generate_result_materials
 from pv_monitor.workflow import (
+    calibrate_installation_baseline,
     calibrate_alert_policy,
     detect_additional_loss,
     evaluate_final_soiling_monitor,
@@ -103,6 +104,17 @@ def build_parser() -> argparse.ArgumentParser:
     detect.add_argument("--minimum-expected-kw", type=float, default=0.10)
     detect.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
 
+    installation_calibration = commands.add_parser(
+        "calibrate-installation",
+        help="cria uma referência de geração pós-limpeza para uma instalação específica",
+    )
+    installation_calibration.add_argument("--input", required=True)
+    installation_calibration.add_argument("--cleaning-timestamp", required=True)
+    installation_calibration.add_argument("--calibration-days", type=int, default=14)
+    installation_calibration.add_argument("--minimum-observations", type=int, default=30)
+    installation_calibration.add_argument("--output", required=True)
+    installation_calibration.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
+
     quality = commands.add_parser(
         "check-input",
         help="verifica a qualidade de um CSV operacional antes de monitorar perdas",
@@ -188,6 +200,16 @@ def main() -> None:
             minimum_irradiance_wm2=args.minimum_irradiance_wm2,
         )
         print(f"Indicadores diários criados: {len(daily)} dias em {args.output}")
+    elif args.command == "calibrate-installation":
+        report = calibrate_installation_baseline(
+            args.input,
+            args.cleaning_timestamp,
+            args.calibration_days,
+            args.output,
+            args.minimum_observations,
+            args.minimum_irradiance_wm2,
+        )
+        print(json.dumps(report, ensure_ascii=False, indent=2))
     elif args.command == "check-input":
         report = operational_input_quality_report(args.input, args.minimum_irradiance_wm2)
         with Path(args.output).open("w", encoding="utf-8") as handle:

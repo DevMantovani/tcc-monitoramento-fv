@@ -11,6 +11,7 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parents[2]
 REAL_DATA = ROOT / "data" / "processed" / "laghouat_2022.csv"
 MONITOR_METRICS = ROOT / "artifacts" / "laghouat_monitor" / "metrics_validation.json"
+FINAL_METRICS = ROOT / "artifacts" / "laghouat_final" / "metrics_test.json"
 
 
 @st.cache_data(show_spinner=False)
@@ -66,6 +67,21 @@ def main() -> None:
         st.info(
             "O conjunto foi preparado, mas o modelo ainda não foi treinado. Execute `pv-monitor train-soiling-monitor` "
             "para produzir as métricas de validação locais."
+        )
+    if FINAL_METRICS.exists():
+        final_metrics = load_monitor_metrics(str(FINAL_METRICS))
+        test_metrics = final_metrics["test_metrics"]
+        alert_metrics = test_metrics["persistent_alert"]
+        final_policy = final_metrics["locked_alert_policy"]
+        st.subheader("Teste final preservado")
+        test_left, test_middle, test_right, test_fourth = st.columns(4)
+        test_left.metric("Erro médio da perda estimada", f"{test_metrics['estimated_soiling_loss']['mae_fraction'] * 100:.2f} p.p.")
+        test_middle.metric("F1 dos alertas", f"{alert_metrics['f1']:.3f}")
+        test_right.metric("Precisão dos alertas", f"{alert_metrics['precision'] * 100:.1f}%")
+        test_fourth.metric("Sensibilidade dos alertas", f"{alert_metrics['recall'] * 100:.1f}%")
+        st.caption(
+            f"Política congelada antes do teste: perda estimada de pelo menos {final_policy['threshold'] * 100:.0f}% "
+            f"por {final_policy['persistence_days']} dias consecutivos. Resultado limitado a esta base experimental."
         )
     min_date, max_date = frame["date"].min(), frame["date"].max()
     selected_dates = st.sidebar.date_input("Período exibido", value=(min_date, max_date), min_value=min_date, max_value=max_date)

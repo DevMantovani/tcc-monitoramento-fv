@@ -71,6 +71,24 @@ pv-monitor train-soiling-monitor \
 
 O modelo aprende a estimar a potência limpa esperada a partir de irradiância e temperatura. Na fase de monitoramento, ele compara essa estimativa com a potência medida do sistema. A potência do painel limpo do experimento é usada exclusivamente como referência supervisionada para desenvolvimento e validação.
 
+## Calibrar alertas e executar o teste final
+
+Após selecionar o modelo pela validação, calibre os alertas somente na mesma partição de validação e preserve o teste final:
+
+```bash
+pv-monitor calibrate-alert-policy \
+  --input data/processed/laghouat_2022.csv \
+  --output artifacts/laghouat_monitor \
+  --model-name ridge
+
+pv-monitor evaluate-final \
+  --input data/processed/laghouat_2022.csv \
+  --policy artifacts/laghouat_monitor/alert_policy_validation.json \
+  --output artifacts/laghouat_final
+```
+
+O último comando refaz o treinamento com treino e validação, mas mantém bloqueados o modelo e a política de alerta escolhidos antes de acessar o teste final.
+
 ## Painel visual local
 
 Após preparar a base real, abra a análise com:

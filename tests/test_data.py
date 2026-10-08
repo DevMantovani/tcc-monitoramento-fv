@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from pv_monitor.data import load_observations, prepare_laghouat_dataset, split_temporally
+from pv_monitor.workflow import _alert_metrics, _persistent_alerts
 
 
 def test_load_observations_filters_invalid_rows(tmp_path):
@@ -72,3 +73,15 @@ def test_prepare_laghouat_calculates_loss_only_with_clean_reference(tmp_path):
     assert pd.isna(prepared.loc[1, "soiling_loss_fraction"])
     assert prepared.loc[0, "power_kw"] == pytest.approx(0.072)
     assert prepared.loc[0, "clean_reference_power_kw"] == pytest.approx(0.080)
+
+
+def test_persistent_alerts_and_metrics_require_consecutive_days():
+    observed = pd.Series([0.12, 0.12, 0.02, 0.12, 0.12])
+    estimated = pd.Series([0.11, 0.11, 0.02, 0.04, 0.11])
+
+    assert _persistent_alerts(observed, threshold=0.10, persistence_days=2) == [False, True, False, False, True]
+    score = _alert_metrics(observed, estimated, threshold=0.10, persistence_days=2)
+
+    assert score["true_positive_days"] == 1
+    assert score["false_positive_days"] == 0
+    assert score["false_negative_days"] == 1

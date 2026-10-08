@@ -8,7 +8,13 @@ from pathlib import Path
 
 from pv_monitor.data import prepare_laghouat_dataset
 from pv_monitor.demo import create_demo_dataset
-from pv_monitor.workflow import detect_additional_loss, train_models, train_soiling_monitor
+from pv_monitor.workflow import (
+    calibrate_alert_policy,
+    detect_additional_loss,
+    evaluate_final_soiling_monitor,
+    train_models,
+    train_soiling_monitor,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -36,6 +42,24 @@ def build_parser() -> argparse.ArgumentParser:
     monitor.add_argument("--output", required=True)
     monitor.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
 
+    calibrate = commands.add_parser(
+        "calibrate-alert-policy",
+        help="calibra limiar e persistência somente na partição de validação",
+    )
+    calibrate.add_argument("--input", required=True)
+    calibrate.add_argument("--output", required=True)
+    calibrate.add_argument("--model-name", choices=("ridge", "random_forest"), default="ridge")
+    calibrate.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
+
+    final_evaluation = commands.add_parser(
+        "evaluate-final",
+        help="avalia uma política bloqueada no teste final preservado",
+    )
+    final_evaluation.add_argument("--input", required=True)
+    final_evaluation.add_argument("--output", required=True)
+    final_evaluation.add_argument("--policy", required=True)
+    final_evaluation.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
+
     detect = commands.add_parser("detect", help="calcula o alerta de perda adicional")
     detect.add_argument("--input", required=True)
     detect.add_argument("--model", required=True)
@@ -60,6 +84,16 @@ def main() -> None:
     elif args.command == "train-soiling-monitor":
         report = train_soiling_monitor(args.input, args.output, args.minimum_irradiance_wm2)
         print(json.dumps(report["validation_metrics"], ensure_ascii=False, indent=2))
+    elif args.command == "calibrate-alert-policy":
+        report = calibrate_alert_policy(
+            args.input, args.output, args.model_name, minimum_irradiance_wm2=args.minimum_irradiance_wm2
+        )
+        print(json.dumps(report["selected_policy"], ensure_ascii=False, indent=2))
+    elif args.command == "evaluate-final":
+        report = evaluate_final_soiling_monitor(
+            args.input, args.output, args.policy, args.minimum_irradiance_wm2
+        )
+        print(json.dumps(report["test_metrics"], ensure_ascii=False, indent=2))
     elif args.command == "detect":
         daily = detect_additional_loss(
             args.input,

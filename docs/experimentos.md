@@ -55,3 +55,14 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Métrica de validação da perda estimada: Ridge — MAE 0,00661 (0,66 ponto percentual), RMSE 0,00851 e R² 0,989; Random Forest — MAE 0,02308 (2,31 pontos percentuais), RMSE 0,03125 e R² 0,851.
 - Resultado: nesta validação cronológica, Ridge teve o menor erro de perda estimada. O teste final permanece sem uso para escolha de modelo.
 - Limitações: um único local e período; a potência limpa de referência está disponível nesta base, mas não numa implantação comum. A próxima etapa deve validar o modelo em outra fonte ou em dados de campo e definir como períodos pós-limpeza serão identificados para recalibração.
+
+## EXP-004 — calibração de alertas e teste final preservado
+
+- Data: 08/10/2026
+- Commit Git: a registrar no commit desta etapa.
+- Modelo bloqueado: Ridge, selecionado pela menor MAE de perda estimada na validação (EXP-003).
+- Calibração: somente na validação, avaliando limiares de 5%, 10%, 15% e 20% com persistência de um, dois ou três dias. A seleção por F1 escolheu 15% por três dias consecutivos; na validação, precisão, sensibilidade e F1 foram 1,000 (33 dias positivos).
+- Teste final: o modelo foi refitado uma vez com treino e validação, sem alterar política; o último período cronológico permaneceu separado até a execução.
+- Métricas do teste: MAE da potência limpa esperada 0,000291 kW; MAE da perda estimada 0,00632 (0,63 ponto percentual); precisão dos alertas 0,906; sensibilidade 1,000; F1 0,951; 29 dias verdadeiros positivos, 3 falsos positivos e nenhum falso negativo.
+- Interpretação: os resultados demonstram desempenho promissor **nesta base experimental**, não eficácia comprovada em residências brasileiras ou em outra localidade.
+- Próxima decisão: produzir gráficos e tabelas reproduzíveis do teste final e buscar validação complementar em fonte externa.

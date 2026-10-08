@@ -16,5 +16,6 @@
 | D12 | Tratar chuva como contexto, não como limpeza automática. | A eficácia depende do tipo de sujeira e das condições locais; eventos de chuva não garantem recuperação total. | Aceita |
 | D13 | Direcionar o MVP a sistemas residenciais. | É o público-alvo inicial definido para o artefato; o código permanece organizado para permitir futura adaptação a outras escalas. | Aceita |
 | D14 | Não depender de dados locais nesta etapa. | Não há dataset residencial de campo disponível; os resultados serão delimitados à base pública e à necessidade de validação externa futura. | Aceita |
+| D15 | Calibrar alertas exclusivamente na validação e testar uma única vez no período final. | Evita escolher limiar ou persistência olhando o conjunto de teste e torna a métrica de alerta auditável. | Aceita |
 
 O escopo do MVP é o monitoramento em sistemas residenciais, com arquitetura passível de escalonamento. A validação usa dados públicos; não há, nesta etapa, dados de uma instalação residencial local nem afirmação de generalização para outras instalações.

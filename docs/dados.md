@@ -38,7 +38,7 @@ Após esse filtro, há 1.860 observações diurnas válidas. Neste recorte, a pe
 2. Há 48 medições diretas de densidade de poeira. A série horária de densidade reconstruída foi fornecida pelos autores por interpolação PCHIP; ela é exibida como contexto, não como uma medição direta a cada hora.
 3. O estudo cobre um local e aproximadamente seis meses. Temperatura, chuva, regime de poeira, orientação, tecnologia dos módulos e operação podem mudar o comportamento em outro cenário.
 4. Valores negativos pontuais de perda podem ocorrer por ruído de medição ou condições experimentais; eles não significam “sujidade negativa”.
-5. O conjunto permite treinar e avaliar um monitor que estima potência limpa esperada com variáveis ambientais e a compara à potência efetivamente medida. O módulo limpo e sua potência não são requisitos da implantação: são a referência supervisionada desta fase experimental. Uma regra de limpeza economicamente recomendada ainda exige custo de limpeza, valor/tarifa da energia, previsão de chuva e persistência da perda.
+5. O conjunto permite treinar e avaliar um monitor que estima potência limpa esperada com variáveis ambientais e a compara à potência efetivamente medida. O módulo limpo e sua potência não são requisitos da implantação: são a referência supervisionada desta fase experimental. O MVP não propõe uma regra econômica de limpeza.
 
 ## Fonte secundária auditada: PVDAQ 1433 — NREL RSF1
 

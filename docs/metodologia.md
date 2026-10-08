@@ -29,17 +29,7 @@ Assim, `P_clean` é permitido como alvo supervisionado apenas na fase experiment
 
 O painel local apresenta primeiro as métricas de validação cronológica do modelo e, em separado, os gráficos do experimento usados como referência. Essa separação impede que uma comparação de laboratório seja confundida com a operação normal do sistema proposto.
 
-Um limite selecionável na interface serve apenas para filtrar e discutir dias de maior perda. Ele deve ser descrito como **limite visual exploratório**, não como ponto de limpeza validado.
-
-Uma recomendação operacional futura deverá combinar, no mínimo:
-
-1. perda estimada e sua persistência;
-2. custo e disponibilidade de limpeza;
-3. valor da energia recuperável;
-4. previsão de chuva, pois ela pode alterar o benefício da limpeza;
-5. restrições locais de segurança e operação.
-
-Na interface atual, a comparação econômica é deliberadamente retrospectiva: soma a energia não gerada observada no período selecionado e a multiplica pela tarifa ou valor de compensação informado pelo usuário. Esse montante é comparado ao custo de uma limpeza também informado pelo usuário. A tela não fixa preço de energia nem custo de limpeza, pois ambos variam por distribuidora, tipo de contrato, escala e operação. As tarifas de aplicação das distribuidoras podem ser consultadas nos [dados abertos da ANEEL](https://dadosabertos.aneel.gov.br/), mas a tarifa aplicável deve ser confirmada para a instalação estudada.
+Um limite selecionável na interface serve apenas para filtrar e discutir dias de maior perda. Ele deve ser descrito como **limite visual exploratório**, não como ponto de limpeza validado. A definição econômica do momento de limpeza, incluindo tarifa, custo e retorno financeiro, está fora do escopo deste MVP.
 
 A precipitação é exibida como contexto, e não como uma regra binária de “painel limpo”. Estudos apontam que o efeito da chuva depende do material depositado e de outras condições; portanto, o sistema não deve assumir que qualquer evento de chuva elimina a sujidade. O tratamento está alinhado às orientações do [IEA PVPS sobre perdas por sujidade](https://iea-pvps.org/key-topics/soiling-losses-impact-on-the-performance-of-photovoltaic-power-plants/) e à evidência experimental do [NREL sobre limpeza incompleta pela chuva](https://www.nrel.gov/news/program/2023/nrel-research-finds-rain-not-enough-to-wash-pollen-from-solar-panels).
 
@@ -47,7 +37,7 @@ A precipitação é exibida como contexto, e não como uma regra binária de “
 
 O protótipo compara Ridge e Random Forest como estimadores de potência limpa esperada. As métricas incluem erro da potência limpa estimada e erro da perda por sujidade estimada. A separação é cronológica: treino (60%), validação (20%) e teste final preservado (20%). O teste final não é usado para escolher modelo ou limiar.
 
-A avaliação de uma política de limpeza não pode se limitar a MAE, RMSE ou R²: ela também precisa comparar energia recuperada, falsos alertas, limpezas evitadas e resultado econômico sob premissas explicitadas. A generalização só poderá ser defendida após validação externa em outra base ou dados de campo.
+A avaliação do monitor não pode se limitar a MAE, RMSE ou R²: ela também deve verificar a estabilidade dos alertas, falsos alertas e atraso de detecção. A generalização só poderá ser defendida após validação externa em outra base ou dados de campo. O público-alvo inicial é residencial; adaptação para outras escalas requer nova avaliação.
 
 ## Qualidade e limites dos dados
 

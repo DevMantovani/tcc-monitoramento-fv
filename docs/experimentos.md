@@ -41,7 +41,7 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Modelo e parâmetros: não aplicável nesta etapa. Não foi treinado modelo de aprendizado de máquina.
 - Resultado descritivo: mediana de perda 15,27%; média 13,43%; percentil 90 22,45%.
 - Limitações: referência de painel lavado diariamente; um local e seis meses; só 48 medidas diretas de poeira e série horária reconstruída por PCHIP.
-- Próxima decisão: definir, com premissas explícitas, os custos e benefícios necessários para avaliar uma política de limpeza; depois escolher variáveis que estarão disponíveis na implantação.
+- Próxima decisão: validar os alertas do monitor e procurar uma fonte complementar; otimização econômica de limpeza está fora do escopo do MVP.
 
 ## EXP-003 — validação inicial do monitor de perdas por sujidade
 

@@ -31,7 +31,7 @@ Ridge e Random Forest são avaliados internamente apenas para escolher um estima
 
 ## Visualização e investigação
 
-O painel local separa a visão geral, a análise de dados, a validação científica e a simulação econômica/metodológica em abas. Essa organização impede que uma comparação experimental seja confundida com a operação normal do sistema proposto. A aba de análise usa exclusivamente o dataset público de Laghouat, com DOI, licença, método e checksum documentados, e exibe somente o recorte final preservado. Ela não aceita fontes arbitrárias. O fluxo de linha de comando para CSV permanece como base técnica para uma futura integração com inversor, medidor ou API.
+O painel local separa o painel operacional, o histórico, as evidências e o método/cenário econômico em abas. Essa organização deixa a orientação de inspeção na entrada e impede que uma comparação experimental seja confundida com a operação normal do sistema proposto. A interface usa exclusivamente o dataset público de Laghouat, com DOI, licença, método e checksum documentados, e exibe somente o recorte final preservado. Ela não aceita fontes arbitrárias. O fluxo de linha de comando para CSV permanece como base técnica para uma futura integração com inversor, medidor ou API.
 
 Um limite selecionável na interface serve apenas para filtrar e discutir dias de maior perda. Ele deve ser descrito como **limite visual exploratório**, não como ponto de limpeza validado. O painel também oferece uma simulação econômica residencial opcional, com valores editáveis de energia, limpeza e recuperação assumida. Ela é uma análise de sensibilidade para interpretação do protótipo, não uma otimização financeira nem conclusão sobre uma residência real; as premissas estão registradas em `docs/economia.md`.
 

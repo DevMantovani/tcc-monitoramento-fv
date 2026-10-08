@@ -169,7 +169,7 @@ Após preparar a base real, abra a análise com:
 pv-dashboard
 ```
 
-O painel agora separa quatro perspectivas: **Visão geral**, **Análise de dados**, **Validação científica** e **Economia e metodologia**. A aba de análise utiliza exclusivamente o dataset público de Laghouat, já documentado e baixado para o projeto, e apresenta apenas o recorte de teste final preservado. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
+O painel agora separa quatro perspectivas: **Painel**, **Histórico**, **Evidências** e **Método e cenário**. A primeira aba prioriza situação, perda estimada e orientação de inspeção; as métricas científicas permanecem nas abas secundárias. O painel utiliza exclusivamente o dataset público de Laghouat, já documentado e baixado para o projeto, e apresenta apenas o recorte de teste final preservado. O cenário econômico continua sendo uma simulação editável, não orçamento, tarifa real ou economia garantida; consulte `docs/economia.md`. Para encerrar, use `Ctrl+C` no terminal que iniciou o painel.
 
 ## Fluxo operacional para futura integração
 

@@ -29,6 +29,9 @@ Revisado em 08/10/2026. Este é um arquivo auxiliar, separado do artigo, para co
 | `breiman2001` | Artigo original, *Machine Learning*, DOI 10.1023/A:1010933404324. | Fundamenta Random Forest usado como candidato interno. |
 | `sklearn_metricas` | Documentação oficial do scikit-learn. | Define MAE, RMSE, $R^2$, precisão, sensibilidade e F1 conforme a implementação utilizada. |
 | `saito2015` | Artigo, *PLOS ONE*, DOI 10.1371/journal.pone.0118432. | Apoia o uso de precisão e sensibilidade na análise de classes desbalanceadas. |
+| `mejia2013` | Artigo, *Solar Energy*, DOI 10.1016/j.solener.2013.06.028. Conferido em 09/10/2026 na página da editora Elsevier. | Fundamenta que perdas e acúmulo de sujidade variam entre instalações e períodos; não fornece parâmetro universal para o protótipo. |
+| `tsanakas2025` | Artigo de acesso aberto, *Solar RRL*, DOI 10.1002/solr.202500576. Conferido em 09/10/2026 na página da Wiley. | Apoia a dependência local das variáveis e a necessidade de distinguir previsão, quantificação de perdas e calibração por instalação. |
+| `hevner2004` | Artigo, *MIS Quarterly*, DOI 10.2307/25148625. Conferido em 09/10/2026 no repositório oficial AIS eLibrary. | Fundamenta a apresentação do protótipo como artefato avaliado, articulando problema, construção e evidência. |
 
 ## Referências preservadas na bibliografia do projeto
 
@@ -37,16 +40,13 @@ As fontes abaixo permanecem no arquivo `referencias_final.bib` porque foram vali
 | Chave | Tipo e validação | Contribuição potencial |
 |---|---|---|
 | `kalimeris2023data` | Preprint arXiv, DOI 10.48550/arXiv.2301.12939. | Detecção orientada a dados, seleção de referência e uso de Ridge. Deve permanecer identificado como preprint. |
-| `tsanakas2025` | Artigo, *Solar RRL*, DOI 10.1002/solr.202500576. | Distingue análise retrospectiva de perdas e previsão com variáveis ambientais. |
 | `pedregosa2011` | Artigo, *Journal of Machine Learning Research*. | Referência da biblioteca scikit-learn e de tarefas de aprendizagem supervisionada. |
 | `pvdaq2021` | Conjunto de dados, DOI 10.25984/1846021. | Fonte pública candidata para expansões futuras; não é base dos resultados apresentados. |
 | `rdtools_exemplo` | Documentação oficial do RdTools. | Exemplo técnico de fluxo de degradação/sujidade e sinal sintético; não é evidência de dados reais. |
 | `sklearn_rf` | Documentação oficial do scikit-learn. | Descreve parâmetros da implementação `RandomForestRegressor`. |
 | `sklearn_temporal` | Documentação oficial do scikit-learn. | Descreve `TimeSeriesSplit`; consultar apenas se a estratégia de divisão for alterada. |
 | `pvlib_pvwatts` | Documentação oficial do pvlib. | Implementação da equação CC do PVWatts; útil se for incluído um modelo físico. |
-| `mejia2013` | Artigo, *Solar Energy*, DOI 10.1016/j.solener.2013.06.028. | Evidência de que efeitos de chuva e sujidade dependem do local; não fornece um limiar universal. |
 | `hyndman2006` | Artigo, *International Journal of Forecasting*, DOI 10.1016/j.ijforecast.2006.03.001. | Discute limitações de métricas percentuais perto de zero. |
-| `hevner2004` | Artigo, *MIS Quarterly*, DOI 10.2307/25148625. | Referência para construção e avaliação de artefatos em sistemas de informação. |
 | `bipm2026` | Publicação institucional do BIPM, DOI 10.59161/AUEZ1291. | Define unidades do SI, incluindo potência e energia. |
 | `sklearn_praticas` | Documentação oficial do scikit-learn. | Complementa a prevenção de vazamento no pré-processamento. |
 

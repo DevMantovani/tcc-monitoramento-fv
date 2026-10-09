@@ -47,11 +47,21 @@ Allan Farias Fávaro\footnote{Orientador, Curso de Ciência da Computação, Uni
 
 A geração fotovoltaica depende da radiação incidente e das condições de operação dos módulos. Entre os fatores que podem reduzir seu desempenho está a sujidade, ou \textit{soiling}, caracterizada pela deposição de poeira e outros contaminantes sobre a superfície do módulo \cite{king2004,bessa2021}. As estratégias de acompanhamento incluem estações de sujidade, sensores ópticos, imagens e análise de dados de desempenho \cite{bessa2021}. Entretanto, uma redução de geração não identifica isoladamente sua causa: sombreamento, degradação, indisponibilidade e falhas de medição também podem afetar a potência observada \cite{skomedal2020}.
 
+A intensidade e a evolução da sujidade não são constantes entre instalações. Características do local, inclinação dos módulos, período sem chuva, composição das partículas e procedimentos de operação modificam a leitura das perdas. Em estudo de campo com instalações residenciais e comerciais, Mejia e Kleissl \cite{mejia2013} observaram variação relevante entre locais e associaram a análise de perdas ao intervalo entre eventos de chuva. Portanto, percentuais obtidos em uma região não devem ser adotados como regra de limpeza em outra. Para uma aplicação de monitoramento, a informação mais útil não é uma estimativa genérica de perda, mas um desvio contextualizado em relação ao comportamento esperado daquela instalação.
+
+As formas de monitorar esse desvio envolvem diferentes compromissos entre instrumentação, custo e interpretabilidade. Uma estação de sujidade ou um módulo de referência limpo pode oferecer comparação direta, mas exige equipamento e manutenção próprios; imagens podem registrar a superfície, porém dependem de condições de captura e de métodos de interpretação; já o acompanhamento por dados de desempenho pode aproveitar a telemetria operacional, desde que as variáveis ambientais e elétricas estejam adequadamente alinhadas \cite{bessa2021}. Nenhuma dessas alternativas, isoladamente, elimina a necessidade de verificar outras causas para uma queda de geração. Esta pesquisa adota a terceira abordagem para investigar como a potência esperada pode apoiar um fluxo de acompanhamento reproduzível.
+
 No monitoramento por dados operacionais, não basta observar que a potência diminuiu. É necessário comparar a potência medida com uma referência compatível com irradiância e temperatura do instante avaliado. Modelos físicos e modelos orientados a dados podem desempenhar essa função, desde que haja correspondência entre variáveis e ponto de medição \cite{dobos2014,li2024}. Neste trabalho, ``potência esperada'' é uma estimativa de referência no instante observado; não é medida direta de eficiência física nem previsão da geração futura.
 
 Deceglie, Micheli e Muller \cite{deceglie2018} mostram que é possível estimar perdas por sujidade a partir do rendimento fotovoltaico. Skomedal e Deceglie \cite{skomedal2020}, por sua vez, evidenciam a coexistência de perdas por degradação, sujidade e sazonalidade. No contexto brasileiro, Tramontin e Rampinelli \cite{Tramontin_Rampinelli_2024} relacionam dados de inversores, informações meteorológicas e intervenções de limpeza, sem que seus resultados possam ser transferidos diretamente para outras instalações. Assim, o alerta proposto neste estudo recomenda inspeção técnica; ele não confirma sujidade nem aciona uma limpeza.
 
+Estudos recentes também combinam dados ambientais e modelos orientados a dados para quantificar ou antecipar perdas, mas reconhecem que as variáveis disponíveis e os padrões de deposição são específicos de cada local \cite{tsanakas2025}. Esse cenário reforça duas distinções relevantes. A primeira é entre estimar a potência de referência no instante observado e prever a geração em horizonte futuro: o presente trabalho realiza a primeira tarefa. A segunda é entre um indicador de priorização de inspeção e uma confirmação causal de sujidade: a confirmação dependeria de inspeção, limpeza documentada ou instrumentação adicional. Essas distinções evitam atribuir ao protótipo uma capacidade que os dados avaliados não demonstram.
+
 Também são necessários cuidados de avaliação. A separação temporal entre desenvolvimento e teste reduz o risco de informações futuras beneficiarem artificialmente o modelo \cite{cerqueira2020,kapoor2023}. Em especial, empregar uma potência limpa simultânea como entrada seria vazamento de alvo em uma instalação que, na prática, dispõe apenas de sua própria potência medida. Neste trabalho, a potência do painel limpo é usada exclusivamente como alvo supervisionado e referência independente de avaliação em um experimento controlado.
+
+O trabalho é organizado como desenvolvimento e avaliação de um artefato computacional. Nessa perspectiva, o valor do sistema não decorre apenas da escolha de um algoritmo, mas da ligação verificável entre problema, dados, regra de decisão, interface e evidência de avaliação \cite{hevner2004}. O painel desenvolvido é, portanto, uma camada de comunicação dos indicadores produzidos pelo fluxo experimental; ele não substitui o método, os dados de origem ou a análise crítica apresentada neste artigo.
+
+O público de interesse é inicialmente residencial, com possibilidade de adaptação a outros portes somente após validação apropriada. Contudo, a ausência de telemetria residencial brasileira com intervenções de limpeza documentadas impede que o problema seja respondido diretamente nesse público. Por isso, os conjuntos públicos são utilizados como evidência experimental, com limites de contexto declarados, e não como substitutos silenciosos de dados locais. A contribuição pretendida é um procedimento que possa ser reproduzido, auditado e posteriormente recalibrado quando dados do público-alvo estiverem disponíveis.
 
 A questão de pesquisa é: \textit{em que medida a comparação entre potência esperada e potência medida pode apoiar o monitoramento de perdas potencialmente associadas à sujidade, e quais são os limites dessa abordagem fora do experimento de desenvolvimento?} O objetivo geral é desenvolver e avaliar um protótipo de monitoramento de perdas por sujidade em sistemas fotovoltaicos com aprendizado de máquina. Os objetivos específicos são:
 
@@ -71,6 +81,10 @@ O foco não é comparar algoritmos como fim em si. A comparação entre Ridge e 
 \subsection{DELINEAMENTO E FONTES DE DADOS}
 
 A pesquisa é aplicada e quantitativa, com desenvolvimento e avaliação experimental de um artefato computacional. O experimento principal utiliza o conjunto \textit{Hourly PV Power and Dust Accumulation Dataset -- Laghouat, Algeria, February--August 2022}, publicado em acesso aberto no Mendeley Data \cite{seghir2026}. A fonte descreve dois módulos policristalinos SolarWorld SW-85 idênticos: um recebeu limpeza manual diária e o outro permaneceu exposto ao acúmulo natural de poeira. Esse arranjo permite comparar a perda estimada pelo monitor com a diferença observada entre os módulos.
+
+O delineamento foi planejado para responder à questão de pesquisa em níveis distintos. Primeiro, o artefato é desenvolvido e testado em uma base com referência independente de painel limpo, condição necessária para comparar a perda estimada com uma medida experimental. Em seguida, o procedimento é examinado em uma segunda fonte pública para investigar se a mesma lógica se mantém fora do ambiente de desenvolvimento. Por fim, uma terceira fonte é utilizada apenas como teste complementar de execução da etapa de potência esperada. Essa separação impede que um resultado de previsão de potência seja apresentado indevidamente como validação de detecção de sujidade.
+
+Em todas as etapas, a proveniência foi tratada como requisito metodológico: foram registrados repositório, DOI, versão, período, configuração dos painéis, licença e limitações descritas pelo responsável pela base. O código de processamento preserva filtros, partições e métricas, enquanto dados brutos não são incluídos no repositório do projeto. Essa escolha reduz a duplicação de arquivos, permite recuperar a fonte original e torna explícito qual versão sustenta cada resultado.
 
 A base de Laghouat possui 4.368 registros horários, entre 17 de fevereiro e 17 de agosto de 2022. Ela reúne potência dos módulos, irradiância no plano, temperatura ambiente, temperatura de célula estimada, umidade, vento, nebulosidade, precipitação e uma série de densidade de poeira. A fonte informa que 48 determinações diretas de poeira foram interpoladas para a frequência horária; por isso, essa variável foi usada somente como contexto exploratório e não como entrada do modelo \cite{seghir2026}.
 
@@ -106,7 +120,13 @@ L_{obs}(t)=\frac{P_{limpa}(t)-P_{exposta}(t)}{P_{limpa}(t)}.
 
 Essa referência existe apenas porque os painéis são equivalentes e foram acompanhados no mesmo experimento. Em uma instalação comum não há, necessariamente, um segundo painel limpo. Durante a operação futura, o monitor usa irradiância, temperatura e potência medida da própria instalação; a potência limpa de Laghouat não é uma entrada operacional.
 
+Antes do treinamento, foram verificados nomes de colunas, unidades, ordenação temporal e disponibilidade conjunta das variáveis requeridas. O pré-processamento não preencheu artificialmente trechos ausentes para produzir evidência de desempenho. As variáveis de entrada foram irradiância no plano, temperatura de célula e a interação entre ambas. Elas foram escolhidas por terem relação direta com a potência no experimento e por estarem disponíveis no mesmo instante das medições. A densidade de poeira foi excluída das entradas porque a própria fonte informa que a série horária foi reconstruída a partir de poucas determinações diretas; seu uso poderia transmitir uma precisão que a medição original não oferece \cite{seghir2026}.
+
+A definição da referência também delimita o significado de ``perda''. Neste estudo, $L_{obs}$ representa a diferença relativa entre dois módulos no mesmo experimento, e $L_{est}$ representa a diferença entre a potência do módulo exposto e a potência limpa estimada pelo modelo. Essas grandezas não equivalem à eficiência nominal do módulo, à energia faturada ou a uma perda financeira. O filtro de irradiância e a agregação diária são, assim, decisões para estabilizar o indicador de monitoramento, não tentativas de eliminar todas as fontes físicas de variação.
+
 Os registros elegíveis foram divididos cronologicamente em 60\% para treino, 20\% para validação e 20\% para teste final. Transformações e decisões de seleção foram ajustadas apenas nos dados de desenvolvimento, preservando a independência do teste final \cite{kapoor2023}.
+
+O conjunto de treino foi usado para ajustar os candidatos; a validação foi utilizada para escolher o estimador e a política de alerta; e o teste final permaneceu reservado até a definição dessas escolhas. A ordem cronológica é importante porque, em séries operacionais, medições vizinhas tendem a compartilhar condições meteorológicas e de operação. Embaralhar registros poderia aproximar artificialmente treino e teste e produzir uma estimativa otimista de desempenho \cite{cerqueira2020}. Após a seleção, treino e validação foram reunidos apenas para o reajuste único do estimador, mantendo o teste final inalterado.
 
 \subsection{MODELO E REGRA DE MONITORAMENTO}
 
@@ -126,6 +146,20 @@ Para uma futura aplicação sem painel de referência, foi implementado um fluxo
 \subsection{MÉTRICAS E REPRODUTIBILIDADE}
 
 Potência esperada e perda estimada foram avaliadas por erro absoluto médio (MAE), raiz do erro quadrático médio (RMSE) e coeficiente de determinação ($R^2$), segundo definições de métricas de regressão \cite{sklearn_metricas}. Para os alertas, foram calculadas precisão, sensibilidade e F1. Essas medidas são adequadas para avaliar eventos pouco frequentes, mas devem ser acompanhadas por falsos positivos e falsos negativos \cite{saito2015}.
+
+Para tornar a interpretação auditável, o MAE resume a distância média absoluta entre uma estimativa $\hat{y}_i$ e a referência $y_i$, conforme a Equação \ref{eq:mae}. O RMSE, da Equação \ref{eq:rmse}, penaliza com maior intensidade desvios grandes. Já o $R^2$ expressa a proporção da variação da referência explicada pelo modelo em comparação a uma predição pela média; valores negativos indicam desempenho inferior a essa referência simples. As três medidas são apresentadas em conjunto porque nenhuma, isoladamente, descreve todos os tipos de erro.
+
+\begin{equation}
+MAE=\frac{1}{n}\sum_{i=1}^{n}\left|y_i-\hat{y}_i\right|.
+\label{eq:mae}
+\end{equation}
+
+\begin{equation}
+RMSE=\sqrt{\frac{1}{n}\sum_{i=1}^{n}\left(y_i-\hat{y}_i\right)^2}.
+\label{eq:rmse}
+\end{equation}
+
+Para a regra de alerta, a precisão é a proporção de alertas que correspondem a dias positivos na referência experimental; a sensibilidade é a proporção desses dias positivos que foi alertada. O F1 sintetiza ambas por meio da média harmônica. Assim, uma sensibilidade elevada não basta se o sistema produz muitos alarmes sem confirmação, e uma precisão elevada não basta se os dias relevantes são omitidos. Os totais de verdadeiros positivos, falsos positivos e falsos negativos são reportados junto às taxas para preservar essa leitura.
 
 O projeto mantém código de preparação, testes automatizados, comandos de reprodução e registro de experimentos. Dados brutos e artefatos gerados não são versionados; em seu lugar, foram registrados DOI, licença, período, filtros, partições e métricas. Dessa forma, dados sintéticos são restritos a testes de software e não aparecem como evidência científica.
 
@@ -162,6 +196,8 @@ Verdadeiros positivos / falsos positivos / falsos negativos & 29 / 3 / 0 \\
 
 A precisão de 90,6\% significa que três dos 32 dias alertados não correspondiam à condição positiva definida pela referência experimental. A sensibilidade de 100\% indica que, nesse recorte, nenhum dia positivo foi omitido. Como o teste envolve apenas 35 dias agregados, esses percentuais precisam ser interpretados com a limitação amostral e não constituem um limiar universal de limpeza.
 
+Em termos de uso do monitor, o resultado mais importante não é a existência de uma métrica isolada, mas a coerência entre as camadas de avaliação. O baixo erro da perda estimada mostra que a referência calculada acompanhou a diferença observada entre os módulos no teste preservado. A avaliação de alerta, por sua vez, verifica se a transformação desse indicador em uma mensagem de inspeção mantém utilidade prática. A regra de três dias consecutivos foi empregada justamente para evitar que uma diferença pontual seja interpretada como necessidade de ação. Ela não mede o custo de uma limpeza nem demonstra que a limpeza seria economicamente vantajosa.
+
 Uma análise por faixa de irradiância mostrou MAE de perda de 0,80 ponto percentual entre 50 e 299 W/m$^2$ e entre 0,53 e 0,56 ponto percentual acima de 300 W/m$^2$. O desempenho foi menos preciso próximo ao limite de irradiância. A correlação de Spearman de 0,734 entre perda observada e densidade de poeira reconstruída foi tratada apenas como contexto exploratório, porque a série horária de poeira resulta de interpolação e correlação não comprova causalidade \cite{seghir2026}.
 
 \subsection{CALIBRAÇÃO PÓS-LIMPEZA COMO PROPOSTA OPERACIONAL}
@@ -188,6 +224,8 @@ Janela & MAE da perda (p.p.) & F1 & Falsos alertas \\
 
 Janelas maiores reduziram erro e falsos alertas nesse experimento. Em todas as condições, a sensibilidade foi 100\% e não houve falsos negativos. O resultado sustenta somente que a referência local necessita de quantidade suficiente de dados limpos nas condições observadas. Ele não define uma duração universal nem substitui validação com telemetria residencial e limpezas documentadas.
 
+Essa análise aproxima o protótipo de uma utilização operacional sem mascarar a diferença entre experimento e implantação. A janela pós-limpeza só é uma proposta viável se a limpeza for registrada e se irradiância, temperatura e potência forem coletadas de forma temporalmente compatível. Sem essa condição, o sistema pode aprender uma referência já afetada por perdas ou por falhas de medição. A literatura recente sobre modelagem de sujidade também enfatiza a dependência das variáveis disponíveis e das condições de cada sítio \cite{tsanakas2025}; por isso, a calibração deve ser interpretada como etapa de validação local, e não como configuração automática para qualquer residência.
+
 \subsection{AVALIAÇÃO EXTERNA E LIMITE DE GENERALIZAÇÃO}
 
 Em Dhaka, a arquitetura Ridge foi ajustada no período local de desenvolvimento, pois transferir literalmente pesos entre instalações de sensores e escalas diferentes seria inadequado. A política de 15\% por três dias, definida em Laghouat, foi aplicada sem alteração. A estimação da potência limpa teve MAE de 2,32 W e $R^2$ de 0,630, mas a estimação de perda teve MAE de 41,46 pontos percentuais e $R^2$ de $-31,02$. A política transferida gerou 26 alertas falsos e nenhum verdadeiro positivo no teste final, no qual não havia dias positivos segundo a referência utilizada.
@@ -201,6 +239,34 @@ Na fonte do Chipre, o fluxo de estimação de potência foi executado com dados 
 O protótipo disponibiliza um painel local que comunica geração medida em relação ao esperado, perda identificada e recomendação de inspeção. A interface usa exclusivamente o recorte de teste de Laghouat e o identifica como demonstração experimental. Métricas, fontes e limitações permanecem na documentação e neste artigo para evitar que uma tela simplificada seja interpretada como evidência de implantação comercial.
 
 Em uma residência, a utilização deve iniciar por limpeza confirmada, coleta temporalmente alinhada de irradiância, temperatura e potência, e validação local dos alertas. O monitor pode apoiar a priorização de inspeções, mas não distingue de forma definitiva sujidade, sombreamento, falha de inversor ou sensor. Uma análise econômica de limpeza exigiria preço de energia, custo, segurança e perdas verificadas na instalação, informações não avaliadas neste trabalho.
+
+Para tornar a comunicação do protótipo compatível com essa limitação, a tela de demonstração privilegia três perguntas: qual é a potência medida em relação à referência estimada; se há perda persistente segundo a regra configurada; e qual ação de baixo risco é recomendada. A resposta operacional é ``inspecionar'', e não ``limpar automaticamente''. A decisão de limpeza continua dependendo de verificação técnica e de condições que não foram mensuradas nesta pesquisa, como acesso aos módulos, risco ocupacional e custo local do procedimento.
+
+\begin{table}[htbp]
+\centering
+\caption{Escopo das evidências produzidas pelo estudo}
+\label{tab:escopo-evidencias}
+\small
+\begin{tabularx}{\linewidth}{@{}p{3.7cm}X@{}}
+\toprule
+Evidência avaliada & Interpretação permitida \\
+\midrule
+Estimativa de potência e perda em Laghouat & O fluxo acompanhou a referência limpa no experimento controlado, nas partições e condições descritas. \\
+Alerta persistente em Laghouat & A regra selecionada identificou dias positivos nesse recorte; recomenda inspeção, não confirma causalidade. \\
+Teste em Dhaka & A transferência automática não foi confirmada; a instalação requer calibração e validação local. \\
+Execução no Chipre & O processamento de potência é executável em outra fonte, mas não há rótulo independente para avaliar sujidade. \\
+\bottomrule
+\end{tabularx}
+\par\smallskip\raggedright\footnotesize Fonte: elaboração própria com base nos resultados deste estudo.
+\end{table}
+
+\subsection{AMEAÇAS À VALIDADE E IMPLICAÇÕES}
+
+Os resultados devem ser lidos considerando ameaças à validade interna, externa e operacional. Quanto à validade interna, a presença de dois módulos equivalentes em Laghouat permite uma referência de comparação particularmente útil, mas não prova que toda diferença entre eles decorra somente da poeira. Variações de instrumentação, posicionamento e condições não observadas podem permanecer. A utilização da referência limpa apenas como alvo e a preservação do teste cronológico reduzem riscos metodológicos, mas não transformam o experimento em medição causal perfeita de todos os mecanismos de perda.
+
+Quanto à validade externa, Laghouat, Dhaka e Chipre diferem em local, dispositivos, período e disponibilidade de rótulos. O desempenho negativo de transferência para Dhaka é uma evidência direta de que não se deve transportar limiar e referência sem reavaliá-los. Por outro lado, ele não identifica qual fator individual explica essa diferença, pois clima, qualidade da telemetria, painéis e protocolo de limpeza variam simultaneamente. A conclusão compatível com os dados é mais restrita: o fluxo precisa ser calibrado e validado em cada instalação antes de apoiar decisões recorrentes.
+
+Por fim, a validade operacional depende de dados que este estudo não possui: confirmação de limpezas, inspeções após alertas, histórico de falhas, custo de manutenção e preço de energia aplicável. Sem esses elementos, não é possível converter o F1 obtido no experimento em economia, retorno financeiro ou número ideal de dias entre limpezas. O protótipo foi projetado para reduzir essa lacuna no futuro, registrando a comparação entre referência e medição e emitindo um alerta compreensível para inspeção. A decisão final, porém, deve permanecer sob responsabilidade humana e apoiada por evidência local.
 
 \section{CONCLUSÃO}
 

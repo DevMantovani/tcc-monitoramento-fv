@@ -1,6 +1,6 @@
 # Mapa de referências e validação de uso
 
-Revisado em 08/10/2026. Este é um arquivo auxiliar, separado do artigo, para conferir se cada afirmação externa possui fonte adequada. Ele não substitui a leitura das publicações originais nem a lista de referências gerada pelo LaTeX.
+Revisado em 09/10/2026. Este é um arquivo auxiliar, separado do artigo, para conferir se cada afirmação externa possui fonte adequada. Ele não substitui a leitura das publicações originais nem a lista de referências gerada pelo LaTeX.
 
 ## Critério adotado
 
@@ -17,6 +17,10 @@ Revisado em 08/10/2026. Este é um arquivo auxiliar, separado do artigo, para co
 | `akter2025` | Conjunto de dados, Mendeley Data, DOI 10.17632/g6pxf8nnt6.2, versão 2, CC BY 4.0. | Fonte primária do teste externo em Dhaka: configuração de dois painéis de 20 W, um limpo e outro não limpo, e frequência original de medição. |
 | `symeonides2024` | Conjunto de dados, Zenodo, DOI 10.5281/zenodo.17775544, versão 1. | Proveniência da fonte complementar de potência de inversores e meteorologia. Justifica limitar esse experimento à potência, pois o conjunto não fornece rótulo independente de sujidade. |
 | `bessa2021` | Artigo de revisão, *iScience*, DOI 10.1016/j.isci.2021.102165. | Define sujidade e mapeia estratégias de monitoramento; fundamenta que existem diferentes tecnologias e limitações. |
+| `ieapvps2025soiling` | Síntese institucional das Tasks 13 e 16 do IEA PVPS, publicada em setembro de 2025; autoria e PDF conferidos na página oficial. | Dimensiona a relevância global, explicita dependência local e incertezas dos modelos e fundamenta que a limpeza deve equilibrar energia recuperada e custo operacional. Seus percentuais globais não são tratados como resultado residencial brasileiro. |
+| `micheli2017nrel` | Relatório técnico NREL/TP-5J00-69131, DOI 10.2172/1390775; texto integral e metadados conferidos no repositório do laboratório. | Referência metodológica para pares limpo/exposto, filtro de irradiância, agregação diária, controle de qualidade e incerteza de limpeza da célula de referência. Os limiares do relatório não foram transferidos ao experimento. |
+| `muller2020profiles` | Artigo revisado por pares, *IEEE Journal of Photovoltaics*, DOI 10.1109/JPHOTOV.2019.2943706; metadados conferidos no repositório institucional do NREL/NLR e no registro da revista. | Apoia o uso de perfis temporais de sujidade e a relação entre variabilidade sazonal, previsão e planejamento de limpeza. Não fornece um cronograma universal para o protótipo. |
+| `fernandezsolas2025` | Artigo revisado por pares e de acesso aberto, *Renewable Energy*, DOI 10.1016/j.renene.2024.122086; PDF e metadados conferidos no repositório do DLR. | Evidencia variação sazonal e interanual e a sensibilidade econômica à hipótese de limpeza pela chuva. Os resultados europeus são usados apenas para demonstrar dependência contextual. |
 | `king2004` | Relatório técnico Sandia, DOI 10.2172/919131. | Fundamenta que irradiância e temperatura influenciam a potência fotovoltaica e que as grandezas precisam ser corretamente identificadas. |
 | `dobos2014` | Manual técnico NREL, DOI 10.2172/1158421. | Sustenta a necessidade de compatibilizar referência de potência e ponto de medição; é fundamentação física complementar, não o modelo usado nos resultados. |
 | `li2024` | Artigo, *Renewable Energy*, DOI 10.1016/j.renene.2024.121493. | Apoia a distinção entre monitoramento com condições observadas e previsão futura de potência. |
@@ -56,3 +60,8 @@ As fontes abaixo permanecem no arquivo `referencias_final.bib` porque foram vali
 2. Para cada tabela de resultado próprio, confira no registro de experimento o conjunto, partição, unidade e métrica correspondentes.
 3. Não transformar dados do experimento de Laghouat em percentuais de perda residencial, economia em reais ou frequência de limpeza.
 4. Atualizar este arquivo e a entrada BibTeX se a versão de um conjunto de dados, DOI, licença ou fonte for alterada.
+
+## Figuras e resultados próprios
+
+- A série diária dos resultados é gerada por `pv-monitor generate-results` a partir de `artifacts/laghouat_final/test_daily_losses.csv`. Ela mostra somente o teste final preservado, sem novo treinamento ou alteração de métricas.
+- No artigo, os dados dos resultados próprios são atribuídos a `seghir2026`, a fonte primária do experimento, e o processamento é identificado como elaboração própria. Nenhum resultado é apresentado como evidência de eficácia em residência brasileira ou de limpeza automática.

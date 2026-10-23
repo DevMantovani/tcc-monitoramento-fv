@@ -145,23 +145,8 @@ pv-monitor detect \
 
 O experimento controlado de Laghouat sustenta a avaliação do monitor. O teste externo em Dhaka não confirmou a transferência automática da regra de alerta, portanto uma instalação nova exige calibração e validação locais. A avaliação no Chipre testa a estimativa de potência em outra fonte, mas não valida sujidade por não possuir rótulo independente. A interpretação completa está em [docs/avaliacao-cientifica.md](docs/avaliacao-cientifica.md).
 
-## GitHub e trabalho em outro computador
+## Reprodutibilidade
 
-Clone o repositório privado uma única vez:
+Este repositório reúne o código, os testes e a documentação técnica que sustentam o estudo. Os procedimentos de preparação dos dados, treinamento, calibração e avaliação estão descritos nas seções anteriores e detalhados em [docs/reproducao.md](docs/reproducao.md).
 
-```bash
-git clone https://github.com/DevMantovani/tcc-monitoramento-fv.git
-cd tcc-monitoramento-fv
-```
-
-Antes de trabalhar, atualize a cópia. Depois de validar uma alteração, registre e envie somente código, testes e documentação:
-
-```bash
-git pull --ff-only
-git status
-git add src tests docs README.md HANDOFF_TCC.md
-git commit -m "docs: descreve a mudança"
-git push origin main
-```
-
-Não envie `.venv`, datasets, resultados gerados ou o artigo. O artigo canônico permanece no Overleaf.
+Para preservar a rastreabilidade e respeitar as condições de distribuição das fontes, os datasets originais, os arquivos intermediários e os artefatos gerados não são incluídos no repositório. A proveniência, as licenças e as limitações de cada base estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido exclusivamente no Overleaf.

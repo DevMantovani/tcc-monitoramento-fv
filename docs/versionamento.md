@@ -11,7 +11,7 @@
    cd tcc-monitoramento-fv
    ```
 
-Não coloque token, senha, chaves, dados operacionais sensíveis ou o ambiente `.venv` no repositório. O `.gitignore` já protege os itens mais comuns; confirme com `git status` antes de cada commit.
+Não coloque token, senha, chaves, dados operacionais sensíveis, o ambiente `.venv`, datasets, artefatos gerados ou o artigo no repositório. O artigo canônico é mantido exclusivamente no Overleaf. O `.gitignore` já protege os itens mais comuns; confirme com `git status` antes de cada commit.
 
 ## Fluxo ao trocar de computador
 
@@ -19,7 +19,7 @@ Não coloque token, senha, chaves, dados operacionais sensíveis ou o ambiente `
 git pull --ff-only
 # editar, executar e verificar
 git status
-git add src docs tests README.md
+git add src docs tests README.md HANDOFF_TCC.md
 git commit -m "feat: descreve a mudança"
 git push origin main
 ```

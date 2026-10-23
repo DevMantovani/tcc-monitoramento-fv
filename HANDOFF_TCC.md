@@ -6,9 +6,7 @@
 ## Onde está cada parte
 
 - **Código e documentação técnica:** [repositório GitHub](https://github.com/DevMantovani/tcc-monitoramento-fv).
-- **Artigo canônico:** [projeto Overleaf](https://www.overleaf.com/project/69a9f8893e4087c8ce175833). Toda alteração do artigo deve ser aplicada também no Overleaf; o arquivo principal é `article/TCCFinal.tex`.
-- **Mapa das fontes:** `article/MAPA_DE_REFERENCIAS.md` resume a procedência e a função de cada referência usada no texto.
-- **Referências bibliográficas:** `article/referencias_final.bib`.
+- **Artigo canônico:** [projeto Overleaf](https://www.overleaf.com/project/69a9f8893e4087c8ce175833). O artigo, a bibliografia e as figuras são mantidos exclusivamente nele.
 
 ## O que o projeto demonstra
 
@@ -28,7 +26,7 @@ A comparação entre modelos é apenas uma etapa interna para escolher o estimad
 
 - O artigo foi revisado, teve as tabelas ajustadas e compilou sem erros no Overleaf. A conclusão começa na página 20; as referências ficam depois dela.
 - O texto mantém somente conteúdo que sustenta o problema, o método, os resultados e as limitações. A extensão não deve ser reduzida artificialmente.
-- O repositório reúne a revisão metodológica, as figuras usadas pelo artigo e a documentação de reprodução. Antes de uma nova edição, execute `git pull --ff-only`; depois de validar a alteração, use `git add`, `git commit` e `git push origin main`.
+- O repositório reúne código, testes e documentação de reprodução. Antes de uma nova edição, execute `git pull --ff-only`; depois de validar a alteração, use `git add`, `git commit` e `git push origin main`.
 - A verificação de espaços e sintaxe do diff (`git diff --check`) e os testes automatizados devem ser executados antes de cada envio.
 
 ## Como retomar em outro computador
@@ -45,11 +43,11 @@ A comparação entre modelos é apenas uma etapa interna para escolher o estimad
 4. Leia `README.md`, `docs/execucao-simplificada.md` e este arquivo antes de executar o painel.
 5. Baixe novamente os datasets públicos nos caminhos definidos em `docs/dados.md`; os arquivos de dados brutos não ficam no GitHub.
 6. Para abrir o painel, no Windows use `iniciar_painel.bat`; em Linux/macOS execute `bash iniciar_painel.sh`.
-7. Para editar o artigo, trabalhe prioritariamente no Overleaf e mantenha `article/TCCFinal.tex` e os arquivos `.bib` sincronizados no GitHub.
+7. Para editar o artigo, trabalhe no Overleaf. O artigo não faz parte deste repositório.
 
 ## Próxima ação recomendada
 
-Revisar o conteúdo com o orientador, especialmente a interpretação do teste externo negativo e os limites de uso em uma instalação real. Depois de qualquer ajuste no artigo, manter Overleaf e GitHub sincronizados.
+Revisar o conteúdo com o orientador, especialmente a interpretação do teste externo negativo e os limites de uso em uma instalação real. Alterações do artigo são feitas e preservadas no Overleaf; alterações do software e da documentação são registradas no GitHub.
 
 ## Pontos de continuidade
 

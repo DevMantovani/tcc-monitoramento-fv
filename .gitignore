@@ -17,6 +17,9 @@ data/processed/*
 artifacts/*
 !artifacts/.gitkeep
 
+# The article is maintained exclusively in Overleaf.
+article/
+
 # Editors and LaTeX auxiliary files
 .vscode/
 *.aux

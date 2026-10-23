@@ -97,7 +97,9 @@ Uma terceira fonte, publicada no Zenodo, foi usada apenas para verificar a execu
 \caption{Papel das fontes públicas no estudo}
 \label{tab:fontes}
 \small
-\begin{tabularx}{0.95\linewidth}{@{}>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
+\begingroup
+\setlength{\tabcolsep}{1.5pt}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Fonte & Papel & Limite de interpretação \\
 \midrule
@@ -106,6 +108,7 @@ Dhaka, Bangladesh & Teste externo de transferibilidade. & Diferenças de sensore
 Chipre (Zenodo) & Avaliação complementar de potência esperada. & Não possui rótulo de sujidade; não valida alerta nem decisão de limpeza. \\
 \bottomrule
 \end{tabularx}
+\endgroup
 \par\smallskip\raggedright\footnotesize Fonte: elaboração própria a partir de \citeonline{seghir2026}, \citeonline{akter2025} e \citeonline{symeonides2024}.
 \end{table}
 

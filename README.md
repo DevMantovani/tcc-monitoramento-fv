@@ -204,20 +204,22 @@ O comando `demo` injeta uma perda controlada apenas para verificar se o pipeline
 
 ## Versionamento com GitHub
 
-Quando o Git estiver instalado, inicialize e faça o primeiro registro:
+O repositório privado do projeto está em [github.com/DevMantovani/tcc-monitoramento-fv](https://github.com/DevMantovani/tcc-monitoramento-fv). Em outro computador, depois de obter acesso ao GitHub, clone-o uma única vez:
 
 ```bash
-git init
-git branch -M main
-git add .
-git commit -m "chore: estrutura inicial do TCC"
+git clone https://github.com/DevMantovani/tcc-monitoramento-fv.git
+cd tcc-monitoramento-fv
 ```
 
-Crie um repositório vazio no GitHub e conecte-o (substitua a URL):
+Antes de iniciar uma etapa de trabalho, atualize a cópia local; ao concluir uma alteração coerente e verificada, registre-a e envie-a:
 
 ```bash
-git remote add origin https://github.com/SEU-USUARIO/tcc-monitoramento-fv.git
-git push -u origin main
+git pull --ff-only
+# editar, executar e verificar
+git status
+git add src docs tests README.md article
+git commit -m "docs: descreve a mudança"
+git push origin main
 ```
 
-No outro computador: `git clone URL_DO_REPOSITORIO`; antes de começar, use `git pull`; ao terminar uma etapa verificada, use `git add`, `git commit` e `git push`. O passo a passo e as regras de commit estão em [docs/versionamento.md](docs/versionamento.md).
+Os datasets públicos, os artefatos gerados e o ambiente virtual não fazem parte do repositório. O passo a passo e as regras de commit estão em [docs/versionamento.md](docs/versionamento.md).

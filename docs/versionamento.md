@@ -1,11 +1,15 @@
 # Versionamento e GitHub
 
-## Antes do primeiro push
+## Configuração em outro computador
 
 1. Instale Git e confirme com `git --version`.
 2. Defina a identidade local uma única vez: `git config --global user.name "Seu nome"` e `git config --global user.email "seu-email"`.
-3. Inicialize o repositório e faça o primeiro commit conforme o README.
-4. Crie um repositório **vazio** no GitHub, sem README automático, e associe a URL como `origin`.
+3. Obtenha acesso ao repositório privado e clone-o:
+
+   ```bash
+   git clone https://github.com/DevMantovani/tcc-monitoramento-fv.git
+   cd tcc-monitoramento-fv
+   ```
 
 Não coloque token, senha, chaves, dados operacionais sensíveis ou o ambiente `.venv` no repositório. O `.gitignore` já protege os itens mais comuns; confirme com `git status` antes de cada commit.
 
@@ -17,7 +21,7 @@ git pull --ff-only
 git status
 git add src docs tests README.md
 git commit -m "feat: descreve a mudança"
-git push
+git push origin main
 ```
 
 Use mensagens curtas no imperativo, como `feat: adiciona validação temporal`, `docs: registra fonte externa` ou `fix: rejeita potência negativa`. Um commit deve representar uma alteração coerente e verificável.

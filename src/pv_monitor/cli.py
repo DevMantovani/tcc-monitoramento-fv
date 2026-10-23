@@ -99,10 +99,10 @@ def build_parser() -> argparse.ArgumentParser:
     detect.add_argument("--input", required=True)
     detect.add_argument("--model", required=True)
     detect.add_argument("--output", required=True)
-    detect.add_argument("--daily-loss-threshold", type=float, default=0.12)
+    detect.add_argument("--daily-loss-threshold", type=float, default=0.15)
     detect.add_argument("--persistence-days", type=int, default=3)
-    detect.add_argument("--minimum-samples-per-day", type=int, default=12)
-    detect.add_argument("--minimum-expected-kw", type=float, default=0.10)
+    detect.add_argument("--minimum-samples-per-day", type=int, default=1)
+    detect.add_argument("--minimum-expected-kw", type=float, default=0.0)
     detect.add_argument("--minimum-irradiance-wm2", type=float, default=50.0)
 
     installation_calibration = commands.add_parser(

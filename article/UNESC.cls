@@ -18,11 +18,11 @@
 % Margens e tamanho da página
 %==========================================================================
 \usepackage[
+papersize={190mm,290mm},
 top    = 3cm,
 bottom = 2cm,
 left   = 3cm,
 right  = 2cm]{geometry}
-\geometry{papersize={190mm,290mm},total={160mm,230mm}}
 %\setlength{\oddsidemargin}{2.5cm}
 \setlength{\headheight}{\baselineskip}
 %\setlength{\topmargin}{3cm}

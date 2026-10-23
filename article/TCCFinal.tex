@@ -32,13 +32,13 @@ Allan Farias Fávaro\footnote{Orientador, Curso de Ciência da Computação, Uni
 \onehalfspacing
 \maketitle
 
-\noindent\textbf{Resumo:} A sujidade pode reduzir a geração fotovoltaica, porém uma queda de potência também pode decorrer de condições ambientais, sensores ou outras falhas. Este trabalho desenvolve e avalia um protótipo de monitoramento que estima a potência esperada sob condições de referência e a compara com a potência medida, sinalizando desvios persistentes para inspeção. A avaliação usa dados públicos de um experimento controlado em Laghouat, Argélia, com dois módulos iguais, um limpo diariamente e outro exposto à poeira. Após filtro de irradiância, 1.860 observações foram separadas cronologicamente em treino, validação e teste final. Ridge e Random Forest foram comparados somente para selecionar internamente o estimador; o Ridge foi fixado no monitor. No teste final, a estimação da potência limpa teve erro absoluto médio de 0,29 W e a estimação da perda teve erro de 0,63 ponto percentual. Uma política de perda estimada de pelo menos 15\% por três dias consecutivos alcançou precisão de 90,6\%, sensibilidade de 100,0\% e F1 de 0,951 no experimento. Contudo, a avaliação externa em Dhaka não confirmou transferência automática: o erro da perda foi 41,46 pontos percentuais e a regra transferida gerou falsos alertas. Conclui-se que o protótipo é evidência de viabilidade em condições controladas e que sua implantação requer calibração e validação por instalação; o estudo não demonstra eficácia residencial brasileira, diagnóstico exclusivo de sujidade ou limpeza automática.
+\noindent\textbf{Resumo:} A sujidade pode reduzir a geração fotovoltaica, porém uma queda de potência também pode decorrer de condições ambientais, sensores ou outras falhas. Este trabalho desenvolve e avalia um protótipo de monitoramento que estima a potência esperada sob condições de referência e a compara com a potência medida, sinalizando desvios persistentes para inspeção. A avaliação usa dados públicos de um experimento controlado em Laghouat, Argélia, com dois módulos iguais, um limpo diariamente e outro exposto à poeira. Após filtro de irradiância, 1.860 observações foram separadas cronologicamente em treino, validação e teste final. Ridge e Random Forest foram comparados somente para selecionar internamente o estimador; o Ridge foi fixado no monitor. No teste final, a estimação da potência limpa teve erro absoluto médio de 0,29 W e a estimação da perda teve erro de 0,63 ponto percentual. Uma política de perda estimada de pelo menos 15\% por três dias consecutivos alcançou precisão de 90,6\%, sensibilidade de 100,0\% e F1 de 0,951 no experimento; esse F1 deve ser interpretado junto à prevalência positiva de 82,9\% e às referências simples de alerta. Contudo, a avaliação externa em Dhaka não confirmou transferência automática: o erro da perda foi 41,46 pontos percentuais e a regra transferida gerou falsos alertas. Conclui-se que o protótipo é evidência de viabilidade em condições controladas e que sua implantação requer calibração e validação por instalação; o estudo não demonstra eficácia residencial brasileira, diagnóstico exclusivo de sujidade ou limpeza automática.
 
 \vspace{0.5em}
 \noindent\textbf{Palavras-chave:} energia fotovoltaica; sujidade; aprendizado de máquina; monitoramento; regressão.
 
 \vspace{0.8em}
-\noindent\textbf{Abstract:} Soiling can reduce photovoltaic generation, but a power drop may also arise from environmental conditions, sensors, or other faults. This work develops and evaluates a monitoring prototype that estimates expected power under a reference condition and compares it with measured power, flagging persistent deviations for inspection. The evaluation uses public data from a controlled experiment in Laghouat, Algeria, with two identical modules, one cleaned daily and one exposed to dust. After irradiance filtering, 1,860 observations were split chronologically into training, validation, and final test sets. Ridge and Random Forest were compared only to select the estimator internally; Ridge was locked for the monitor. In the final test, clean-power estimation achieved a mean absolute error of 0.29 W and loss estimation achieved an error of 0.63 percentage point. A policy of estimated loss of at least 15\% for three consecutive days achieved 90.6\% precision, 100.0\% recall, and 0.951 F1 in the experiment. However, external evaluation in Dhaka did not confirm automatic transfer: loss error was 41.46 percentage points and the transferred policy produced false alerts. The prototype is evidence of feasibility under controlled conditions; deployment requires site-specific calibration and validation. This work does not demonstrate Brazilian residential effectiveness, exclusive soiling diagnosis, or automatic cleaning.
+\noindent\textbf{Abstract:} Soiling can reduce photovoltaic generation, but a power drop may also arise from environmental conditions, sensors, or other faults. This work develops and evaluates a monitoring prototype that estimates expected power under a reference condition and compares it with measured power, flagging persistent deviations for inspection. The evaluation uses public data from a controlled experiment in Laghouat, Algeria, with two identical modules, one cleaned daily and one exposed to dust. After irradiance filtering, 1,860 observations were split chronologically into training, validation, and final test sets. Ridge and Random Forest were compared only to select the estimator internally; Ridge was locked for the monitor. In the final test, clean-power estimation achieved a mean absolute error of 0.29 W and loss estimation achieved an error of 0.63 percentage point. A policy of estimated loss of at least 15\% for three consecutive days achieved 90.6\% precision, 100.0\% recall, and 0.951 F1; this result is interpreted alongside an 82.9\% positive prevalence and simple alert baselines. However, external evaluation in Dhaka did not confirm automatic transfer: loss error was 41.46 percentage points and the transferred policy produced false alerts. The prototype is evidence of feasibility under controlled conditions; deployment requires site-specific calibration and validation. This work does not demonstrate Brazilian residential effectiveness, exclusive soiling diagnosis, or automatic cleaning.
 
 \vspace{0.5em}
 \noindent\textbf{Keywords:} photovoltaic energy; soiling; machine learning; monitoring; regression.
@@ -97,7 +97,7 @@ Uma terceira fonte, publicada no Zenodo, foi usada apenas para verificar a execu
 \caption{Papel das fontes públicas no estudo}
 \label{tab:fontes}
 \small
-\begin{tabularx}{\linewidth}{@{}p{3.1cm}p{2.4cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Fonte & Papel & Limite de interpretação \\
 \midrule
@@ -128,6 +128,10 @@ Os registros elegíveis foram divididos cronologicamente em 60\% para treino, 20
 
 O conjunto de treino foi usado para ajustar os candidatos; a validação foi utilizada para escolher o estimador e a política de alerta; e o teste final permaneceu reservado até a definição dessas escolhas. A ordem cronológica é importante porque, em séries operacionais, medições vizinhas tendem a compartilhar condições meteorológicas e de operação. Embaralhar registros poderia aproximar artificialmente treino e teste e produzir uma estimativa otimista de desempenho \cite{cerqueira2020}. Após a seleção, treino e validação foram reunidos apenas para o reajuste único do estimador, mantendo o teste final inalterado.
 
+Essa separação também organiza o significado de cada artefato produzido. As métricas de validação servem para comparar candidatos e escolher uma configuração; as métricas do teste final servem apenas para estimar o comportamento da configuração já bloqueada. Assim, o valor obtido no teste não foi reutilizado para mudar algoritmo, limiar, persistência ou duração de calibração. O procedimento evita que decisões aparentemente pequenas se acumulem como uma busca indireta sobre o conjunto final. A rastreabilidade inclui o período de cada partição, a contagem de observações após os filtros, a política de alerta selecionada e os arquivos diários que originam as métricas agregadas.
+
+Na preparação das fontes, uma ausência de registro não foi convertida em uma medição estimada. Registros sem as variáveis mínimas são excluídos do cálculo, e uma lacuna entre dias interrompe a persistência do alerta. Essa escolha é deliberadamente conservadora: completar artificialmente uma série poderia transformar falta de telemetria em continuidade operacional inexistente. Em uma implantação, a indisponibilidade deve ser comunicada como condição de qualidade de dados, separada de uma indicação de sujidade. Por isso, o monitor não interpreta silêncio de dados como geração normal, nem como evidência suficiente para limpeza.
+
 \subsection{MODELO E REGRA DE MONITORAMENTO}
 
 O modelo estima a potência limpa esperada com irradiância no plano, temperatura de célula e interação entre essas variáveis. A saída, $\widehat{P}_{limpa}(t)$, é comparada com a potência medida do painel exposto para obter a perda estimada da Equação \ref{eq:loss-estimated}.
@@ -137,15 +141,17 @@ L_{est}(t)=\frac{\widehat{P}_{limpa}(t)-P_{exposta}(t)}{\widehat{P}_{limpa}(t)}.
 \label{eq:loss-estimated}
 \end{equation}
 
-Ridge e Random Forest foram avaliados somente na validação. A regressão Ridge introduz regularização nos coeficientes \cite{hoerl1970}; Random Forest agrega árvores de decisão para regressão \cite{breiman2001}. O modelo de menor erro de perda na validação foi fixado antes do acesso ao teste final. Essa seleção interna não permite afirmar superioridade geral entre técnicas.
+Ridge e Random Forest foram avaliados somente na validação. O Ridge foi ajustado com padronização das entradas e parâmetro de regularização $\alpha=1{,}0$ \cite{hoerl1970}. A Random Forest usou 300 árvores, mínimo de cinco observações por folha e semente aleatória 42 \cite{breiman2001}. O modelo de menor erro de perda na validação foi fixado antes do acesso ao teste final. Essa seleção interna não permite afirmar superioridade geral entre técnicas.
 
-Para reduzir alertas por oscilações pontuais, a regra usa a mediana diária de $L_{est}(t)$ e exige persistência em dias válidos consecutivos. Os limiares de 5\%, 10\%, 15\% e 20\%, combinados com um, dois ou três dias de persistência, foram avaliados apenas na validação. A combinação selecionada foi perda estimada de pelo menos 15\% por três dias consecutivos e foi congelada para o teste final. O alerta recomenda inspeção; ele não atribui a causa da perda com certeza.
+Para reduzir alertas por oscilações pontuais, a regra usa a mediana diária de $L_{est}(t)$ e exige persistência em dias consecutivos do calendário; uma lacuna de dados interrompe a contagem. Os limiares de 5\%, 10\%, 15\% e 20\%, combinados com um, dois ou três dias de persistência, foram avaliados apenas na validação. A combinação selecionada foi perda estimada de pelo menos 15\% por três dias consecutivos e foi congelada para o teste final. O alerta recomenda inspeção; ele não atribui a causa da perda com certeza.
 
 Para uma futura aplicação sem painel de referência, foi implementado um fluxo de calibração pós-limpeza. Após uma limpeza confirmada, o sistema ajusta a referência local em uma janela de dados da própria instalação e a usa nas observações seguintes. Essa implementação foi examinada em Laghouat como aproximação experimental, sem afirmar duração universal de calibração.
 
+O fluxo operacional proposto possui três verificações antes de recomendar uma inspeção. A primeira é a disponibilidade de irradiância, temperatura e potência em um mesmo instante; a segunda é a elegibilidade do instante acima do limiar de irradiância; a terceira é a repetição da perda estimada em dias consecutivos do calendário. A mediana diária reduz o efeito de leituras isoladas, mas não elimina falhas sistemáticas de sensores ou de comunicação. Portanto, a saída do fluxo é uma prioridade de verificação, e não um diagnóstico físico da causa nem uma ordem de limpeza.
+
 \subsection{MÉTRICAS E REPRODUTIBILIDADE}
 
-Potência esperada e perda estimada foram avaliadas por erro absoluto médio (MAE), raiz do erro quadrático médio (RMSE) e coeficiente de determinação ($R^2$), segundo definições de métricas de regressão \cite{sklearn_metricas}. Para os alertas, foram calculadas precisão, sensibilidade e F1. Essas medidas são adequadas para avaliar eventos pouco frequentes, mas devem ser acompanhadas por falsos positivos e falsos negativos \cite{saito2015}.
+Potência esperada e perda estimada foram avaliadas por erro absoluto médio (MAE), raiz do erro quadrático médio (RMSE) e coeficiente de determinação ($R^2$), segundo definições de métricas de regressão \cite{sklearn_metricas}. Para os alertas, foram calculadas precisão, sensibilidade, F1, especificidade e prevalência positiva. Essas medidas são acompanhadas por falsos positivos, falsos negativos e referências simples de alerta \cite{saito2015}.
 
 Para tornar a interpretação auditável, o MAE resume a distância média absoluta entre uma estimativa $\hat{y}_i$ e a referência $y_i$, conforme a Equação \ref{eq:mae}. O RMSE, da Equação \ref{eq:rmse}, penaliza com maior intensidade desvios grandes. Já o $R^2$ expressa a proporção da variação da referência explicada pelo modelo em comparação a uma predição pela média; valores negativos indicam desempenho inferior a essa referência simples. As três medidas são apresentadas em conjunto porque nenhuma, isoladamente, descreve todos os tipos de erro.
 
@@ -159,7 +165,7 @@ RMSE=\sqrt{\frac{1}{n}\sum_{i=1}^{n}\left(y_i-\hat{y}_i\right)^2}.
 \label{eq:rmse}
 \end{equation}
 
-Para a regra de alerta, a precisão é a proporção de alertas que correspondem a dias positivos na referência experimental; a sensibilidade é a proporção desses dias positivos que foi alertada. O F1 sintetiza ambas por meio da média harmônica. Assim, uma sensibilidade elevada não basta se o sistema produz muitos alarmes sem confirmação, e uma precisão elevada não basta se os dias relevantes são omitidos. Os totais de verdadeiros positivos, falsos positivos e falsos negativos são reportados junto às taxas para preservar essa leitura.
+Para a regra de alerta, a precisão é a proporção de alertas que correspondem a dias positivos na referência experimental; a sensibilidade é a proporção desses dias positivos que foi alertada. O F1 sintetiza ambas por meio da média harmônica. A especificidade informa a proporção de dias negativos corretamente sem alerta, e a prevalência informa a frequência de positivos no recorte. Assim, uma sensibilidade elevada não basta se o sistema produz muitos alarmes sem confirmação, e uma precisão elevada não basta se os dias relevantes são omitidos. Os totais de verdadeiros positivos, falsos positivos, falsos negativos e referências simples são reportados junto às taxas para preservar essa leitura.
 
 O projeto mantém código de preparação, testes automatizados, comandos de reprodução e registro de experimentos. Dados brutos e artefatos gerados não são versionados; em seu lugar, foram registrados DOI, licença, período, filtros, partições e métricas. Dessa forma, dados sintéticos são restritos a testes de software e não aparecem como evidência científica.
 
@@ -168,6 +174,16 @@ O projeto mantém código de preparação, testes automatizados, comandos de rep
 \subsection{SELEÇÃO INTERNA E TESTE FINAL EM LAGHOUAT}
 
 Na validação de Laghouat, Ridge apresentou MAE da perda estimada de 0,66 ponto percentual, enquanto Random Forest apresentou 2,31 pontos percentuais. Ridge foi selecionado por esse critério e incorporado ao monitor. O resultado não declara que Ridge é superior em outros sistemas, sensores ou períodos.
+
+A Figura \ref{fig:selecao-validacao} evidencia a separação entre as duas tarefas do estudo. À esquerda, a comparação usa a perda estimada de Laghouat e justifica a escolha interna do Ridge. À direita, a fonte do Chipre avalia apenas erro de potência em outra instalação; o resultado não participa da escolha feita para o monitor de sujidade, pois não há painel limpo nem rótulo independente de perda. Essa distinção impede que uma melhora em MAE de potência seja interpretada como comprovação de detecção de sujidade.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{Figs/figure_validation_comparison.png}
+\caption{Comparação de MAE na validação para as duas tarefas avaliadas.}
+\label{fig:selecao-validacao}
+\par\smallskip\raggedright\footnotesize Fonte: elaboração própria com dados de Laghouat e da fonte Zenodo.
+\end{figure}
 
 Após o bloqueio do estimador e da política de alerta, o Ridge foi refitado uma vez com treino e validação e avaliado no teste final preservado. A Tabela \ref{tab:laghouat-final} apresenta as métricas centrais. O MAE de 0,29 W para potência limpa e de 0,63 ponto percentual para perda representa boa aproximação da diferença entre painel limpo e painel exposto nas condições desse experimento controlado.
 
@@ -188,13 +204,37 @@ $R^2$ da perda estimada & 0,981 \\
 Precisão dos alertas persistentes & 0,906 \\
 Sensibilidade dos alertas persistentes & 1,000 \\
 F1 dos alertas persistentes & 0,951 \\
+Especificidade dos alertas persistentes & 0,500 \\
+Prevalência positiva no teste & 0,829 \\
 Verdadeiros positivos / falsos positivos / falsos negativos & 29 / 3 / 0 \\
+F1 de ``alertar todos os dias'' & 0,906 \\
+F1 de limiar contínuo com mesma persistência & 0,935 \\
 \bottomrule
 \end{tabularx}
 \par\smallskip\raggedright\footnotesize Fonte: elaboração própria com dados de \citeonline{seghir2026}.
 \end{table}
 
-A precisão de 90,6\% significa que três dos 32 dias alertados não correspondiam à condição positiva definida pela referência experimental. A sensibilidade de 100\% indica que, nesse recorte, nenhum dia positivo foi omitido. Como o teste envolve apenas 35 dias agregados, esses percentuais precisam ser interpretados com a limitação amostral e não constituem um limiar universal de limpeza.
+A precisão de 90,6\% significa que três dos 32 dias alertados não correspondiam à condição positiva definida pela referência experimental. A sensibilidade de 100\% indica que, nesse recorte, nenhum dia positivo foi omitido. Entretanto, 29 dos 35 dias avaliados já eram positivos. Por isso, alertar todos os dias alcançaria F1 de 0,906, e permanecer continuamente acima do limiar com a mesma persistência alcançaria 0,935. A política do monitor reduziu falsos positivos, mas o F1 de 0,951 não deve ser lido isoladamente. Como o teste envolve apenas 35 dias agregados, esses percentuais não constituem um limiar universal de limpeza.
+
+A Figura \ref{fig:perda-diaria} permite examinar a série que sustenta as métricas agregadas. A curva estimada acompanha a perda observada durante a maior parte do teste e a linha tracejada identifica o limiar bloqueado em 15\%. Os marcadores vermelhos não representam simplesmente todos os dias acima do limiar: eles aparecem somente quando a persistência de três dias consecutivos foi satisfeita. Essa visualização é útil porque separa três objetos que poderiam ser confundidos em uma métrica única: o erro de regressão da perda, a regra de agregação diária e a decisão de emitir alerta.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\linewidth]{Figs/figure_laghouat_test_daily_loss.png}
+\caption{Perda diária observada e estimada no teste final de Laghouat.}
+\label{fig:perda-diaria}
+\par\smallskip\raggedright\footnotesize Fonte: elaboração própria com dados de \citeonline{seghir2026}.
+\end{figure}
+
+Também é necessário interpretar a pequena diferença entre os F1 das referências simples e o F1 do monitor. No recorte avaliado, existem apenas seis dias negativos. Assim, qualquer estratégia que alerte com frequência tende a preservar sensibilidade alta e F1 elevado. A contribuição mensurável da política não é transformar um cenário difícil em classificação perfeita, mas reduzir de quatro para três os falsos positivos da referência que permanece acima do limiar, mantendo os 29 verdadeiros positivos. A especificidade de 0,500 expressa esse limite: dos seis dias negativos, três ficaram corretamente sem alerta. A Figura \ref{fig:referencias-alerta} explicita esse contexto e evita que a proximidade de 1,0 seja tomada como desempenho operacional universal.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\linewidth]{Figs/figure_laghouat_alert_metrics.png}
+\caption{Métricas do monitor e F1 de referências simples no teste final.}
+\label{fig:referencias-alerta}
+\par\smallskip\raggedright\footnotesize Fonte: elaboração própria com dados de \citeonline{seghir2026}.
+\end{figure}
 
 Para tornar a leitura do resultado auditável além dos indicadores resumidos, o processamento preserva a série diária que sustenta a Tabela \ref{tab:laghouat-final}. A comparação entre perda observada e estimada nesse recorte é compatível com o MAE de 0,63 ponto percentual apresentado na tabela. O alerta não corresponde a cada dia acima de 15\%: ele exige que a regra de persistência de três dias consecutivos, definida antes do teste final, seja satisfeita. Dessa forma, os indicadores diferenciam a estimação da perda da recomendação de inspeção. Eles retratam exclusivamente o experimento de Laghouat e não constituem evidência de desempenho residencial brasileiro \cite{seghir2026}.
 
@@ -206,23 +246,23 @@ Uma análise por faixa de irradiância mostrou MAE de perda de 0,80 ponto percen
 
 \subsection{CALIBRAÇÃO PÓS-LIMPEZA COMO PROPOSTA OPERACIONAL}
 
-Para avaliar a calibração local, o painel limpo de Laghouat foi usado somente no início da série como aproximação de uma janela pós-limpeza. O Ridge foi ajustado com 14, 28, 42 ou 60 dias de referência; observações futuras do painel exposto foram avaliadas contra a referência limpa independente. A política de 15\% por três dias foi mantida fixa.
+Para avaliar a calibração local, o painel limpo de Laghouat foi usado somente no início da série como aproximação de uma janela pós-limpeza. O Ridge foi ajustado com 14, 28, 42 ou 60 dias de referência; todas as alternativas foram avaliadas contra a referência limpa independente no mesmo período futuro, iniciado após os 60 dias iniciais. A política de 15\% por três dias foi mantida fixa.
 
 \begin{table}[htbp]
 \centering
 \caption{Sensibilidade à duração da janela de calibração em Laghouat}
 \label{tab:calibracao}
 \small
-\begin{tabularx}{\linewidth}{@{}r r r r@{}}
+\begin{tabular}{@{}rrrr@{}}
 \toprule
 Janela & MAE da perda (p.p.) & F1 & Falsos alertas \\
 \midrule
-14 dias & 8,59 & 0,847 & 27 \\
-28 dias & 5,57 & 0,867 & 23 \\
-42 dias & 4,41 & 0,872 & 22 \\
+14 dias & 10,11 & 0,852 & 26 \\
+28 dias & 6,30 & 0,872 & 22 \\
+42 dias & 4,75 & 0,872 & 22 \\
 60 dias & 2,84 & 0,904 & 16 \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \par\smallskip\raggedright\footnotesize Fonte: elaboração própria com dados de \citeonline{seghir2026}.
 \end{table}
 
@@ -234,11 +274,13 @@ Essa análise aproxima o protótipo de uma utilização operacional sem mascarar
 
 Em Dhaka, a arquitetura Ridge foi ajustada no período local de desenvolvimento, pois transferir literalmente pesos entre instalações de sensores e escalas diferentes seria inadequado. A política de 15\% por três dias, definida em Laghouat, foi aplicada sem alteração. A estimação da potência limpa teve MAE de 2,32 W e $R^2$ de 0,630, mas a estimação de perda teve MAE de 41,46 pontos percentuais e $R^2$ de $-31,02$. A política transferida gerou 26 alertas falsos e nenhum verdadeiro positivo no teste final, no qual não havia dias positivos segundo a referência utilizada.
 
-Como análise adicional, a política foi recalibrada apenas na validação de Dhaka. Mesmo assim, o F1 no teste final foi 0,043, com um verdadeiro positivo e 45 falsos positivos. O resultado não prova que monitores baseados em potência esperada são inviáveis; ele demonstra que esta implementação mínima não se transfere automaticamente entre as duas fontes. Diferenças de clima, painéis, sensores, qualidade de dados e referência exigem validação por instalação, sem permitir atribuir uma causa única ao resultado negativo.
+Como análise adicional, a política foi recalibrada apenas na validação de Dhaka e selecionou limiar de 5\% por um dia. Como o limiar também define a condição positiva de referência, seu F1 não é diretamente comparável ao da política transferida de 15\% por três dias. No teste final, a política recalibrada teve F1 de 0,043, com um verdadeiro positivo e 45 falsos positivos. O resultado não prova que monitores baseados em potência esperada são inviáveis; ele demonstra que esta implementação mínima não se transfere automaticamente entre as duas fontes. Diferenças de clima, painéis, sensores, qualidade de dados e referência exigem validação por instalação, sem permitir atribuir uma causa única ao resultado negativo.
 
 A comparação entre Laghouat e Dhaka deve ser lida como teste de limite, e não como comparação competitiva entre localidades. As duas fontes fornecem pares limpo/exposto, porém foram obtidas com dispositivos, períodos e protocolos distintos \cite{seghir2026,akter2025}. Como essas diferenças ocorrem simultaneamente, o estudo não isola a causa do desempenho negativo em Dhaka. A inferência permitida é mais restrita: o limiar e a referência ajustados em Laghouat não devem ser transportados para outra instalação sem uma etapa local de calibração e validação. Essa cautela também é sustentada por estudos que tratam os perfis de sujidade e as variáveis disponíveis como dependentes do sítio \cite{muller2020profiles,tsanakas2025}.
 
 Na fonte do Chipre, o fluxo de estimação de potência foi executado com dados de 2023--2024. Random Forest foi escolhido internamente pela validação e obteve MAE de 2,469 kW e $R^2$ de 0,540 no teste final. Como a fonte não possui painel limpo, perda observada ou histórico de limpeza, esse resultado demonstra apenas execução do processamento de potência em outro conjunto; ele não é evidência de detecção de sujidade \cite{symeonides2024}.
+
+Os dois resultados externos cumprem papéis complementares, mas não intercambiáveis. Dhaka testa a comparação entre painel limpo e exposto fora de Laghouat e mostra que a regra não se transfere automaticamente. O conjunto do Chipre testa a disponibilidade de uma série operacional diferente para a etapa de potência esperada, mas não permite verificar se o desvio calculado corresponde a poeira. Relatar ambos impede uma conclusão binária: há evidência de que o código processa outra instalação, e há evidência de que o desempenho de sujidade não pode ser presumido nessa nova instalação. Nenhuma dessas constatações substitui validação com eventos de limpeza e inspeções no contexto residencial pretendido.
 
 \subsection{PROTÓTIPO E APLICAÇÃO}
 
@@ -250,12 +292,35 @@ Para tornar a comunicação do protótipo compatível com essa limitação, a te
 
 Esse desenho também evita apresentar o painel como uma calculadora de economia. A síntese do IEA PVPS recomenda que decisões de limpeza considerem energia recuperável, custo operacional e condições específicas do local, enquanto os dados deste estudo não fornecem preço de energia, custo de visita nem confirmação de uma limpeza posterior ao alerta \cite{ieapvps2025soiling}. Consequentemente, a saída adequada do protótipo é uma recomendação rastreável para inspeção; uma análise econômica somente poderia ser acrescentada após coleta local desses elementos.
 
+Para transformar o protótipo em um processo de campo, seriam necessários registros adicionais que não podem ser inferidos retrospectivamente das bases públicas: data e escopo de cada limpeza, intervenções de manutenção, indisponibilidade de inversor, sombreamento temporário e resultado da inspeção após cada alerta. Esses registros permitiriam confrontar a recomendação com um desfecho técnico e, posteriormente, estimar energia recuperável e custo evitado. Sem esse ciclo de realimentação, o painel deve permanecer como apoio à observação do sistema, e não como mecanismo autônomo de decisão.
+
+O uso do alerta também requer um contrato operacional explícito. A Tabela \ref{tab:contrato-alerta} traduz a regra avaliada em estados que podem ser mostrados pelo protótipo. Essa separação impede que ausência de dados, oscilação curta e persistência confirmada recebam a mesma interpretação. Ela decorre diretamente da política bloqueada no teste: mediana diária, limiar de 15\% e três dias consecutivos, com interrupção da contagem quando há lacuna de calendário.
+
+\begin{table}[htbp]
+\centering
+\caption{Contrato operacional da saída do monitor}
+\label{tab:contrato-alerta}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+Estado identificado & Ação que o protótipo pode recomendar & Interpretação que o resultado não autoriza \\
+\midrule
+Dados insuficientes ou lacuna entre dias & Informar indisponibilidade e reiniciar a contagem de persistência quando a série voltar. & Tratar falta de telemetria como geração normal, alerta contínuo ou evidência de limpeza. \\
+Perda diária abaixo de 15\% & Exibir o indicador e manter acompanhamento rotineiro. & Concluir que o painel está limpo ou que não existe outra falha. \\
+Perda de 15\% ou mais por um ou dois dias consecutivos & Sinalizar acompanhamento, sem emitir recomendação de inspeção persistente. & Confundir uma oscilação temporária com necessidade de intervenção. \\
+Perda de 15\% ou mais por três dias consecutivos & Recomendar inspeção técnica e registrar o evento para avaliação posterior. & Confirmar sujidade, ordenar limpeza automática ou estimar retorno financeiro. \\
+Inspeção ou limpeza confirmada & Registrar a intervenção; usar o período posterior somente como candidato à calibração local. & Supor que uma única limpeza torna o modelo válido para toda a vida útil do sistema. \\
+\bottomrule
+\end{tabularx}
+\par\smallskip\raggedright\footnotesize Fonte: elaboração própria a partir da política de alerta e das limitações avaliadas neste estudo.
+\end{table}
+
 \begin{table}[htbp]
 \centering
 \caption{Escopo das evidências produzidas pelo estudo}
 \label{tab:escopo-evidencias}
 \small
-\begin{tabularx}{\linewidth}{@{}p{3.7cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Evidência avaliada & Interpretação permitida \\
 \midrule
@@ -274,11 +339,13 @@ Os resultados devem ser lidos considerando ameaças à validade interna, externa
 
 Quanto à validade externa, Laghouat, Dhaka e Chipre diferem em local, dispositivos, período e disponibilidade de rótulos. O desempenho negativo de transferência para Dhaka é uma evidência direta de que não se deve transportar limiar e referência sem reavaliá-los. Por outro lado, ele não identifica qual fator individual explica essa diferença, pois clima, qualidade da telemetria, painéis e protocolo de limpeza variam simultaneamente. A conclusão compatível com os dados é mais restrita: o fluxo precisa ser calibrado e validado em cada instalação antes de apoiar decisões recorrentes.
 
+Há ainda uma ameaça de validade de construto: a condição positiva usada nos alertas é definida pela perda relativa observada entre os módulos experimentais, e não por uma inspeção independente que classifique exclusivamente poeira. Essa definição é adequada para avaliar se o monitor reproduz o indicador do experimento, mas não permite afirmar que cada alerta corresponda a uma única causa física. Por isso, os resultados são formulados como perda potencialmente associada à sujidade e recomendação de inspeção. Essa escolha preserva a ligação entre o que foi medido, o que foi estimado e o que pode ser concluído.
+
 Por fim, a validade operacional depende de dados que este estudo não possui: confirmação de limpezas, inspeções após alertas, histórico de falhas, custo de manutenção e preço de energia aplicável. Sem esses elementos, não é possível converter o F1 obtido no experimento em economia, retorno financeiro ou número ideal de dias entre limpezas. A literatura define a otimização da limpeza como um equilíbrio entre receita recuperada e custo operacional, sustentado por medições e condições específicas do local \cite{muller2020profiles,ieapvps2025soiling}. O protótipo foi projetado para reduzir essa lacuna no futuro, registrando a comparação entre referência e medição e emitindo um alerta compreensível para inspeção. A decisão final, porém, deve permanecer sob responsabilidade humana e apoiada por evidência local.
 
 \section{CONCLUSÃO}
 
-Este trabalho desenvolveu e avaliou um protótipo que estima potência de referência e transforma seu desvio em indicador persistente de perdas potencialmente associadas à sujidade. No experimento controlado de Laghouat, o monitor selecionado internamente apresentou MAE de 0,29 W para potência limpa esperada, MAE de 0,63 ponto percentual para perda e F1 de 0,951 para a política de alerta fixada. Esses resultados respondem positivamente à questão de pesquisa somente nas condições da base principal, que dispõe de painel limpo diário para aferição independente.
+Este trabalho desenvolveu e avaliou um protótipo que estima potência de referência e transforma seu desvio em indicador persistente de perdas potencialmente associadas à sujidade. No experimento controlado de Laghouat, o monitor selecionado internamente apresentou MAE de 0,29 W para potência limpa esperada, MAE de 0,63 ponto percentual para perda e F1 de 0,951 para a política de alerta fixada. Como 82,9\% dos dias de teste já eram positivos, esse F1 é acompanhado de especificidade e referências simples de alerta. Esses resultados respondem positivamente à questão de pesquisa somente nas condições da base principal, que dispõe de painel limpo diário para aferição independente.
 
 A avaliação externa delimitou a contribuição: a regra e a referência não se transferiram automaticamente para Dhaka, e os alertas apresentaram muitos falsos positivos inclusive após recalibração do limiar. Portanto, não é válido apresentar o protótipo como solução pronta para qualquer instalação, diagnóstico exclusivo de sujidade ou mecanismo autônomo de decisão de limpeza.
 

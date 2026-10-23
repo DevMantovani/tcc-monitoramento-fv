@@ -86,6 +86,7 @@ def build_final_table(laghouat_final: dict[str, Any], zenodo_final: dict[str, An
     """Create a tidy final-test table without mixing validation values."""
     test = laghouat_final["test_metrics"]
     alert = test["persistent_alert"]
+    baselines = test.get("alert_baselines", {})
     rows = [
         ("Laghouat — perda por sujidade", "MAE da perda estimada", test["estimated_soiling_loss"]["mae_fraction"] * 100, "pontos percentuais"),
         ("Laghouat — perda por sujidade", "RMSE da perda estimada", test["estimated_soiling_loss"]["rmse_fraction"] * 100, "pontos percentuais"),
@@ -97,6 +98,14 @@ def build_final_table(laghouat_final: dict[str, Any], zenodo_final: dict[str, An
         ("Zenodo 2023–2024 — potência externa", "RMSE de potência", zenodo_final["test_metrics"]["rmse_kw"], "kW"),
         ("Zenodo 2023–2024 — potência externa", "R² de potência", zenodo_final["test_metrics"]["r2"], "adimensional"),
     ]
+    if "specificity" in alert:
+        rows.append(("Laghouat — alertas persistentes", "Especificidade", alert["specificity"], "proporção"))
+    if "positive_prevalence" in alert:
+        rows.append(("Laghouat — alertas persistentes", "Prevalência positiva", alert["positive_prevalence"], "proporção"))
+    if "always_alert" in baselines:
+        rows.append(("Laghouat — referência de alerta", "F1 — alertar todos os dias", baselines["always_alert"]["f1"], "proporção"))
+    if "always_above_threshold_with_same_persistence" in baselines:
+        rows.append(("Laghouat — referência de alerta", "F1 — limiar contínuo com mesma persistência", baselines["always_above_threshold_with_same_persistence"]["f1"], "proporção"))
     return pd.DataFrame(rows, columns=["experiment", "metric", "value", "unit"])
 
 
@@ -150,13 +159,20 @@ def _plot_daily_loss(daily: pd.DataFrame, threshold: float, destination: Path) -
 
 def _plot_alert_metrics(laghouat_final: dict[str, Any], destination: Path) -> None:
     alert = laghouat_final["test_metrics"]["persistent_alert"]
-    names = ["Precisão", "Sensibilidade", "F1"]
-    values = [alert["precision"], alert["recall"], alert["f1"]]
-    figure, axis = plt.subplots(figsize=(6.5, 4.5))
-    bars = axis.bar(names, values, color=["#0f766e", "#2563eb", "#7c3aed"])
+    baselines = laghouat_final["test_metrics"]["alert_baselines"]
+    names = ["Precisão", "Sensibilidade", "F1 do monitor", "F1: alertar\ntodos", "F1: limiar\ncontínuo"]
+    values = [
+        alert["precision"],
+        alert["recall"],
+        alert["f1"],
+        baselines["always_alert"]["f1"],
+        baselines["always_above_threshold_with_same_persistence"]["f1"],
+    ]
+    figure, axis = plt.subplots(figsize=(8, 4.5))
+    bars = axis.bar(names, values, color=["#0f766e", "#2563eb", "#7c3aed", "#94a3b8", "#64748b"])
     axis.set_ylim(0, 1.05)
     axis.set_ylabel("Proporção")
-    axis.set_title("Teste final: desempenho dos alertas persistentes")
+    axis.set_title("Teste final: monitor e referências de alerta")
     for bar, value in zip(bars, values, strict=True):
         axis.text(bar.get_x() + bar.get_width() / 2, value, f"{value:.3f}", ha="center", va="bottom")
     axis.spines[["top", "right"]].set_visible(False)
@@ -202,7 +218,7 @@ def generate_result_materials(input_dir: str, output_dir: str) -> dict[str, Any]
             "- `table_final_metrics.csv`: métricas dos testes finais preservados.",
             "- `figure_validation_comparison.*`: MAE de validação nas duas tarefas.",
             "- `figure_laghouat_test_daily_loss.*`: perda diária observada e estimada no teste final.",
-            "- `figure_laghouat_alert_metrics.*`: precisão, sensibilidade e F1 dos alertas finais.",
+            "- `figure_laghouat_alert_metrics.*`: desempenho do alerta final e F1 de referências simples.",
             "",
             "As figuras não demonstram generalização para uma residência brasileira; elas resumem os experimentos públicos documentados.",
         ]

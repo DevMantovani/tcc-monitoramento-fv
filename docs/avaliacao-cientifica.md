@@ -21,21 +21,22 @@ No teste final de Laghouat, o monitor obteve:
 | Precisão dos alertas persistentes | 90,6% |
 | Sensibilidade dos alertas persistentes | 100,0% |
 | F1 dos alertas persistentes | 0,951 |
+| Especificidade dos alertas persistentes | 50,0% |
 
-Esses valores mostram que o monitor acompanhou a diferença entre painel limpo e painel exposto **nas condições desse experimento**. Eles não representam desempenho residencial brasileiro nem autorização para limpeza automática.
+Esses valores mostram que o monitor acompanhou a diferença entre painel limpo e painel exposto **nas condições desse experimento**. A interpretação do F1 precisa levar em conta que 29 dos 35 dias avaliados (82,9%) já apresentavam alerta observado. Como referência, uma regra que alertasse sempre alcançaria F1 de 0,906; uma regra que permanecesse acima do limiar com a mesma persistência alcançaria F1 de 0,935. O monitor reduziu falsos alertas de 4 para 3 nessa última comparação, mas a margem é pequena. Portanto, o resultado demonstra aderência ao experimento, não uma vantagem operacional conclusiva.
 
 ## Sensibilidade à calibração pós-limpeza
 
-Para avaliar a proposta operacional, o painel limpo de Laghouat foi usado apenas no começo da série como aproximação de uma janela pós-limpeza. O Ridge foi ajustado com 14, 28, 42 ou 60 dias de referência limpa; depois, foram avaliadas somente observações futuras do painel exposto. A política de 15% por três dias foi mantida fixa.
+Para avaliar a proposta operacional, o painel limpo de Laghouat foi usado apenas no começo da série como aproximação de uma janela pós-limpeza. O Ridge foi ajustado com 14, 28, 42 ou 60 dias de referência limpa. Todas as janelas foram avaliadas no mesmo período futuro, iniciado após o 60º dia, e a política de mediana de perda de 15% por três dias foi mantida fixa.
 
 | Janela de calibração | MAE da perda | F1 dos alertas | Falsos alertas |
 |---:|---:|---:|---:|
-| 14 dias | 8,59 p.p. | 0,847 | 27 |
-| 28 dias | 5,57 p.p. | 0,867 | 23 |
-| 42 dias | 4,41 p.p. | 0,872 | 22 |
+| 14 dias | 10,11 p.p. | 0,852 | 26 |
+| 28 dias | 6,30 p.p. | 0,872 | 22 |
+| 42 dias | 4,75 p.p. | 0,872 | 22 |
 | 60 dias | 2,84 p.p. | 0,904 | 16 |
 
-Em todos os cenários, a sensibilidade foi 100% e não houve falsos negativos, mas a janela menor produziu mais erro e mais falsos alertas. A análise sustenta que a referência local precisa de quantidade suficiente de dados limpos. Ela não define uma duração universal e não substitui validação residencial.
+Em todos os cenários, a sensibilidade foi 100% e não houve falsos negativos, mas a janela menor produziu mais erro e mais falsos alertas. Como a comparação usa o mesmo período futuro, a diferença não decorre de cada janela receber uma época distinta da série. A análise sustenta que a referência local precisa de quantidade suficiente de dados limpos. Ela não define uma duração universal e não substitui validação residencial.
 
 ## Teste externo e limite de generalização
 

@@ -10,7 +10,7 @@ import pandas as pd
 
 from pv_monitor.data import load_observations, split_temporally
 from pv_monitor.models import CLEAN_REFERENCE_TARGET_COLUMN, FEATURE_COLUMNS, TARGET_COLUMN, build_candidates, loss_metrics
-from pv_monitor.workflow import _alert_metrics, _daily_losses
+from pv_monitor.workflow import _classification_metrics, _persistent_alerts, _daily_losses
 
 IRRADIANCE_BINS = (50.0, 300.0, 600.0, 900.0, float("inf"))
 IRRADIANCE_LABELS = ("50–299 W/m²", "300–599 W/m²", "600–899 W/m²", "≥ 900 W/m²")
@@ -57,16 +57,13 @@ def monthly_alert_stability_table(
     daily: pd.DataFrame, threshold: float, persistence_days: int
 ) -> pd.DataFrame:
     """Report the frozen alert policy separately for each final-test month."""
-    evaluated = daily.copy()
+    evaluated = daily.sort_values("date").copy()
+    evaluated["expected_alert"] = _persistent_alerts(evaluated["observed_loss_fraction"], threshold, persistence_days, evaluated["date"])
+    evaluated["estimated_alert"] = _persistent_alerts(evaluated["estimated_loss_fraction"], threshold, persistence_days, evaluated["date"])
     evaluated["month"] = pd.to_datetime(evaluated["date"]).dt.to_period("M").astype(str)
     rows: list[dict[str, float | int | str]] = []
     for month, subset in evaluated.groupby("month"):
-        alert = _alert_metrics(
-            subset["observed_loss_fraction"],
-            subset["estimated_loss_fraction"],
-            threshold,
-            persistence_days,
-        )
+        alert = _classification_metrics(subset["expected_alert"], subset["estimated_alert"])
         loss = loss_metrics(subset["observed_loss_fraction"], subset["estimated_loss_fraction"])
         rows.append(
             {

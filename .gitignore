@@ -26,3 +26,6 @@ artifacts/*
 *.out
 *.toc
 *.synctex.gz
+
+# Temporary directories created by the test suite
+.pytest-tmp*/

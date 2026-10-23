@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -142,11 +143,12 @@ def evaluate_post_cleaning_calibration(
         raise ValueError("Informe ao menos uma duração positiva de calibração.")
     frame = _load_soiling_monitor_frame(input_path, minimum_irradiance_wm2)
     first_timestamp = frame["timestamp"].min()
+    common_start = first_timestamp + pd.DateOffset(days=int(max(calibration_days)))
+    future = frame[frame["timestamp"] >= common_start].copy()
     rows: list[dict[str, float | int]] = []
     for days in sorted(set(calibration_days)):
         calibration_end = first_timestamp + pd.DateOffset(days=int(days))
         calibration = frame[frame["timestamp"] < calibration_end].copy()
-        future = frame[frame["timestamp"] >= calibration_end].copy()
         if calibration.empty or future.empty:
             raise ValueError(f"A janela de {days} dias não deixa dados para calibração e avaliação.")
         model = build_candidates()["ridge"]
@@ -165,13 +167,15 @@ def evaluate_post_cleaning_calibration(
         )
         loss_score = loss_metrics(evaluated["observed_soiling_loss_fraction"], estimated_loss)
         alert = _alert_metrics(
-            daily["observed_loss_fraction"], daily["estimated_loss_fraction"], alert_threshold, persistence_days
+            daily["observed_loss_fraction"], daily["estimated_loss_fraction"], alert_threshold, persistence_days, daily["date"]
         )
         rows.append(
             {
                 "calibration_days": int(days),
                 "calibration_observations": int(len(calibration)),
                 "future_observations": int(len(evaluated)),
+                "evaluation_start": future["timestamp"].min().isoformat(),
+                "evaluation_end": future["timestamp"].max().isoformat(),
                 "expected_power_mae_kw": power_score["mae_kw"],
                 "loss_mae_percentage_points": loss_score["mae_fraction"] * 100,
                 "loss_r2": loss_score["r2"],
@@ -191,6 +195,8 @@ def evaluate_post_cleaning_calibration(
         "source": str(input_path),
         "model_name": "ridge",
         "fixed_alert_policy": {"threshold": alert_threshold, "persistence_days": persistence_days},
+        "common_evaluation_period": _partition_metadata(future),
+        "comparison_note": "Todas as janelas usam o mesmo período futuro após a maior janela. Análise retrospectiva exploratória; não seleciona uma janela com teste intocado.",
         "experimental_proxy": (
             "A potência do painel limpo é usada somente no período inicial para simular uma janela pós-limpeza. "
             "No período futuro, ela é usada apenas como referência independente de avaliação."
@@ -325,6 +331,8 @@ def _daily_losses(frame: pd.DataFrame, predicted_clean: Any) -> pd.DataFrame:
         evaluated.groupby("date", as_index=False)
         .agg(
             samples=("estimated_soiling_loss_fraction", "size"),
+            expected_clean_power_kw=("predicted_clean_power_kw", "mean"),
+            measured_power_kw=(TARGET_COLUMN, "mean"),
             observed_loss_fraction=("observed_soiling_loss_fraction", "median"),
             estimated_loss_fraction=("estimated_soiling_loss_fraction", "median"),
         )
@@ -333,44 +341,66 @@ def _daily_losses(frame: pd.DataFrame, predicted_clean: Any) -> pd.DataFrame:
     )
 
 
-def _persistent_alerts(values: pd.Series, threshold: float, persistence_days: int) -> list[bool]:
-    """Return alerts only after a loss stays over a threshold for consecutive days."""
+def _consecutive_counts(values: pd.Series, dates: pd.Series) -> list[int]:
+    """Count qualified calendar days; missing dates and missing values break a run.
+
+    Dates follow the normalized timestamp convention of the input pipeline.
+    Duplicate/out-of-order days are rejected instead of silently reordered.
+    """
+    days = pd.DatetimeIndex(pd.to_datetime(list(dates), errors="raise", utc=True)).normalize()
+    if len(days) != len(values) or days.isna().any():
+        raise ValueError("Datas válidas devem corresponder a cada indicador diário.")
+    if days.has_duplicates or not days.is_monotonic_increasing:
+        raise ValueError("Datas diárias devem ser únicas e estar em ordem crescente.")
+    count = 0
+    counts = []
+    previous: date | None = None
+    for day, value in zip(days, values):
+        current = pd.Timestamp(day).date()
+        if previous is not None and (current - previous).days != 1:
+            count = 0
+        count = count + 1 if pd.notna(value) and bool(value) else 0
+        counts.append(count)
+        previous = current
+    return counts
+
+
+def _persistent_alerts(values: pd.Series, threshold: float, persistence_days: int, dates: pd.Series) -> list[bool]:
     if not 0 < threshold < 1:
         raise ValueError("O limiar de perda deve estar entre 0 e 1.")
+    return _persistent_flags(values >= threshold, persistence_days, dates)
+
+
+def _persistent_flags(above: pd.Series, persistence_days: int, dates: pd.Series) -> list[bool]:
     if persistence_days < 1:
         raise ValueError("A persistência deve ser positiva.")
-    return _persistent_flags(values >= threshold, persistence_days)
+    return [count >= persistence_days for count in _consecutive_counts(above, dates)]
 
 
-def _persistent_flags(above: pd.Series, persistence_days: int) -> list[bool]:
-    """Return days that complete a consecutive run of already-qualified values."""
-    run_length = 0
-    alerts: list[bool] = []
-    for is_above in above:
-        run_length = run_length + 1 if is_above else 0
-        alerts.append(run_length >= persistence_days)
-    return alerts
-
-
-def _alert_metrics(observed: pd.Series, estimated: pd.Series, threshold: float, persistence_days: int) -> dict[str, float | int]:
-    """Score persistent estimated-loss alerts against the independent loss reference."""
-    expected_alert = _persistent_alerts(observed, threshold, persistence_days)
-    estimated_alert = _persistent_alerts(estimated, threshold, persistence_days)
-    pairs = pd.DataFrame({"expected": expected_alert, "estimated": estimated_alert})
-    true_positive = int((pairs["expected"] & pairs["estimated"]).sum())
-    false_positive = int((~pairs["expected"] & pairs["estimated"]).sum())
-    false_negative = int((pairs["expected"] & ~pairs["estimated"]).sum())
-    precision = true_positive / (true_positive + false_positive) if true_positive + false_positive else 0.0
-    recall = true_positive / (true_positive + false_negative) if true_positive + false_negative else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+def _classification_metrics(expected: Any, estimated: Any) -> dict[str, float | int | None]:
+    pairs = pd.DataFrame({"expected": list(expected), "estimated": list(estimated)}, dtype=bool)
+    tp = int((pairs["expected"] & pairs["estimated"]).sum())
+    fp = int((~pairs["expected"] & pairs["estimated"]).sum())
+    fn = int((pairs["expected"] & ~pairs["estimated"]).sum())
+    tn = int((~pairs["expected"] & ~pairs["estimated"]).sum())
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
     return {
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
-        "true_positive_days": true_positive,
-        "false_positive_days": false_positive,
-        "false_negative_days": false_negative,
+        "precision": precision, "recall": recall,
+        "f1": 2 * precision * recall / (precision + recall) if precision + recall else 0.0,
+        "true_positive_days": tp, "false_positive_days": fp,
+        "false_negative_days": fn, "true_negative_days": tn,
+        "specificity": tn / (tn + fp) if tn + fp else None,
+        "evaluated_days": len(pairs),
+        "positive_prevalence": (tp + fn) / len(pairs) if len(pairs) else None,
     }
+
+
+def _alert_metrics(observed: pd.Series, estimated: pd.Series, threshold: float, persistence_days: int, dates: pd.Series) -> dict[str, float | int | None]:
+    return _classification_metrics(
+        _persistent_alerts(observed, threshold, persistence_days, dates),
+        _persistent_alerts(estimated, threshold, persistence_days, dates),
+    )
 
 
 def calibrate_alert_policy(
@@ -396,7 +426,7 @@ def calibrate_alert_policy(
     for threshold in thresholds:
         for persistence in persistence_days:
             score = _alert_metrics(
-                daily["observed_loss_fraction"], daily["estimated_loss_fraction"], threshold, persistence
+                daily["observed_loss_fraction"], daily["estimated_loss_fraction"], threshold, persistence, daily["date"]
             )
             rows.append({"threshold": threshold, "persistence_days": persistence, **score})
     candidates_frame = pd.DataFrame(rows)
@@ -458,13 +488,13 @@ def evaluate_final_soiling_monitor(
     threshold = float(selected_policy["threshold"])
     persistence = int(selected_policy["persistence_days"])
     alert_score = _alert_metrics(
-        daily["observed_loss_fraction"], daily["estimated_loss_fraction"], threshold, persistence
+        daily["observed_loss_fraction"], daily["estimated_loss_fraction"], threshold, persistence, daily["date"]
     )
     daily["observed_persistent_alert"] = _persistent_alerts(
-        daily["observed_loss_fraction"], threshold, persistence
+        daily["observed_loss_fraction"], threshold, persistence, daily["date"]
     )
     daily["estimated_persistent_alert"] = _persistent_alerts(
-        daily["estimated_loss_fraction"], threshold, persistence
+        daily["estimated_loss_fraction"], threshold, persistence, daily["date"]
     )
     evaluated_test = split.test.copy()
     evaluated_test["predicted_clean_power_kw"] = test_predicted_clean
@@ -478,7 +508,7 @@ def evaluate_final_soiling_monitor(
         "model_name": model_name,
         "training_rows_after_refit": len(development),
         "test_partition": _partition_metadata(split.test),
-        "locked_alert_policy": {"threshold": threshold, "persistence_days": persistence},
+        "locked_alert_policy": {"threshold": threshold, "persistence_days": persistence, "daily_aggregation": "median", "minimum_expected_kw": 0.0, "minimum_samples_per_day": 1, "minimum_irradiance_wm2": minimum_irradiance_wm2, "gap_rule": "reset"},
         "test_metrics": {
             "expected_clean_power": regression_metrics(
                 evaluated_test[CLEAN_REFERENCE_TARGET_COLUMN], evaluated_test["predicted_clean_power_kw"]
@@ -487,6 +517,14 @@ def evaluate_final_soiling_monitor(
                 evaluated_test["observed_soiling_loss_fraction"], estimated_loss
             ),
             "persistent_alert": alert_score,
+            "alert_baselines": {
+                "always_alert": _classification_metrics(daily["observed_persistent_alert"], [True] * len(daily)),
+                "never_alert": _classification_metrics(daily["observed_persistent_alert"], [False] * len(daily)),
+                "always_above_threshold_with_same_persistence": _classification_metrics(
+                    daily["observed_persistent_alert"],
+                    _persistent_flags(pd.Series([True] * len(daily)), persistence, daily["date"]),
+                ),
+            },
         },
         "note": "O modelo foi refitado com treino mais validação após a seleção. O teste final não participou da escolha do modelo ou da política de alerta.",
     }
@@ -503,9 +541,9 @@ def detect_additional_loss(
     input_path: str,
     model_path: str,
     output_path: str,
-    minimum_expected_kw: float = 0.10,
-    daily_loss_threshold: float = 0.12,
-    minimum_samples_per_day: int = 12,
+    minimum_expected_kw: float = 0.0,
+    daily_loss_threshold: float = 0.15,
+    minimum_samples_per_day: int = 1,
     persistence_days: int = 3,
     minimum_irradiance_wm2: float = 50.0,
 ) -> pd.DataFrame:
@@ -515,11 +553,13 @@ def detect_additional_loss(
     if persistence_days < 1 or minimum_samples_per_day < 1:
         raise ValueError("Persistência e quantidade mínima devem ser positivas.")
 
+    if minimum_expected_kw < 0:
+        raise ValueError("A potência mínima não pode ser negativa.")
     input_quality = operational_input_quality_report(input_path, minimum_irradiance_wm2)
     frame = load_observations(input_path, minimum_irradiance_wm2)
     model = joblib.load(model_path)
     frame["predicted_power_kw"] = model.predict(frame[FEATURE_COLUMNS])
-    frame = frame[frame["predicted_power_kw"] >= minimum_expected_kw].copy()
+    frame = frame[(frame["predicted_power_kw"] > 0) & (frame["predicted_power_kw"] >= minimum_expected_kw)].copy()
     if frame.empty:
         raise ValueError("Nenhuma observação atingiu a potência esperada mínima configurada.")
     frame["loss_fraction"] = (frame["predicted_power_kw"] - frame["power_kw"]) / frame["predicted_power_kw"]
@@ -530,6 +570,7 @@ def detect_additional_loss(
         .agg(
             samples=("loss_fraction", "size"),
             mean_loss_fraction=("loss_fraction", "mean"),
+            median_loss_fraction=("loss_fraction", "median"),
             mean_observed_power_kw=("power_kw", "mean"),
             mean_predicted_power_kw=("predicted_power_kw", "mean"),
         )
@@ -538,11 +579,11 @@ def detect_additional_loss(
     )
     daily["above_threshold"] = (
         (daily["samples"] >= minimum_samples_per_day)
-        & (daily["mean_loss_fraction"] >= daily_loss_threshold)
+        & (daily["median_loss_fraction"] >= daily_loss_threshold)
     )
 
-    daily["consecutive_days_above_threshold"] = _consecutive_counts(daily["above_threshold"])
-    daily["additional_loss_alert"] = _persistent_flags(daily["above_threshold"], persistence_days)
+    daily["consecutive_days_above_threshold"] = _consecutive_counts(daily["above_threshold"], daily["date"])
+    daily["additional_loss_alert"] = _persistent_flags(daily["above_threshold"], persistence_days, daily["date"])
     daily["recommended_action"] = daily["additional_loss_alert"].map(
         {
             True: "Inspecionar o sistema e confirmar a causa antes de limpar.",
@@ -559,6 +600,9 @@ def detect_additional_loss(
         "input_quality": input_quality,
         "alert_policy": {
             "minimum_expected_kw": minimum_expected_kw,
+            "daily_aggregation": "median",
+            "gap_rule": "reset",
+            "minimum_irradiance_wm2": minimum_irradiance_wm2,
             "daily_loss_threshold": daily_loss_threshold,
             "minimum_samples_per_day": minimum_samples_per_day,
             "persistence_days": persistence_days,
@@ -574,12 +618,3 @@ def detect_additional_loss(
     with summary_path.open("w", encoding="utf-8") as handle:
         json.dump(summary, handle, ensure_ascii=False, indent=2)
     return daily
-
-
-def _consecutive_counts(values: pd.Series) -> list[int]:
-    count = 0
-    counts: list[int] = []
-    for value in values:
-        count = count + 1 if value else 0
-        counts.append(count)
-    return counts

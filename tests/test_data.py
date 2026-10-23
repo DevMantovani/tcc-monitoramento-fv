@@ -273,8 +273,8 @@ def test_persistent_alerts_and_metrics_require_consecutive_days():
     observed = pd.Series([0.12, 0.12, 0.02, 0.12, 0.12])
     estimated = pd.Series([0.11, 0.11, 0.02, 0.04, 0.11])
 
-    assert _persistent_alerts(observed, threshold=0.10, persistence_days=2) == [False, True, False, False, True]
-    score = _alert_metrics(observed, estimated, threshold=0.10, persistence_days=2)
+    assert _persistent_alerts(observed, threshold=0.10, persistence_days=2, dates=pd.Series(pd.date_range("2026-01-01", periods=5))) == [False, True, False, False, True]
+    score = _alert_metrics(observed, estimated, threshold=0.10, persistence_days=2, dates=pd.Series(pd.date_range("2026-01-01", periods=5)))
 
     assert score["true_positive_days"] == 1
     assert score["false_positive_days"] == 0
@@ -300,7 +300,11 @@ def test_result_tables_keep_validation_and_final_metrics_separate():
     laghouat_final = {
         "test_metrics": {
             "estimated_soiling_loss": {"mae_fraction": 0.03, "rmse_fraction": 0.04, "r2": 0.7},
-            "persistent_alert": {"precision": 0.8, "recall": 0.9, "f1": 0.85},
+            "persistent_alert": {"precision": 0.8, "recall": 0.9, "f1": 0.85, "specificity": 0.6, "positive_prevalence": 0.7},
+            "alert_baselines": {
+                "always_alert": {"f1": 0.8},
+                "always_above_threshold_with_same_persistence": {"f1": 0.82},
+            },
         }
     }
     zenodo_final = {"test_metrics": {"mae_kw": 3.0, "rmse_kw": 4.0, "r2": 0.6}}
@@ -310,6 +314,8 @@ def test_result_tables_keep_validation_and_final_metrics_separate():
 
     assert set(validation["partition"]) == {"validação"}
     assert "F1" in set(final["metric"])
+    assert "Especificidade" in set(final["metric"])
+    assert "F1 — alertar todos os dias" in set(final["metric"])
     assert validation.loc[0, "value"] == pytest.approx(1.0)
 
 

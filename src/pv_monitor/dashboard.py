@@ -38,13 +38,11 @@ def load_json(path: str) -> dict[str, Any]:
 
 
 def test_power_series(daily: pd.DataFrame) -> pd.DataFrame:
-    """Obtain the daily clean-reference and measured power in the final period."""
-    frame = load_data(str(REAL_DATA)).dropna(subset=["clean_reference_power_kw", "power_kw"])
-    selected = frame[frame["date"].between(daily["date"].min(), daily["date"].max())]
-    return selected.groupby("date", as_index=False).agg(
-        expected_clean_power_kw=("clean_reference_power_kw", "mean"),
-        measured_power_kw=("power_kw", "mean"),
-    )
+    """Use only saved model predictions from the evaluated test observations."""
+    required = {"date", "expected_clean_power_kw", "measured_power_kw"}
+    if not required.issubset(daily.columns):
+        raise ValueError("Resultados antigos: reproduza o experimento para obter a referência do modelo.")
+    return daily[["date", "expected_clean_power_kw", "measured_power_kw"]].copy()
 
 
 def apply_theme() -> None:
@@ -92,13 +90,13 @@ def render_dashboard() -> None:
     expected = float(power["expected_clean_power_kw"].mean())
     measured = float(power["measured_power_kw"].mean())
     generated_percent = max(measured / expected * 100, 0) if expected else 0
-    loss_percent = max(100 - generated_percent, 0)
+    loss_percent = float(daily["estimated_loss_fraction"].median()) * 100
     alert_days = int(daily["estimated_persistent_alert"].sum())
 
     first, second, third, fourth = st.columns(4)
     first.metric("Situação do período", "Atenção" if alert_days else "Normal")
     second.metric("Geração medida", f"{generated_percent:.1f}% do esperado")
-    third.metric("Perda média estimada", f"{loss_percent:.1f}%")
+    third.metric("Perda diária típica", f"{loss_percent:.1f}%")
     fourth.metric("Calibração", "Referência experimental")
     st.markdown(
         f'<div class="summary"><strong>Ação recomendada:</strong> investigar a instalação quando a geração fica abaixo de '
@@ -106,7 +104,7 @@ def render_dashboard() -> None:
         f'No recorte demonstrativo, isso ocorreu em {alert_days} de {len(daily)} dias.</div>',
         unsafe_allow_html=True,
     )
-    st.caption("Modo demonstração: a referência de geração vem do experimento público. Em uma instalação real, ela será criada após limpeza confirmada pela calibração local.")
+    st.caption("Demonstração: a potência esperada vem do modelo treinado em Laghouat. Perda diária típica é a mediana das perdas diárias estimadas; não é perda de energia acumulada. A referência limpa medida é usada apenas na avaliação científica.")
 
     st.subheader("Desempenho da geração")
     relative_generation = power.assign(
@@ -116,13 +114,13 @@ def render_dashboard() -> None:
     )
     st.line_chart(relative_generation, height=310)
     st.caption(
-        "100% representa a geração esperada para as condições do momento. Valores menores indicam geração abaixo do esperado."
+        "Razão entre potências médias diárias nas mesmas observações do teste. A curva usa a previsão do modelo. O alerta usa a mediana diária das perdas e reinicia após dias ausentes; os dois indicadores têm agregações diferentes."
     )
 
     st.subheader("Entenda os indicadores")
     first, second, third = st.columns(3)
     first.markdown('<div class="step"><strong>Geração medida</strong><br><br>Mostra o quanto o sistema entregou em relação ao esperado.</div>', unsafe_allow_html=True)
-    second.markdown('<div class="step"><strong>Perda estimada</strong><br><br>É a diferença entre o esperado e o medido. Ela pode ter mais de uma causa.</div>', unsafe_allow_html=True)
+    second.markdown('<div class="step"><strong>Perda diária típica</strong><br><br>Resume a perda calculada a partir do modelo. Uma perda pode ter mais de uma causa.</div>', unsafe_allow_html=True)
     third.markdown('<div class="step"><strong>Ação recomendada</strong><br><br>O alerta pede inspeção. Ele não confirma sujeira nem aciona limpeza automática.</div>', unsafe_allow_html=True)
 
     st.markdown(

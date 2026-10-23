@@ -63,8 +63,8 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Modelo bloqueado: Ridge, selecionado pela menor MAE de perda estimada na validação (EXP-003).
 - Calibração: somente na validação, avaliando limiares de 5%, 10%, 15% e 20% com persistência de um, dois ou três dias. A seleção por F1 escolheu 15% por três dias consecutivos; na validação, precisão, sensibilidade e F1 foram 1,000 (33 dias positivos).
 - Teste final: o modelo foi refitado uma vez com treino e validação, sem alterar política; o último período cronológico permaneceu separado até a execução.
-- Métricas do teste: MAE da potência limpa esperada 0,000291 kW; MAE da perda estimada 0,00632 (0,63 ponto percentual); precisão dos alertas 0,906; sensibilidade 1,000; F1 0,951; 29 dias verdadeiros positivos, 3 falsos positivos e nenhum falso negativo.
-- Interpretação: os resultados demonstram desempenho promissor **nesta base experimental**, não eficácia comprovada em residências brasileiras ou em outra localidade.
+- Métricas do teste: MAE da potência limpa esperada 0,000291 kW; MAE da perda estimada 0,00632 (0,63 ponto percentual); precisão dos alertas 0,906; sensibilidade 1,000; F1 0,951; especificidade 0,500; 29 dias verdadeiros positivos, 3 falsos positivos e nenhum falso negativo. Houve 35 dias avaliados, dos quais 82,9% eram positivos; por isso, alertar todos os dias já alcançaria F1 de 0,906, e permanecer continuamente acima do limiar com a mesma persistência alcançaria 0,935.
+- Interpretação: a política reduziu falsos positivos frente às referências simples, mas o F1 isolado é pouco informativo devido à prevalência alta. Os resultados se restringem a esta base experimental e não comprovam eficácia em residências brasileiras ou em outra localidade.
 - Próxima decisão: produzir gráficos e tabelas reproduzíveis do teste final e buscar validação complementar em fonte externa.
 
 ## EXP-005 — avaliação externa da estimação de potência em dados de 2023--2024
@@ -86,7 +86,7 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Commit Git: a registrar no commit desta etapa.
 - Entradas: artefatos preservados de validação e teste final dos EXP-003, EXP-004 e EXP-005.
 - Procedimento: o comando `pv-monitor generate-results` transforma as métricas já produzidas em duas tabelas CSV e três figuras em PNG/SVG. Não há novo treino, seleção de modelo, calibração de limiar ou acesso aos dados brutos.
-- Materiais: comparação de MAE na validação; série de perda observada e estimada no teste final de Laghouat; métricas de precisão, sensibilidade e F1 dos alertas persistentes; tabelas distintas para validação e teste final.
+- Materiais: comparação de MAE na validação; série de perda observada e estimada no teste final de Laghouat; métricas de precisão, sensibilidade, F1, especificidade e referências simples de alerta; tabelas distintas para validação e teste final.
 - Controle contra interpretação indevida: a figura da fonte Zenodo apresenta somente erro de potência; ela não é rotulada como validação de sujidade. Os resultados continuam restritos às bases públicas descritas nos experimentos anteriores.
 - Limitação: as figuras resumem os experimentos já executados; não adicionam evidência de generalização para residências brasileiras.
 
@@ -120,7 +120,7 @@ Preencha uma entrada antes de executar um experimento que será citado no artigo
 - Data: 08/10/2026
 - Commit Git: a registrar no commit desta etapa.
 - Base: Laghouat 2022, DOI [10.17632/4jdt83yy43.3](https://doi.org/10.17632/4jdt83yy43.3), CC BY 4.0.
-- Protocolo: o painel limpo foi usado exclusivamente na janela inicial para simular uma referência pós-limpeza. Ridge foi ajustado com 14, 28, 42 ou 60 dias iniciais; as observações futuras do painel exposto foram avaliadas contra a referência limpa independente. A política permaneceu fixa em 15% por três dias.
-- Resultados: 14 dias — MAE da perda 8,59 p.p., F1 0,847 e 27 falsos alertas; 28 dias — 5,57 p.p., F1 0,867 e 23 falsos alertas; 42 dias — 4,41 p.p., F1 0,872 e 22 falsos alertas; 60 dias — 2,84 p.p., F1 0,904 e 16 falsos alertas. Em todos os cenários, a sensibilidade foi 1,000 e não houve falsos negativos.
+- Protocolo: o painel limpo foi usado exclusivamente na janela inicial para simular uma referência pós-limpeza. Ridge foi ajustado com 14, 28, 42 ou 60 dias iniciais; todas as alternativas foram avaliadas contra a referência limpa independente no mesmo período futuro, iniciado após os 60 dias iniciais. A política permaneceu fixa em 15% por três dias.
+- Resultados: 14 dias — MAE da perda 10,11 p.p., F1 0,852 e 26 falsos alertas; 28 dias — 6,30 p.p., F1 0,872 e 22 falsos alertas; 42 dias — 4,75 p.p., F1 0,872 e 22 falsos alertas; 60 dias — 2,84 p.p., F1 0,904 e 16 falsos alertas. Em todos os cenários, a sensibilidade foi 1,000 e não houve falsos negativos.
 - Interpretação: mais dados limpos históricos melhoraram a referência de potência e reduziram falsos alertas no experimento. O resultado não define uma duração de calibração universal.
 - Limitação: o painel limpo é uma aproximação experimental de uma instalação recém-limpa; a avaliação não representa uma residência brasileira ou uma operação em campo.

@@ -27,7 +27,7 @@ O comando salva `clean_baseline_ridge.joblib`, usado posteriormente pelo comando
 
 ## Avaliação da duração da calibração
 
-No experimento público de Laghouat, a potência do painel limpo pode ser usada como aproximação experimental de uma instalação recém-limpa. O comando abaixo avalia janelas de 14, 28, 42 e 60 dias, sempre testando apenas observações futuras:
+No experimento público de Laghouat, a potência do painel limpo pode ser usada como aproximação experimental de uma instalação recém-limpa. O comando abaixo avalia janelas de 14, 28, 42 e 60 dias. Todas as janelas são comparadas no **mesmo período futuro**, iniciado após a maior janela (60 dias), evitando que uma janela curta seja favorecida por receber um período de avaliação diferente:
 
 ```bash
 pv-monitor evaluate-local-calibration \
@@ -35,7 +35,7 @@ pv-monitor evaluate-local-calibration \
   --output artifacts/laghouat_local_calibration
 ```
 
-O resultado mostra que 14 dias produziram MAE de perda de 8,59 pontos percentuais e F1 de 0,847; com 60 dias, os valores foram 2,84 pontos percentuais e 0,904. A regra de alerta foi mantida fixa em 15% por três dias. Isso não define uma duração universal: demonstra apenas que uma janela curta pode não representar adequadamente a geração limpa futura.
+Na reprodução atual, 14 dias produziram MAE de perda de 10,11 pontos percentuais e F1 de 0,852; com 60 dias, os valores foram 2,84 pontos percentuais e 0,904. A regra de alerta permaneceu fixa em mediana de perda de 15% por três dias. Isso não define uma duração universal: demonstra apenas que uma janela curta pode não representar adequadamente a geração limpa futura neste experimento.
 
 ## Limite científico atual
 

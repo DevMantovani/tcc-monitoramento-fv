@@ -46,7 +46,7 @@ pv-monitor detect \
   --model artifacts/calibracao_local/clean_baseline_ridge.joblib \
   --output artifacts/alertas_diarios.csv \
   --daily-loss-threshold 0.15 \
-  --minimum-samples-per-day 4 \
+  --minimum-samples-per-day 1 \
   --persistence-days 3
 ```
 
@@ -54,9 +54,9 @@ O comando cria dois arquivos: o CSV diário e um JSON de resumo com qualidade da
 
 ## Como interpretar a saída
 
-`additional_loss_alert = true` significa que a perda média diária estimada superou o limiar, com o número mínimo de amostras, pelo número configurado de dias consecutivos. A ação recomendada é verificar dados, sombreamento, falhas, disponibilidade e condições do sistema antes de considerar uma limpeza.
+`additional_loss_alert = true` significa que a **mediana diária** da perda estimada superou o limiar, com o número mínimo de amostras, pelo número configurado de dias consecutivos. Um dia sem registros válidos interrompe a sequência; portanto, o sistema não interpreta dias separados por lacunas como consecutivos. A ação recomendada é verificar dados, sombreamento, falhas, disponibilidade e condições do sistema antes de considerar uma limpeza.
 
-Os valores de limiar, quantidade mínima de amostras e persistência dependem da frequência de medição e precisam ser escolhidos na validação. No experimento de Laghouat, a política avaliada foi 15% por três dias; ela não deve ser transferida automaticamente para uma residência brasileira.
+Os valores de limiar, quantidade mínima de amostras e persistência dependem da frequência de medição e precisam ser escolhidos na validação. No experimento de Laghouat, a política avaliada foi mediana de perda de 15% por três dias, após filtrar irradiância inferior a 50 W/m². Ela não deve ser transferida automaticamente para uma residência brasileira.
 
 ## Limite para uso em campo
 

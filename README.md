@@ -2,7 +2,15 @@
 
 Implementação reproduzível do protótipo do TCC de Matheus Luís Mantovani Passoni. O software estima a potência de referência a partir de variáveis ambientais, compara-a à potência medida e sinaliza perdas persistentes para **inspeção técnica**. Ele não diagnostica exclusivamente sujidade nem aciona limpeza automática.
 
-O artigo é mantido exclusivamente no [Overleaf](https://www.overleaf.com/project/69a9f8893e4087c8ce175833). Este repositório contém o código, os testes e a documentação que sustentam os resultados.
+Este repositório contém o código, os testes e a documentação que sustentam os resultados do estudo. O manuscrito acadêmico é mantido separadamente.
+
+## Para avaliadores
+
+O estudo avalia retrospectivamente o método em fontes públicas, com separação cronológica entre treino, validação e teste final. O painel em Streamlit é uma demonstração dos resultados já processados; a evidência científica está no fluxo reproduzível de preparação, treinamento, avaliação e testes automatizados.
+
+- Para verificar a instalação e a lógica do software sem dados externos, execute `pytest -q`.
+- Para reproduzir os resultados do estudo, baixe as fontes públicas indicadas em [docs/dados.md](docs/dados.md) e siga o comando da seção [Reproduzir os experimentos-base de uma vez](#3-reproduzir-os-experimentos-base-de-uma-vez).
+- Para a interpretação dos resultados e de seus limites, consulte [docs/avaliacao-cientifica.md](docs/avaliacao-cientifica.md).
 
 ## O que o projeto entrega
 
@@ -23,7 +31,10 @@ O artigo é mantido exclusivamente no [Overleaf](https://www.overleaf.com/projec
 | `data/processed/` | CSVs derivados durante a preparação. São recriados localmente e não entram no Git. |
 | `artifacts/` | Modelos, métricas, gráficos e relatórios gerados pelos comandos. São locais e recriáveis. |
 | `iniciar_painel.bat` / `iniciar_painel.sh` | Atalhos para preparar o ambiente e abrir o painel em Windows ou Linux/macOS. |
-| `HANDOFF_TCC.md` | Contexto resumido para retomar o projeto em outro computador ou conversa. |
+
+## Conteúdo publicado e conteúdo local
+
+O GitHub contém o código-fonte, os testes, os scripts de execução, as dependências declaradas em `pyproject.toml` e a documentação metodológica. Não contém os datasets brutos, arquivos processados, modelos treinados, métricas, gráficos gerados ou dados operacionais. Esses itens são recriados localmente a partir das fontes públicas documentadas, respeitando licença, tamanho e rastreabilidade das bases.
 
 ## Pré-requisitos
 
@@ -149,4 +160,4 @@ O experimento controlado de Laghouat sustenta a avaliação do monitor. O teste 
 
 Este repositório reúne o código, os testes e a documentação técnica que sustentam o estudo. Os procedimentos de preparação dos dados, treinamento, calibração e avaliação estão descritos nas seções anteriores e detalhados em [docs/reproducao.md](docs/reproducao.md).
 
-Para preservar a rastreabilidade e respeitar as condições de distribuição das fontes, os datasets originais, os arquivos intermediários e os artefatos gerados não são incluídos no repositório. A proveniência, as licenças e as limitações de cada base estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido exclusivamente no Overleaf.
+Para preservar a rastreabilidade e respeitar as condições de distribuição das fontes, os datasets originais, os arquivos intermediários e os artefatos gerados não são incluídos no repositório. A proveniência, as licenças e as limitações de cada base estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido separadamente do código.

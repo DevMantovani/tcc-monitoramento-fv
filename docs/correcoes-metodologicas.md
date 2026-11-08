@@ -24,8 +24,4 @@ No teste final de Laghouat, 29 de 35 dias já eram positivos segundo a referênc
 
 ## Artigo
 
-O artigo no Overleaf permanece a versão canônica. Nenhum arquivo `.tex` foi alterado nesta etapa. A atualização do artigo deve ser feita somente depois que esta revisão técnica, incluindo a avaliação de Dhaka, estiver concluída e for possível substituir todos os números afetados em um único ciclo coerente.
-
-### Atualização posterior — 08/11/2026
-
-Após a conclusão da revisão técnica, o artigo foi atualizado em ciclo único: a descrição da comparação entre Ridge e Random Forest foi alinhada ao objetivo do estudo, as fontes públicas auditadas passaram a constar como versionadas no repositório de código e o resultado externo de Dhaka foi corrigido para 25 falsos alertas. A diferença decorre da regra atual de persistência, que reinicia a contagem quando há lacuna entre dias do calendário. O arquivo canônico continua sendo mantido no Overleaf.
+O artigo no Overleaf permanece a versão canônica. Ele está alinhado ao protocolo reproduzido no repositório: compara Ridge e Random Forest na validação cronológica, avalia o monitor selecionado no teste final e reporta 25 falsos alertas na transferência para Dhaka. A regra de persistência reinicia a contagem quando há lacuna entre dias do calendário.

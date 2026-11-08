@@ -1,6 +1,6 @@
 # Passagem de bastão — TCC de monitoramento fotovoltaico
 
-**Atualizado em:** 22 de outubro de 2026
+**Atualizado em:** 08 de novembro de 2026
 **Objetivo:** permitir que o projeto seja retomado em outro computador ou em uma nova conversa sem depender deste ambiente.
 
 ## Onde está cada parte

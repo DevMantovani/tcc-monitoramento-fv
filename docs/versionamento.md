@@ -11,7 +11,7 @@
    cd tcc-monitoramento-fv
    ```
 
-Não coloque token, senha, chaves, dados operacionais sensíveis, o ambiente `.venv`, artefatos gerados ou o artigo no repositório. As duas bases públicas explicitamente listadas em `data/raw/README.md` são exceções intencionais: possuem licença CC BY 4.0, são pequenas e permitem reproduzir o experimento principal. O `.gitignore` já protege os itens mais comuns; confirme com `git status` antes de cada commit.
+Não coloque token, senha, chaves, dados operacionais sensíveis, o ambiente `.venv`, artefatos gerados ou o artigo no repositório. As três fontes públicas explicitamente listadas em `data/raw/README.md` são exceções intencionais: possuem licença CC BY 4.0, DOI, checksum e finalidade metodológica documentados. Os CSVs de Laghouat e do Chipre reproduzem o fluxo principal; o arquivo compactado de Dhaka permite repetir a validação externa. O `.gitignore` já protege os itens mais comuns; confirme com `git status` antes de cada commit.
 
 ## Fluxo ao trocar de computador
 

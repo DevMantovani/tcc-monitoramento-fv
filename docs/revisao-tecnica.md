@@ -2,7 +2,7 @@
 
 ## Escopo da revisão
 
-Esta revisão cobre a versão do protótipo que usa as fontes públicas de Laghouat (sujidade), Dhaka (teste externo de sujidade) e Zenodo (potência externa). Ela não reescreve o artigo em LaTeX, pois essa etapa foi deliberadamente reservada para depois da estabilização da implementação.
+Esta revisão cobre a versão final do protótipo que usa as fontes públicas de Laghouat (sujidade), Dhaka (teste externo de sujidade) e Zenodo (potência externa). O artigo canônico no Overleaf e a documentação do repositório foram alinhados aos resultados reproduzidos.
 
 ## Consistência verificada
 
@@ -19,7 +19,7 @@ Esta revisão cobre a versão do protótipo que usa as fontes públicas de Lagho
 - Centralizada a validação e conversão de colunas dos CSVs, eliminando lógica duplicada entre leitura e relatório de qualidade.
 - Centralizada a lógica de dias consecutivos para os alertas, usada tanto na avaliação científica como no fluxo operacional futuro.
 - Criado `pv-launch`, além de `iniciar_painel.bat` e `iniciar_painel.sh`, para preparar artefatos faltantes e abrir o painel sem exigir que a pessoa conheça os comandos do pipeline.
-- Mantidos dados, modelos e resultados fora do versionamento. Eles são regeneráveis e não devem ser substituídos por dados sintéticos ou fontes não auditadas.
+- Mantidos dados processados, modelos e resultados gerados fora do versionamento. As três fontes públicas auditadas permanecem versionadas com atribuição, DOI, licença e checksum; elas não devem ser substituídas por dados sintéticos ou fontes não auditadas.
 - Incorporada preparação auditável para os 295 CSVs de Dhaka, tratando cabeçalhos e datas divergentes sem preencher valores ausentes.
 
 ## Limites que permanecem
@@ -33,4 +33,4 @@ Esta revisão cobre a versão do protótipo que usa as fontes públicas de Lagho
 
 ## Resultado da execução de verificação
 
-A verificação final deve incluir testes automatizados, compilação dos módulos, reprodução dos dois experimentos públicos, geração dos materiais de resultado e abertura local do painel. Os comandos e resultados da execução ficam registrados no histórico do Git junto desta revisão.
+A verificação final deve incluir testes automatizados, reprodução dos experimentos principais, execução separada da validação externa de Dhaka, geração dos materiais de resultado e abertura local do painel. Os comandos e resultados da execução ficam registrados no histórico do Git junto desta revisão.

@@ -11,7 +11,7 @@ A base de desenvolvimento e validação desta etapa é **Hourly PV Power and Dus
 - Linhas: 4.368, sem timestamps duplicados.
 - Integridade do arquivo baixado: SHA-256 `5552bb039c5673eea21537a551b0fe8cd9ce75429027f6a334eeb404ba934d43`.
 
-Os dados brutos ficam em `data/raw/laghouat_2022/` e a cópia preparada em `data/processed/laghouat_2022.csv`; ambos são ignorados pelo Git. O repositório versiona o código de preparação, a documentação e os testes, não a redistribuição do arquivo de origem.
+Para permitir a reprodução principal sem download manual, o arquivo de origem é versionado em `data/raw/laghouat_2022/` com seu nome original. A cópia preparada em `data/processed/laghouat_2022.csv` é gerada localmente e ignorada pelo Git. A redistribuição mantém a atribuição à fonte, o DOI, a licença CC BY 4.0 e o checksum acima.
 
 ### Variáveis usadas nesta fase
 
@@ -65,3 +65,5 @@ Para avaliar a parte genérica de **estimação de potência** em outra instala�
 O processamento usa `inverter` como potência observada, `global_tilted_irradiance (W/m²)` como irradiância e `temperature_2m (°C)` como temperatura **ambiente**. A coluna `energy` é uma previsão já calculada pelos autores da fonte e é deliberadamente excluída: utilizá-la como entrada ou alvo criaria vazamento de informação.
 
 Após o filtro de irradiância ≥ 50 W/m², restaram 1.316 observações. Há lacunas longas na série, de aproximadamente 33 e 69 dias, e não existe medição independente de sujidade, par de módulos limpo/exposto ou histórico de limpezas. Assim, essa base não valida alertas, limiares ou decisão de limpeza; ela avalia somente se o fluxo de previsão de potência se reproduz em outra instalação.
+
+O CSV utilizado nessa etapa também é versionado em `data/raw/zenodo_inverter_2023_2024/`, mantendo o nome original, a atribuição à fonte, o DOI, a licença CC BY 4.0 e o checksum registrados acima. Arquivos derivados continuam locais e são recriados pelos comandos do projeto.

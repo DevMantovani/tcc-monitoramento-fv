@@ -1,0 +1,4 @@
+# Preserve the original byte content of versioned public datasets.
+# Their SHA-256 values are documented in docs/dados.md.
+data/raw/**/*.csv -text
+data/raw/**/*.zip -text

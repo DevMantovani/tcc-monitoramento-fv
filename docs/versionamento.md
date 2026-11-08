@@ -4,14 +4,14 @@
 
 1. Instale Git e confirme com `git --version`.
 2. Defina a identidade local uma única vez: `git config --global user.name "Seu nome"` e `git config --global user.email "seu-email"`.
-3. Obtenha acesso ao repositório privado e clone-o:
+3. Clone o repositório público:
 
    ```bash
    git clone https://github.com/DevMantovani/tcc-monitoramento-fv.git
    cd tcc-monitoramento-fv
    ```
 
-Não coloque token, senha, chaves, dados operacionais sensíveis, o ambiente `.venv`, datasets, artefatos gerados ou o artigo no repositório. O artigo canônico é mantido exclusivamente no Overleaf. O `.gitignore` já protege os itens mais comuns; confirme com `git status` antes de cada commit.
+Não coloque token, senha, chaves, dados operacionais sensíveis, o ambiente `.venv`, artefatos gerados ou o artigo no repositório. As duas bases públicas explicitamente listadas em `data/raw/README.md` são exceções intencionais: possuem licença CC BY 4.0, são pequenas e permitem reproduzir o experimento principal. O `.gitignore` já protege os itens mais comuns; confirme com `git status` antes de cada commit.
 
 ## Fluxo ao trocar de computador
 

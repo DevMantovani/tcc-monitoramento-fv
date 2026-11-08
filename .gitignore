@@ -6,8 +6,14 @@ __pycache__/
 .env
 
 # Local data: never commit a raw operational dataset without checking its licence and privacy.
+# The two named public sources below are intentionally versioned for one-command reproduction.
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/README.md
+!data/raw/laghouat_2022/
+!data/raw/laghouat_2022/Laghouat_2022_final.csv
+!data/raw/zenodo_inverter_2023_2024/
+!data/raw/zenodo_inverter_2023_2024/math_model_all_inverters_03.11.2023-25.06.2024.csv
 data/interim/*
 !data/interim/.gitkeep
 data/processed/*
@@ -19,6 +25,8 @@ artifacts/*
 
 # Local audit reproductions
 audit_reproduction_*/
+audit_dhaka_extraction*/
+audit_dhaka_artifacts*/
 
 # The article is maintained exclusively in Overleaf.
 article/

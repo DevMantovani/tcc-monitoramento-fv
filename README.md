@@ -8,8 +8,8 @@ Este repositório contém o código, os testes e a documentação que sustentam 
 
 O estudo avalia retrospectivamente o método em fontes públicas, com separação cronológica entre treino, validação e teste final. O painel em Streamlit é uma demonstração dos resultados já processados; a evidência científica está no fluxo reproduzível de preparação, treinamento, avaliação e testes automatizados.
 
-- Para verificar a instalação e a lógica do software sem dados externos, execute `pytest -q`.
-- Para reproduzir os resultados do estudo, baixe as fontes públicas indicadas em [docs/dados.md](docs/dados.md) e siga o comando da seção [Reproduzir os experimentos-base de uma vez](#3-reproduzir-os-experimentos-base-de-uma-vez).
+- Para verificar a instalação e a lógica do software, execute `pytest -q`.
+- Para reproduzir os resultados principais, siga o comando da seção [Reproduzir os experimentos-base de uma vez](#3-reproduzir-os-experimentos-base-de-uma-vez). Os dois CSVs necessários já acompanham o repositório.
 - Para a interpretação dos resultados e de seus limites, consulte [docs/avaliacao-cientifica.md](docs/avaliacao-cientifica.md).
 
 ## O que o projeto entrega
@@ -27,27 +27,30 @@ O estudo avalia retrospectivamente o método em fontes públicas, com separaçã
 | `src/pv_monitor/` | Código do projeto. `data.py` prepara dados; `models.py` seleciona modelos; `workflow.py` executa treino, alertas e calibração; `reporting.py` produz métricas e materiais; `dashboard.py` abre o painel; `cli.py` expõe os comandos `pv-monitor`. |
 | `tests/` | Testes automatizados da preparação de dados, persistência dos alertas e consistência das métricas. |
 | `docs/` | Documentação metodológica, proveniência das bases, reprodução dos experimentos, limitações, operação e decisões técnicas. Comece por `docs/execucao-simplificada.md` e `docs/reproducao.md`. |
-| `data/raw/` | Datasets públicos baixados pelo usuário. Nunca são enviados ao GitHub. |
+| `data/raw/` | Duas fontes públicas necessárias à reprodução principal, versionadas com atribuição e licença CC BY 4.0. Veja `data/raw/README.md`. |
 | `data/processed/` | CSVs derivados durante a preparação. São recriados localmente e não entram no Git. |
 | `artifacts/` | Modelos, métricas, gráficos e relatórios gerados pelos comandos. São locais e recriáveis. |
 | `iniciar_painel.bat` / `iniciar_painel.sh` | Atalhos para preparar o ambiente e abrir o painel em Windows ou Linux/macOS. |
 
 ## Conteúdo publicado e conteúdo local
 
-O GitHub contém o código-fonte, os testes, os scripts de execução, as dependências declaradas em `pyproject.toml` e a documentação metodológica. Não contém os datasets brutos, arquivos processados, modelos treinados, métricas, gráficos gerados ou dados operacionais. Esses itens são recriados localmente a partir das fontes públicas documentadas, respeitando licença, tamanho e rastreabilidade das bases.
+O GitHub contém o código-fonte, os testes, os scripts de execução, as dependências declaradas em `pyproject.toml`, a documentação metodológica e duas bases públicas pequenas necessárias à reprodução principal. Os CSVs de Laghouat e do Chipre são distribuídos sob CC BY 4.0, mantêm o nome original e possuem DOI, licença e checksum registrados em [docs/dados.md](docs/dados.md).
+
+Não são publicados arquivos processados, modelos treinados, métricas, gráficos gerados, dados operacionais ou o conjunto externo de Dhaka. Os primeiros são resultados recriáveis; o conjunto de Dhaka deve ser obtido em sua fonte original conforme as instruções em [docs/dados.md](docs/dados.md).
 
 ## Pré-requisitos
 
 - Python 3.11, 3.12 ou 3.13.
 - Git, para clonar e atualizar o repositório.
-- Para reproduzir o painel com dados reais, baixe os dois datasets públicos e mantenha-os exatamente nestes caminhos:
+
+Os dois CSVs necessários à reprodução e ao painel já estão nestes caminhos:
 
 ```text
 data/raw/laghouat_2022/Laghouat_2022_final.csv
 data/raw/zenodo_inverter_2023_2024/math_model_all_inverters_03.11.2023-25.06.2024.csv
 ```
 
-As fontes, licenças e limitações estão em [docs/dados.md](docs/dados.md). Os arquivos brutos não são versionados.
+As fontes, licenças, checksums e limitações estão em [docs/dados.md](docs/dados.md). Não inclua novos dados na pasta sem verificar licença, privacidade e necessidade metodológica.
 
 ## Forma mais simples de executar o painel
 
@@ -120,7 +123,7 @@ pv-monitor evaluate-final \
 
 ### 3. Reproduzir os experimentos-base de uma vez
 
-Exige as bases de Laghouat e do Chipre:
+Usa as bases de Laghouat e do Chipre já versionadas no repositório:
 
 ```bash
 pv-monitor reproduce-public-experiments \
@@ -160,4 +163,4 @@ O experimento controlado de Laghouat sustenta a avaliação do monitor. O teste 
 
 Este repositório reúne o código, os testes e a documentação técnica que sustentam o estudo. Os procedimentos de preparação dos dados, treinamento, calibração e avaliação estão descritos nas seções anteriores e detalhados em [docs/reproducao.md](docs/reproducao.md).
 
-Para preservar a rastreabilidade e respeitar as condições de distribuição das fontes, os datasets originais, os arquivos intermediários e os artefatos gerados não são incluídos no repositório. A proveniência, as licenças e as limitações de cada base estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido separadamente do código.
+Para tornar a reprodução principal acessível, o repositório inclui os dois CSVs públicos usados por esse fluxo, com atribuição, DOI e checksums documentados. Arquivos intermediários, artefatos gerados, dados operacionais e a base externa de Dhaka permanecem fora do Git. A proveniência, as licenças e as limitações de cada fonte estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido separadamente do código.

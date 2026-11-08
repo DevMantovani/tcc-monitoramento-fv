@@ -6,7 +6,7 @@
 ## Onde está cada parte
 
 - **Código e documentação técnica:** [repositório GitHub](https://github.com/DevMantovani/tcc-monitoramento-fv).
-- **Artigo canônico:** [projeto Overleaf](https://www.overleaf.com/project/69a9f8893e4087c8ce175833). O artigo, a bibliografia e as figuras são mantidos exclusivamente nele.
+- **Artigo canônico:** mantido separadamente do repositório. O artigo, a bibliografia e as figuras não integram a entrega de código.
 
 ## O que o projeto demonstra
 
@@ -41,7 +41,7 @@ A comparação entre modelos é apenas uma etapa interna para escolher o estimad
    ```
 
 4. Leia `README.md`, `docs/execucao-simplificada.md` e este arquivo antes de executar o painel.
-5. Baixe novamente os datasets públicos nos caminhos definidos em `docs/dados.md`; os arquivos de dados brutos não ficam no GitHub.
+5. As bases de Laghouat e do Chipre já acompanham o repositório. Para a análise externa de Dhaka, siga a obtenção indicada em `docs/dados.md`.
 6. Para abrir o painel, no Windows use `iniciar_painel.bat`; em Linux/macOS execute `bash iniciar_painel.sh`.
 7. Para editar o artigo, trabalhe no Overleaf. O artigo não faz parte deste repositório.
 

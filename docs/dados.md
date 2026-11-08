@@ -44,13 +44,15 @@ Após esse filtro, há 1.860 observações diurnas válidas. Neste recorte, a pe
 
 Foi auditada uma segunda fonte com referência independente entre painel limpo e painel exposto: **A comprehensive dataset for monitoring photovoltaic panels and weather parameters in urban Bangladesh**, DOI [10.17632/g6pxf8nnt6.2](https://doi.org/10.17632/g6pxf8nnt6.2), CC BY 4.0. O repositório informa dois módulos monocristalinos de 20 W, um limpo regularmente e outro não limpo, com medições a cada 30 segundos entre novembro de 2019 e outubro de 2020.
 
-- Arquivo de origem: `Solar Dataset.zip`, baixado da versão 2; SHA-256 local `078e222ca8a7e614ef3b31a0ffba34f4036e1e7aff626359c78643069ce6614c`.
+- Arquivo de origem: `Solar Dataset.zip`, baixado da versão 2 em 08/11/2026; SHA-256 `038a144bb645dc8901a5a4c8844fefd14e4b8f46930eff6febed5c21bc87fe95`.
 - Auditoria do conteúdo: o ZIP contém 295 CSVs diários, não os 365 dias sugeridos pela descrição. Os arquivos somam 408.059 leituras de 01/11/2019 a 30/10/2020.
 - Variações corrigidas de forma explícita: quatro arquivos trazem grafias ou espaçamentos diferentes em `Time` ou `Clean Temperature`; a data é recuperada do nome do arquivo, pois parte dos CSVs usa datas ambíguas entre dia/mês e mês/dia.
 - Preparação: as leituras de 30 segundos são agregadas por hora, produzindo 3.720 registros horários, dos quais 3.357 atendem ao filtro de irradiância e potência de referência positiva.
 - Entradas operacionais mínimas: irradiância ideal fornecida pela fonte e temperatura do painel exposto. Vento, umidade e pressão são preservados como contexto, mas não entram no modelo mínimo atual.
 
 Essa base é uma validação externa mais aderente ao objetivo de sujidade do que a fonte Zenodo, mas não é residencial brasileira. Seus campos de irradiância e potência são derivados/calculados pelos autores, e a frequência de arquivos faltantes, as variações de cabeçalho e a proporção de perdas negativas exigem cautela adicional.
+
+A cópia auditada do arquivo compactado é versionada em `data/raw/dhaka_2019_2020/` para permitir a repetição do teste externo. A preparação extrai os 295 CSVs para uma pasta local ignorada pelo Git; o ZIP original, sua licença, DOI e checksum acima permitem verificar a procedência sem versionar arquivos intermediários.
 
 ## Fonte complementar auditada: inversores fotovoltaicos e meteorologia, 2023--2024
 

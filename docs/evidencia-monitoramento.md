@@ -1,6 +1,6 @@
 # Evidência operacional do monitor
 
-O resultado principal do projeto é o comportamento do **monitor de perdas por sujidade**: estimar a potência limpa esperada, calcular a perda estimada e gerar um alerta persistente para investigação. A escolha entre estimadores ocorre somente dentro da validação e não é apresentada como comparação de técnicas de aprendizado de máquina.
+O projeto compara Ridge e Random Forest na validação cronológica e, depois da seleção, avalia o comportamento do **monitor de perdas por sujidade**: estimar a potência limpa esperada, calcular a perda estimada e gerar um alerta persistente para investigação. A comparação se limita às configurações e à base examinadas; ela não estabelece superioridade universal entre técnicas de aprendizado de máquina.
 
 ## Como gerar a análise
 

@@ -9,7 +9,7 @@ pv-monitor reproduce-public-experiments \
   --output artifacts/reproduction_summary.json
 ```
 
-As entradas brutas, processadas e os artefatos gerados permanecem fora do Git. O arquivo `reproduction_summary.json` registra caminhos, modelo selecionado, política de alerta e métricas finais para cada experimento.
+Os CSVs brutos das fontes principais são versionados com atribuição, licença e checksum. Arquivos processados e artefatos gerados permanecem fora do Git. O arquivo `reproduction_summary.json` registra caminhos, modelo selecionado, política de alerta e métricas finais para cada experimento.
 
 ## O que o comando reproduz
 
@@ -18,4 +18,4 @@ As entradas brutas, processadas e os artefatos gerados permanecem fora do Git. O
 
 Consulte `docs/dados.md` para proveniência e limites de cada fonte e `docs/experimentos.md` para os resultados registrados.
 
-O teste externo de transferibilidade com o conjunto de Dhaka é deliberadamente separado, pois requer extração de um arquivo compactado que contém outro arquivo compactado. Seu protocolo, comandos e resultado negativo estão em `docs/validacao-externa.md`; ele não é omitido nem substituído pelo resumo dos experimentos-base.
+O teste externo de transferibilidade com o conjunto de Dhaka é deliberadamente separado, pois requer a extração do arquivo compactado versionado no repositório. Seu protocolo, comandos e resultado negativo estão em `docs/validacao-externa.md`; ele não é omitido nem substituído pelo resumo dos experimentos-base.

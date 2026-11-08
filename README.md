@@ -27,16 +27,16 @@ O estudo avalia retrospectivamente o método em fontes públicas, com separaçã
 | `src/pv_monitor/` | Código do projeto. `data.py` prepara dados; `models.py` seleciona modelos; `workflow.py` executa treino, alertas e calibração; `reporting.py` produz métricas e materiais; `dashboard.py` abre o painel; `cli.py` expõe os comandos `pv-monitor`. |
 | `tests/` | Testes automatizados da preparação de dados, persistência dos alertas e consistência das métricas. |
 | `docs/` | Documentação metodológica, proveniência das bases, reprodução dos experimentos, limitações, operação e decisões técnicas. Comece por `docs/execucao-simplificada.md` e `docs/reproducao.md`. |
-| `data/raw/` | Duas fontes públicas necessárias à reprodução principal, versionadas com atribuição e licença CC BY 4.0. Veja `data/raw/README.md`. |
+| `data/raw/` | Três fontes públicas auditadas, versionadas com atribuição e licença CC BY 4.0. Inclui os dois CSVs da reprodução principal e o arquivo compactado de Dhaka para a validação externa. Veja `data/raw/README.md`. |
 | `data/processed/` | CSVs derivados durante a preparação. São recriados localmente e não entram no Git. |
 | `artifacts/` | Modelos, métricas, gráficos e relatórios gerados pelos comandos. São locais e recriáveis. |
 | `iniciar_painel.bat` / `iniciar_painel.sh` | Atalhos para preparar o ambiente e abrir o painel em Windows ou Linux/macOS. |
 
 ## Conteúdo publicado e conteúdo local
 
-O GitHub contém o código-fonte, os testes, os scripts de execução, as dependências declaradas em `pyproject.toml`, a documentação metodológica e duas bases públicas pequenas necessárias à reprodução principal. Os CSVs de Laghouat e do Chipre são distribuídos sob CC BY 4.0, mantêm o nome original e possuem DOI, licença e checksum registrados em [docs/dados.md](docs/dados.md).
+O GitHub contém o código-fonte, os testes, os scripts de execução, as dependências declaradas em `pyproject.toml`, a documentação metodológica e as três fontes públicas auditadas. Os CSVs de Laghouat e do Chipre e o arquivo compactado de Dhaka são distribuídos sob CC BY 4.0, mantêm o nome original e possuem DOI, licença e checksum registrados em [docs/dados.md](docs/dados.md).
 
-Não são publicados arquivos processados, modelos treinados, métricas, gráficos gerados, dados operacionais ou o conjunto externo de Dhaka. Os primeiros são resultados recriáveis; o conjunto de Dhaka deve ser obtido em sua fonte original conforme as instruções em [docs/dados.md](docs/dados.md).
+Não são publicados arquivos processados, modelos treinados, métricas, gráficos gerados ou dados operacionais; esses são resultados locais e recriáveis.
 
 ## Pré-requisitos
 
@@ -163,4 +163,4 @@ O experimento controlado de Laghouat sustenta a avaliação do monitor. O teste 
 
 Este repositório reúne o código, os testes e a documentação técnica que sustentam o estudo. Os procedimentos de preparação dos dados, treinamento, calibração e avaliação estão descritos nas seções anteriores e detalhados em [docs/reproducao.md](docs/reproducao.md).
 
-Para tornar a reprodução principal acessível, o repositório inclui os dois CSVs públicos usados por esse fluxo, com atribuição, DOI e checksums documentados. Arquivos intermediários, artefatos gerados, dados operacionais e a base externa de Dhaka permanecem fora do Git. A proveniência, as licenças e as limitações de cada fonte estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido separadamente do código.
+Para tornar os experimentos acessíveis, o repositório inclui os dois CSVs usados no fluxo principal e o arquivo compactado de Dhaka usado no teste externo, com atribuição, DOI e checksums documentados. Arquivos intermediários, artefatos gerados e dados operacionais permanecem fora do Git. A proveniência, as licenças e as limitações de cada fonte estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido separadamente do código.

@@ -4,19 +4,24 @@
 
 O teste usa a versão 2 da base de Dhaka publicada no Mendeley Data: [A comprehensive dataset for monitoring photovoltaic panels and weather parameters in urban Bangladesh](https://doi.org/10.17632/g6pxf8nnt6.2). A fonte tem licença CC BY 4.0, dois painéis de 20 W — um limpo regularmente e outro exposto — e variáveis de potência e ambiente.
 
-Baixe `Solar Dataset.zip` pelo DOI e extraia os dois níveis de ZIP para que os CSVs fiquem em:
+O arquivo original `Solar Dataset.zip` já acompanha o repositório em `data/raw/dhaka_2019_2020/`. Extraia-o para uma pasta local ignorada pelo Git:
 
 ```text
-data/raw/bangladesh_2019_2020/extracted/Solar Dataset/
+data/interim/dhaka_2019_2020/Solar Dataset/
 ```
 
 Em seguida, prepare a fonte:
 
 ```bash
+mkdir -p data/interim/dhaka_2019_2020
+tar -xf "data/raw/dhaka_2019_2020/Solar Dataset.zip" -C data/interim/dhaka_2019_2020
+
 pv-monitor prepare-bangladesh \
-  --input-dir data/raw/bangladesh_2019_2020/extracted \
+  --input-dir data/interim/dhaka_2019_2020 \
   --output data/processed/bangladesh_2019_2020.csv
 ```
+
+No Windows PowerShell, substitua a primeira linha por `New-Item -ItemType Directory -Force data/interim/dhaka_2019_2020`; o comando `tar` do Windows extrai o mesmo arquivo.
 
 ## Protocolo de transferência
 
@@ -47,6 +52,6 @@ pv-monitor evaluate-final \
 
 ## Resultado e interpretação
 
-A transferência falhou: a perda estimada teve MAE de 41,46 pontos percentuais e a política de Laghouat gerou 26 alertas falsos no teste final. A recalibração local não resolveu o problema (F1 de 0,043 no teste final). Esses resultados devem permanecer no artigo, pois demonstram que o monitor ainda depende de validação e calibração específicas por instalação.
+A transferência falhou: a perda estimada teve MAE de 41,46 pontos percentuais e a política de Laghouat gerou 25 alertas falsos no teste final. A contagem reinicia quando há lacuna entre dias do calendário; isso evita que uma sequência atravesse período sem dados. A recalibração local não resolveu o problema (F1 de 0,043 no teste final). Esses resultados demonstram que o monitor ainda depende de validação e calibração específicas por instalação.
 
 O conjunto possui 295 arquivos diários disponíveis, com cabeçalhos e formatos de data ligeiramente diferentes. O preparador normaliza essas diferenças de forma rastreável e agrega as leituras de 30 segundos por hora. Consulte [dados.md](dados.md) para os limites de origem e qualidade.

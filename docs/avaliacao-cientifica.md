@@ -2,7 +2,7 @@
 
 ## Pergunta avaliada
 
-O trabalho investiga se a diferença entre potência esperada em condição limpa e potência medida pode apoiar o monitoramento de perdas potencialmente associadas à sujidade. A pergunta não é qual algoritmo é superior nem se um modelo único funciona em qualquer sistema fotovoltaico.
+O trabalho avalia comparativamente Ridge e Random Forest na estimativa de perdas de potência associadas à sujidade, com aplicação em um protótipo de alerta para inspeção fotovoltaica. A comparação utiliza as mesmas entradas e métricas na validação cronológica; o teste final avalia somente o modelo selecionado e sua política de alertas. Os resultados caracterizam as configurações e os dados examinados, sem estabelecer superioridade universal de um algoritmo. A avaliação externa investiga a transferibilidade do procedimento com reajuste local do estimador e transferência da política de alertas.
 
 ## Protocolo
 
@@ -42,7 +42,7 @@ Em todos os cenários, a sensibilidade foi 100% e não houve falsos negativos, m
 
 O mesmo fluxo foi testado com uma segunda fonte pública de Dhaka, que também possui painéis limpo e exposto. A referência de potência foi ajustada no período de desenvolvimento local; a arquitetura Ridge e a política de alerta de Laghouat foram mantidas inicialmente.
 
-O resultado não confirmou transferência automática: a MAE da perda foi 41,46 pontos percentuais e houve 26 alertas falsos no teste final com a política transferida. Mesmo com recalibração do limiar apenas na validação de Dhaka, o F1 final foi 0,043.
+O resultado não confirmou transferência automática: a MAE da perda foi 41,46 pontos percentuais e houve 25 alertas falsos no teste final com a política transferida. A persistência é reiniciada diante de lacuna entre dias do calendário, evitando que um alerta atravesse período sem observação. Mesmo com recalibração do limiar apenas na validação de Dhaka, o F1 final foi 0,043.
 
 Portanto, o trabalho não sustenta que a regra de alerta ou a referência de geração possam ser copiadas entre instalações. O resultado externo negativo é parte central da evidência e direciona a proposta de calibração pós-limpeza por instalação.
 

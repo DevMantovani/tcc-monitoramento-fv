@@ -6,7 +6,7 @@ __pycache__/
 .env
 
 # Local data: never commit a raw operational dataset without checking its licence and privacy.
-# The two named public sources below are intentionally versioned for one-command reproduction.
+# The named public sources below are intentionally versioned for reproduction.
 data/raw/*
 !data/raw/.gitkeep
 !data/raw/README.md
@@ -14,6 +14,8 @@ data/raw/*
 !data/raw/laghouat_2022/Laghouat_2022_final.csv
 !data/raw/zenodo_inverter_2023_2024/
 !data/raw/zenodo_inverter_2023_2024/math_model_all_inverters_03.11.2023-25.06.2024.csv
+!data/raw/dhaka_2019_2020/
+!data/raw/dhaka_2019_2020/Solar Dataset.zip
 data/interim/*
 !data/interim/.gitkeep
 data/processed/*

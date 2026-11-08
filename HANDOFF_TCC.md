@@ -12,7 +12,7 @@
 
 O TCC propõe um monitor para **identificar perdas de geração potencialmente associadas à sujidade em sistemas fotovoltaicos**, com foco inicial residencial. O aprendizado de máquina estima uma referência de potência limpa esperada a partir das variáveis ambientais e compara essa referência à potência medida. A interface apresenta o resultado de forma simplificada; não substitui inspeção em campo nem aciona limpeza automaticamente.
 
-A comparação entre modelos é apenas uma etapa interna para escolher o estimador de referência. Ela não é o objetivo científico do trabalho.
+A comparação entre Ridge e Random Forest ocorre na validação cronológica, com as mesmas entradas e métricas. O teste final avalia apenas o monitor escolhido; os resultados não estabelecem superioridade universal entre algoritmos.
 
 ## Dados e limites que não podem ser omitidos
 
@@ -41,7 +41,7 @@ A comparação entre modelos é apenas uma etapa interna para escolher o estimad
    ```
 
 4. Leia `README.md`, `docs/execucao-simplificada.md` e este arquivo antes de executar o painel.
-5. As bases de Laghouat e do Chipre já acompanham o repositório. Para a análise externa de Dhaka, siga a obtenção indicada em `docs/dados.md`.
+5. As bases de Laghouat, Chipre e Dhaka já acompanham o repositório. Para a análise externa de Dhaka, siga a extração e os comandos de `docs/validacao-externa.md`.
 6. Para abrir o painel, no Windows use `iniciar_painel.bat`; em Linux/macOS execute `bash iniciar_painel.sh`.
 7. Para editar o artigo, trabalhe no Overleaf. O artigo não faz parte deste repositório.
 

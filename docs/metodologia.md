@@ -33,7 +33,7 @@ Esse fluxo é uma proposta implementada para implantação futura; ele não foi 
 
 ### Seleção interna do estimador
 
-Ridge e Random Forest são avaliados internamente apenas para escolher um estimador de potência limpa adequado à base de desenvolvimento. Essa etapa não é o objeto comparativo do TCC e não sustenta uma conclusão sobre qual técnica de aprendizado de máquina é superior em geral. Após a seleção pela validação cronológica, um único estimador é bloqueado e avaliado como parte do **monitor**: potência limpa esperada, perda estimada e alerta persistente.
+Ridge e Random Forest são avaliados comparativamente na validação cronológica, com as mesmas entradas e métricas, para verificar qual configuração estima melhor a potência limpa na base de desenvolvimento. Essa comparação não sustenta uma conclusão universal sobre técnicas de aprendizado de máquina. Após a seleção, um único estimador é bloqueado e avaliado como parte do **monitor**: potência limpa esperada, perda estimada e alerta persistente.
 
 ## Visualização e investigação
 
@@ -45,7 +45,7 @@ A precipitação é exibida como contexto, e não como uma regra binária de “
 
 ## Avaliação, sem vazamento de alvo
 
-O protótipo avalia internamente candidatos simples para selecionar o estimador de potência limpa esperada, mas reporta como resultado central o desempenho do monitor bloqueado. As métricas incluem erro da potência limpa estimada e erro da perda por sujidade estimada. A separação é cronológica: treino (60%), validação (20%) e teste final preservado (20%). O estimador e a política de alerta são escolhidos na validação. A política explora limiares de 5%, 10%, 15% e 20%, combinados com persistência de um, dois ou três dias, e seleciona a maior medida F1; o resultado é congelado antes de uma única avaliação no teste final.
+O protótipo compara candidatos na validação e, em seguida, reporta separadamente o desempenho do monitor bloqueado no teste final. As métricas incluem erro da potência limpa estimada e erro da perda por sujidade estimada. A separação é cronológica: treino (60%), validação (20%) e teste final preservado (20%). O estimador e a política de alerta são escolhidos na validação. A política explora limiares de 5%, 10%, 15% e 20%, combinados com persistência de um, dois ou três dias, e seleciona a maior medida F1; o resultado é congelado antes de uma única avaliação no teste final.
 
 A avaliação do monitor não pode se limitar a MAE, RMSE ou R²: ela também deve verificar a estabilidade dos alertas, falsos alertas e atraso de detecção. A generalização só poderá ser defendida após validação externa em outra base ou dados de campo. O público-alvo inicial é residencial; adaptação para outras escalas requer nova avaliação.
 
@@ -53,7 +53,7 @@ A avaliação do monitor não pode se limitar a MAE, RMSE ou R²: ela também de
 
 Em Dhaka, o mesmo fluxo é aplicado a outro experimento de painéis limpo e exposto. A arquitetura Ridge permanece fixa; não há busca por outro algoritmo. O Ridge é ajustado no período de desenvolvimento cronológico de Dhaka, pois transferir literalmente pesos entre instalações de dimensões e sensores diferentes seria metodologicamente inadequado. Primeiro, a política de alerta definida em Laghouat (15% por três dias) é aplicada sem alteração para testar a transferibilidade da regra e do fluxo do monitor. Como análise adicional, a política pode ser recalibrada somente na validação local, preservando o teste final.
 
-Os dois resultados devem ser informados: a política transferida não encontrou dias positivos no teste final de Dhaka, mas gerou 26 alertas falsos; a recalibração local também teve baixo F1 (0,043) no teste final. A MAE da perda estimada foi 41,46 pontos percentuais e o R² da perda foi negativo. Portanto, a versão atual do monitor não demonstrou generalização automática para essa fonte. Isso reforça que sensores, qualidade dos dados, referências de limpeza e limiares precisam ser validados por instalação.
+Os dois resultados devem ser informados: a política transferida não encontrou dias positivos no teste final de Dhaka, mas gerou 25 alertas falsos; a recalibração local também teve baixo F1 (0,043) no teste final. A persistência é reiniciada quando há lacuna entre dias do calendário. A MAE da perda estimada foi 41,46 pontos percentuais e o R² da perda foi negativo. Portanto, a versão atual do monitor não demonstrou generalização automática para essa fonte. Isso reforça que sensores, qualidade dos dados, referências de limpeza e limiares precisam ser validados por instalação.
 
 ## Avaliação externa limitada à potência esperada
 

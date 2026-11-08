@@ -9,7 +9,7 @@ Este repositório contém o código, os testes e a documentação que sustentam 
 O estudo avalia retrospectivamente o método em fontes públicas, com separação cronológica entre treino, validação e teste final. O painel em Streamlit é uma demonstração dos resultados já processados; a evidência científica está no fluxo reproduzível de preparação, treinamento, avaliação e testes automatizados.
 
 - Para verificar a instalação e a lógica do software, execute `pytest -q`.
-- Para reproduzir os resultados principais, siga o comando da seção [Reproduzir os experimentos-base de uma vez](#3-reproduzir-os-experimentos-base-de-uma-vez). Os dois CSVs necessários já acompanham o repositório.
+- Para reproduzir os resultados principais, siga o comando da seção [Experimentos-base em um comando](#experimentos-base-em-um-comando). Os dois CSVs necessários já acompanham o repositório.
 - Para a interpretação dos resultados e de seus limites, consulte [docs/avaliacao-cientifica.md](docs/avaliacao-cientifica.md).
 
 ## O que o projeto entrega
@@ -32,11 +32,9 @@ O estudo avalia retrospectivamente o método em fontes públicas, com separaçã
 | `artifacts/` | Modelos, métricas, gráficos e relatórios gerados pelos comandos. São locais e recriáveis. |
 | `iniciar_painel.bat` / `iniciar_painel.sh` | Atalhos para preparar o ambiente e abrir o painel em Windows ou Linux/macOS. |
 
-## Conteúdo publicado e conteúdo local
+## Dados e reprodutibilidade
 
-O GitHub contém o código-fonte, os testes, os scripts de execução, as dependências declaradas em `pyproject.toml`, a documentação metodológica e as três fontes públicas auditadas. Os CSVs de Laghouat e do Chipre e o arquivo compactado de Dhaka são distribuídos sob CC BY 4.0, mantêm o nome original e possuem DOI, licença e checksum registrados em [docs/dados.md](docs/dados.md).
-
-Não são publicados arquivos processados, modelos treinados, métricas, gráficos gerados ou dados operacionais; esses são resultados locais e recriáveis.
+O GitHub contém o código-fonte, os testes, os scripts de execução, a documentação metodológica e as três fontes públicas auditadas. Os CSVs de Laghouat e do Chipre reproduzem o fluxo principal; o arquivo compactado de Dhaka reproduz o teste externo. Todos preservam o nome original e possuem DOI, licença CC BY 4.0 e checksum registrados em [docs/dados.md](docs/dados.md). Arquivos processados, modelos, métricas, gráficos e dados operacionais são gerados localmente e não entram no Git.
 
 ## Pré-requisitos
 
@@ -84,19 +82,9 @@ pytest -q
 pv-monitor --help
 ```
 
-## Fluxos disponíveis
+## Reprodução dos experimentos
 
-### 1. Demonstração técnica, sem dados públicos
-
-Gera dados sintéticos apenas para verificar o funcionamento do software. Não use esses resultados como evidência científica.
-
-```bash
-pv-monitor demo --output data/processed/demo_sintetico.csv
-pv-monitor train --input data/processed/demo_sintetico.csv --output artifacts/demo
-pv-monitor detect --input data/processed/demo_sintetico.csv --model artifacts/demo/random_forest.joblib --output artifacts/demo/alertas.csv
-```
-
-### 2. Preparar e avaliar o experimento principal
+### Experimento principal
 
 Use a base de Laghouat, que possui painel limpo e painel exposto:
 
@@ -120,7 +108,7 @@ pv-monitor evaluate-final \
   --output artifacts/laghouat_final
 ```
 
-### 3. Reproduzir os experimentos-base de uma vez
+### Experimentos-base em um comando
 
 Usa as bases de Laghouat e do Chipre já versionadas no repositório:
 
@@ -137,32 +125,11 @@ pv-monitor generate-results \
 
 O segundo comando gera tabelas e figuras a partir dos artefatos já calculados. Detalhes dos resultados estão em [docs/resultados.md](docs/resultados.md).
 
-### 4. Simular uma futura instalação real
-
-Esse fluxo gera recomendações de inspeção a partir de telemetria local. Leia [docs/operacao.md](docs/operacao.md) e [docs/calibracao-local.md](docs/calibracao-local.md) antes de usá-lo.
-
-```bash
-pv-monitor check-input --input dados_operacionais.csv --output artifacts/qualidade_entrada.json
-pv-monitor calibrate-installation \
-  --input dados_operacionais.csv \
-  --cleaning-timestamp 2026-01-15T00:00:00Z \
-  --calibration-days 14 \
-  --output artifacts/calibracao_local
-pv-monitor detect \
-  --input dados_operacionais.csv \
-  --model artifacts/calibracao_local/clean_baseline_ridge.joblib \
-  --output artifacts/alertas_diarios.csv
-```
+O teste externo de Dhaka, a demonstração sintética e a proposta de operação futura estão documentados separadamente em [docs/validacao-externa.md](docs/validacao-externa.md), [docs/execucao-simplificada.md](docs/execucao-simplificada.md) e [docs/operacao.md](docs/operacao.md). Eles não substituem os resultados principais do TCC.
 
 ## Resultados e limites
 
 O experimento controlado de Laghouat sustenta a avaliação do monitor. O teste externo em Dhaka não confirmou a transferência automática da regra de alerta, portanto uma instalação nova exige calibração e validação locais. A avaliação no Chipre testa a estimativa de potência em outra fonte, mas não valida sujidade por não possuir rótulo independente. A interpretação completa está em [docs/avaliacao-cientifica.md](docs/avaliacao-cientifica.md).
-
-## Reprodutibilidade
-
-Este repositório reúne o código, os testes e a documentação técnica que sustentam o estudo. Os procedimentos de preparação dos dados, treinamento, calibração e avaliação estão descritos nas seções anteriores e detalhados em [docs/reproducao.md](docs/reproducao.md).
-
-Para tornar os experimentos acessíveis, o repositório inclui os dois CSVs usados no fluxo principal e o arquivo compactado de Dhaka usado no teste externo, com atribuição, DOI e checksums documentados. Arquivos intermediários, artefatos gerados e dados operacionais permanecem fora do Git. A proveniência, as licenças e as limitações de cada fonte estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido separadamente do código.
 
 ## Licença
 

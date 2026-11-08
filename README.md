@@ -41,7 +41,6 @@ Não são publicados arquivos processados, modelos treinados, métricas, gráfic
 ## Pré-requisitos
 
 - Python 3.11, 3.12 ou 3.13.
-- Git, para clonar e atualizar o repositório.
 
 Os dois CSVs necessários à reprodução e ao painel já estão nestes caminhos:
 
@@ -164,3 +163,7 @@ O experimento controlado de Laghouat sustenta a avaliação do monitor. O teste 
 Este repositório reúne o código, os testes e a documentação técnica que sustentam o estudo. Os procedimentos de preparação dos dados, treinamento, calibração e avaliação estão descritos nas seções anteriores e detalhados em [docs/reproducao.md](docs/reproducao.md).
 
 Para tornar os experimentos acessíveis, o repositório inclui os dois CSVs usados no fluxo principal e o arquivo compactado de Dhaka usado no teste externo, com atribuição, DOI e checksums documentados. Arquivos intermediários, artefatos gerados e dados operacionais permanecem fora do Git. A proveniência, as licenças e as limitações de cada fonte estão registradas em [docs/dados.md](docs/dados.md). O manuscrito do TCC é mantido separadamente do código.
+
+## Licença
+
+O código e a documentação produzidos neste repositório são disponibilizados sob a [licença MIT](LICENSE). Os conjuntos de dados preservam as licenças e as atribuições de suas fontes originais, registradas em [docs/dados.md](docs/dados.md).

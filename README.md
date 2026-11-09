@@ -1,4 +1,4 @@
-# Monitoramento de perdas por sujidade em sistemas fotovoltaicos
+# Estimativa de perdas por sujidade em módulos fotovoltaicos: uma avaliação dos modelos Ridge e Random Forest para triagem de inspeção
 
 Implementação reproduzível do protótipo do TCC de Matheus Luís Mantovani Passoni. O software estima a potência de referência a partir de variáveis ambientais, compara-a à potência medida e sinaliza perdas persistentes para **inspeção técnica**. Ele não diagnostica exclusivamente sujidade nem aciona limpeza automática.
 

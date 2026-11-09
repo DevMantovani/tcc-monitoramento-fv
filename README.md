@@ -9,13 +9,13 @@ Este repositório contém o código, os testes e a documentação que sustentam 
 O estudo avalia retrospectivamente o método em fontes públicas, com separação cronológica entre treino, validação e teste final. O painel em Streamlit é uma demonstração dos resultados já processados; a evidência científica está no fluxo reproduzível de preparação, treinamento, avaliação e testes automatizados.
 
 - Para verificar a instalação e a lógica do software, execute `pytest -q`.
-- Para reproduzir os resultados principais, siga o comando da seção [Experimentos-base em um comando](#experimentos-base-em-um-comando). Os dois CSVs necessários já acompanham o repositório.
+- Para reproduzir os resultados principais, siga o comando da seção [Experimentos-base em um comando](#experimentos-base-em-um-comando). Os dois CSVs da reprodução principal já acompanham o repositório.
 - Para a interpretação dos resultados e de seus limites, consulte [docs/avaliacao-cientifica.md](docs/avaliacao-cientifica.md).
 
 ## O que o projeto entrega
 
 - Pipeline para preparar a base experimental pública de Laghouat e estimar a perda entre painel limpo e exposto.
-- Seleção temporal de modelo de potência, calibração de alertas e avaliação final preservada.
+- Comparação cronológica entre Ridge e Random Forest, calibração de alertas e avaliação final preservada.
 - Avaliação externa de potência no Chipre e teste de transferibilidade em Dhaka, cujo resultado negativo é preservado na documentação.
 - Painel local em Streamlit para demonstrar a leitura dos resultados finais.
 - Fluxo de linha de comando para uma futura instalação real, com verificação de qualidade e calibração pós-limpeza.
@@ -40,7 +40,7 @@ O GitHub contém o código-fonte, os testes, os scripts de execução, a documen
 
 - Python 3.11, 3.12 ou 3.13.
 
-Os dois CSVs necessários à reprodução e ao painel já estão nestes caminhos:
+Os dois CSVs necessários à reprodução principal e ao painel já estão nestes caminhos:
 
 ```text
 data/raw/laghouat_2022/Laghouat_2022_final.csv
